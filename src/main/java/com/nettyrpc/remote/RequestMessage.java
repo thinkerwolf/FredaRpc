@@ -5,13 +5,13 @@ import java.util.Arrays;
 
 public class RequestMessage implements Serializable {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -5906021628390669682L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = -5906021628390669682L;
 
 
-	int id;
+    int id;
 
     String clazzName;
     String methodName;
@@ -57,13 +57,13 @@ public class RequestMessage implements Serializable {
     public void setClazzName(String clazzName) {
         this.clazzName = clazzName;
     }
-    
+
     @Override
     public String toString() {
-    	StringBuilder sb = new StringBuilder();
-    	sb.append("clazzName#" + clazzName + " ,args#" + Arrays.toString(args) );
-    	sb.append(" ,method#" + methodName);
-    	return sb.toString();
+        StringBuilder sb = new StringBuilder();
+        sb.append("clazzName#" + clazzName + " ,args#" + Arrays.toString(args));
+        sb.append(" ,method#" + methodName);
+        return sb.toString();
     }
-	
+
 }
