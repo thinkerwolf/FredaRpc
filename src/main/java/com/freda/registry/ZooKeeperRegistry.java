@@ -66,7 +66,7 @@ public class ZooKeeperRegistry implements Registry {
 			}
 		}
 		if (stat == null) {
-			zooKeeper.create(path, date, Ids.OPEN_ACL_UNSAFE, mode);
+			zooKeeper.create(path, date, acls, mode);
 		}
 	}
 
