@@ -1,6 +1,6 @@
 package com.freda.example;
 
-import com.freda.remoting.NettyServer;
+import com.freda.remoting.netty.NettyServer;
 
 public class Provider {
     public static void main(String[] args) throws Exception {

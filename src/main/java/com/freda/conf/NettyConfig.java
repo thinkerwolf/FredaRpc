@@ -4,7 +4,7 @@ public class NettyConfig {
 
 	private static final int DEFAULT_THREAD_NUM = Math.max(1, Runtime.getRuntime().availableProcessors() * 2);
 
-	private String host = "127.0.0.1";
+	private String ip = "127.0.0.1";
 
 	private int port = 11211;
 
@@ -14,12 +14,12 @@ public class NettyConfig {
 
 	private int workerThreads = DEFAULT_THREAD_NUM;
 
-	public String getHost() {
-		return host;
+	public String getIp() {
+		return ip;
 	}
 
-	public void setHost(String host) {
-		this.host = host;
+	public void setIp(String ip) {
+		this.ip = ip;
 	}
 
 	public int getPort() {
@@ -57,7 +57,7 @@ public class NettyConfig {
 	
 	@Override
 	public String toString() {
-		return "host#" + host + ", port#" + port;
+		return "host#" + ip + ", port#" + port;
 	}
 	
 }

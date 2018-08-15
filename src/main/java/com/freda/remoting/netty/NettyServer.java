@@ -1,4 +1,4 @@
-package com.freda.remoting;
+package com.freda.remoting.netty;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
@@ -15,6 +15,8 @@ import org.slf4j.LoggerFactory;
 import com.freda.registry.Registry;
 import com.freda.registry.Server;
 import com.freda.registry.ZooKeeperRegistry;
+import com.freda.remoting.RequestMessage;
+import com.freda.remoting.ResponseMessage;
 import com.freda.spring.RpcBeanPostProcessor;
 
 import java.io.ByteArrayInputStream;
