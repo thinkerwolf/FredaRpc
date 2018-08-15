@@ -1,4 +1,4 @@
-package com.nettyrpc.remote;
+package com.freda.remote;
 
 import java.util.concurrent.ThreadFactory;
 

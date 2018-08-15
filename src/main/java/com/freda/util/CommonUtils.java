@@ -1,4 +1,4 @@
-package com.nettyrpc.util;
+package com.freda.util;
 
 public class CommonUtils {
 

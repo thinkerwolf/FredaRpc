@@ -1,4 +1,4 @@
-package com.nettyrpc.annotation;
+package com.freda.annotation;
 
 import java.lang.annotation.*;
 

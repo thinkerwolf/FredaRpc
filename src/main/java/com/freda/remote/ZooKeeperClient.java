@@ -1,4 +1,4 @@
-package com.nettyrpc.remote;
+package com.freda.remote;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.zookeeper.*;

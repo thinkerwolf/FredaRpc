@@ -1,6 +1,6 @@
-package com.nettyrpc.example;
+package com.freda.example;
 
-import com.nettyrpc.remote.NettyClient;
+import com.freda.remote.NettyClient;
 
 public class Consumer {
     public static void main(String[] args) throws Exception {

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.nettyrpc.example;
+package com.freda.example;
 
 public interface DemoService {
 

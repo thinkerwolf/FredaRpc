@@ -1,4 +1,4 @@
-package com.nettyrpc.example;
+package com.freda.example;
 
 public class DemoServiceImpl implements DemoService {
     @Override

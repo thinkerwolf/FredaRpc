@@ -1,6 +1,6 @@
-package com.nettyrpc.example;
+package com.freda.example;
 
-import com.nettyrpc.remote.NettyServer;
+import com.freda.remote.NettyServer;
 
 public class Provider {
     public static void main(String[] args) throws Exception {

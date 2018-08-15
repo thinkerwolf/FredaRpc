@@ -1,4 +1,4 @@
-package com.nettyrpc.remote;
+package com.freda.remote;
 
 import java.io.Serializable;
 

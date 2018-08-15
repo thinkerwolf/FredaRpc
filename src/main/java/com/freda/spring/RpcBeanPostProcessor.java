@@ -1,8 +1,9 @@
-package com.nettyrpc.spring;
+package com.freda.spring;
 
-import com.nettyrpc.annotation.Service;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
+
+import com.freda.annotation.Service;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;

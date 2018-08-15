@@ -1,4 +1,4 @@
-package com.nettyrpc.util;
+package com.freda.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
