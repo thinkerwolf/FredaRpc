@@ -1,8 +1,49 @@
 package com.freda.example;
 
 public class DemoServiceImpl implements DemoService {
-    @Override
-    public String sayHello(String str) {
-        return "Hello " + str;
-    }
+
+	private Double persent;
+
+	private boolean server;
+
+	private int num;
+
+	private String hello;
+
+	public Double getPersent() {
+		return persent;
+	}
+
+	public void setPersent(Double persent) {
+		this.persent = persent;
+	}
+
+	public boolean isServer() {
+		return server;
+	}
+
+	public void setServer(boolean server) {
+		this.server = server;
+	}
+
+	public int getNum() {
+		return num;
+	}
+
+	public void setNum(int num) {
+		this.num = num;
+	}
+
+	public String getHello() {
+		return hello;
+	}
+
+	public void setHello(String hello) {
+		this.hello = hello;
+	}
+
+	@Override
+	public String sayHello(String str) {
+		return "Hello " + str;
+	}
 }

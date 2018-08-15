@@ -1,4 +1,4 @@
-package com.freda.remote;
+package com.freda.remoting;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
@@ -11,8 +11,10 @@ import io.netty.handler.codec.MessageToByteEncoder;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
 
+import com.freda.registry.Registry;
+import com.freda.registry.Server;
+import com.freda.registry.ZooKeeperRegistry;
 import com.freda.spring.RpcBeanPostProcessor;
 
 import java.io.ByteArrayInputStream;
@@ -30,11 +32,9 @@ public class NettyServer {
 	private static final AtomicInteger SERVER_NAME_ID = new AtomicInteger();
 	private static final String SERVER = "server";
 
-	private ZooKeeperClient zkClient;
+	private Registry registry;
 
 	private String registerAddress;
-
-	private ApplicationContext context;
 
 	private RpcBeanPostProcessor processor;
 
@@ -43,11 +43,6 @@ public class NettyServer {
 	}
 
 	public void doStart(int port) throws Exception {
-		if (this.context == null) {
-			// this.context = new
-			// ClassPathXmlApplicationContext("classpath:applicationContext.xml");
-		}
-
 		ServerBootstrap sb = new ServerBootstrap();
 		EventLoopGroup fatherLoop = new NioEventLoopGroup(2);
 		EventLoopGroup childLoop = new NioEventLoopGroup(10);
@@ -58,7 +53,7 @@ public class NettyServer {
 						ChannelPipeline pipeline = socketChannel.pipeline();
 						pipeline.addLast("decoder", new InnerDecoder());
 						pipeline.addLast("encoder", new InnerEncoder());
-						pipeline.addLast("handler", new MessageHandler(context));
+						pipeline.addLast("handler", new MessageHandler());
 					}
 				});
 		String host = InetAddress.getLocalHost().getHostAddress();
@@ -69,12 +64,12 @@ public class NettyServer {
 		ChannelFuture closeFuture = channel.closeFuture();
 		initRegisterClient();
 		String serverName = new StringBuilder(SERVER).append("-").append(SERVER_NAME_ID.incrementAndGet()).toString();
-		registerSelf(serverName, new StringBuilder(host).append(":").append(port).toString());
+		registerSelf(new Server(serverName, host, port));
 		closeFuture.addListener(new ChannelFutureListener() {
 			@Override
 			public void operationComplete(ChannelFuture future) throws Exception {
-				if (zkClient != null) {
-					zkClient.close();
+				if (registry != null) {
+					registry.close();
 				}
 			}
 		});
@@ -83,10 +78,6 @@ public class NettyServer {
 
 	public void setRegisterAddress(String registerAddress) {
 		this.registerAddress = registerAddress;
-	}
-
-	public void setApplicationContext(ApplicationContext context) {
-		this.context = context;
 	}
 
 	public RpcBeanPostProcessor getProcessor() {
@@ -100,17 +91,17 @@ public class NettyServer {
 	private void initRegisterClient() {
 		if (StringUtils.isNotEmpty(registerAddress)) {
 			try {
-				zkClient = new ZooKeeperClient(registerAddress, 1000);
+				registry = new ZooKeeperRegistry(registerAddress, 1000);
 			} catch (Exception e) {
 				logger.error("ZooKeeper start or register fail!", e);
 			}
 		}
 	}
 
-	private void registerSelf(String serverName, String address) {
-		if (zkClient != null) {
+	private void registerSelf(Server server) {
+		if (registry != null) {
 			try {
-				zkClient.register(serverName, address);
+				registry.register(server);
 			} catch (Exception e) {
 				logger.error("Register ZooKeeper fail!", e);
 			}
@@ -177,10 +168,7 @@ public class NettyServer {
 
 	class MessageHandler extends SimpleChannelInboundHandler<RequestMessage> {
 
-		private ApplicationContext context;
-
-		public MessageHandler(ApplicationContext context) {
-			this.context = context;
+		public MessageHandler() {
 		}
 
 		@Override
@@ -190,9 +178,7 @@ public class NettyServer {
 			if (processor != null) {
 				obj = processor.refer(requestMessage.getClazzName());
 			}
-			if (obj == null) {
-				obj = context.getBean(requestMessage.getClazzName());
-			}
+
 			ResponseMessage responseMessage = new ResponseMessage();
 			responseMessage.setId(requestMessage.getId());
 			if (obj == null) {

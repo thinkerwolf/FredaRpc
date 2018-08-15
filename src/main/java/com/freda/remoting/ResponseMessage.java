@@ -1,4 +1,4 @@
-package com.freda.remote;
+package com.freda.remoting;
 
 import java.io.Serializable;
 

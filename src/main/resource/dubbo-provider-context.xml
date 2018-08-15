@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xsi:schemaLocation="
+       http://www.springframework.org/schema/beans 
+       http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+       http://www.springframework.org/schema/tx 
+       http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context-3.0.xsd
+       http://www.springframework.org/schema/aop
+       http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+       http://code.alibabatech.com/schema/dubbo 
+       http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+	<dubbo:application name="demo-provider" />
+	<!-- registry 注册中心   -->
+	<dubbo:registry address="multicast://224.5.6.7:1234" />
+	<dubbo:provider protocol="dubbo" />
+	<!-- 协议     -->
+	<dubbo:protocol id="dubbo" port="20880" />
+	
+	<bean id="dubboHelloService" class="com.example.demo.service.HelloServiceImpl" >
+		<constructor-arg value="Hello"/>
+		<constructor-arg value="@@@!!"/>
+	</bean>
+	
+	<dubbo:service interface="com.example.demo.service.HelloService" ref="dubboHelloService" />  
+	
+</beans>

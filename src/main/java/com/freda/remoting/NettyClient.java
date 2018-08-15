@@ -1,4 +1,4 @@
-package com.freda.remote;
+package com.freda.remoting;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
@@ -12,6 +12,9 @@ import io.netty.util.Signal;
 import io.netty.util.concurrent.DefaultPromise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.freda.registry.Server;
+import com.freda.registry.Registry;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -38,7 +41,7 @@ public class NettyClient {
 	private BlockingQueue<ResponseMessage> responseMessages = new LinkedBlockingQueue<ResponseMessage>();
 	private Map<Integer, ResponseFuture> waitResultMap = new HashMap<Integer, ResponseFuture>();
 	private Thread _responseHandleThread;
-	private ZooKeeperClient zkClient;
+	private Registry registry;
 	private Channel channel;
 
 	public void doInit() {
@@ -75,9 +78,9 @@ public class NettyClient {
 				logger.debug("ZookeeperClient start failed");
 			}
 			try {
-				zkClient.close();
-				zkClient = null;
-			} catch (InterruptedException e1) {
+				registry.close();
+				registry = null;
+			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
 		}
@@ -91,16 +94,13 @@ public class NettyClient {
 		return channel;
 	}
 
-	public Channel doConnect() throws InterruptedException {
+	public Channel doConnect() throws Exception {
 		String host = null;
 		int port = -1;
-		if (zkClient != null && zkClient.isConnected()) {
-			String address = zkClient.getServerAddress();
-			if (checkAddress(address)) {
-				String[] adds = address.split(":");
-				host = adds[0];
-				port = Integer.parseInt(adds[1]);
-			}
+		if (registry != null && registry.isConnected()) {
+			Server server = registry.getRandomServer();
+			host = server.getHost();
+			port = server.getPort();
 		}
 		if (host == null) {
 			throw new RuntimeException("can't get address from ZooKeeper!");
@@ -112,27 +112,13 @@ public class NettyClient {
 		return channel;
 	}
 
-	private boolean checkAddress(String address) {
-		if (address == null || address.length() < 1) {
-			return false;
-		}
-		String[] ss = address.split(":");
-		if (ss.length < 2) {
-			return false;
-		}
-		if (!PORT_PATTERN.matcher(ss[1]).matches()) {
-			return false;
-		}
-		return true;
-	}
-
 	public void doStop() {
 		_responseHandleThread.interrupt();
 		channel.close();
-		if (zkClient != null) {
+		if (registry != null) {
 			try {
-				zkClient.close();
-			} catch (InterruptedException e) {
+				registry.close();
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
