@@ -110,6 +110,7 @@ public class Configuration {
 
 		configuration.setNettyConfig(nettyConfig);
 		configuration.setRegistryConfig(registryConfig);
+		is.close();
 		return configuration;
 	}
 
