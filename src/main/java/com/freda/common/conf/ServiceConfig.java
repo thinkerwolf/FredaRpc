@@ -53,10 +53,10 @@ public class ServiceConfig {
 	public void setServer(boolean server) {
 		this.server = server;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "id#" + id + ", clazz#" + clazz;
 	}
-	
+
 }

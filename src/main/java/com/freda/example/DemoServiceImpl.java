@@ -1,6 +1,6 @@
 package com.freda.example;
 
-public class DemoServiceImpl implements DemoService {
+public class DemoServiceImpl extends DemoService {
 
 	private Double persent;
 

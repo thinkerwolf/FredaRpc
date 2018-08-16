@@ -53,11 +53,10 @@ public class NettyConfig {
 	public void setWorkerThreads(int workerThreads) {
 		this.workerThreads = workerThreads;
 	}
-	
-	
+
 	@Override
 	public String toString() {
 		return "host#" + ip + ", port#" + port;
 	}
-	
+
 }

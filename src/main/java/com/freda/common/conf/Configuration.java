@@ -71,46 +71,48 @@ public class Configuration {
 		return null;
 	}
 
+	public static Configuration newConfiguration() throws Exception {
+		return newConfiguration((InputStream) null);
+	}
+
 	public static Configuration newConfiguration(String path) throws Exception {
 		return newConfiguration(Configuration.class.getClassLoader().getResourceAsStream(path));
 	}
 
 	public static Configuration newConfiguration(InputStream is) throws Exception {
-		if (is == null) {
-			throw new IllegalArgumentException("null");
-		}
 
 		Configuration configuration = new Configuration();
-
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		factory.setValidating(false);
-		factory.setNamespaceAware(false);
-		DocumentBuilder builder = factory.newDocumentBuilder();
-		Document doc = builder.parse(is);
-
-		// 解析Netty
 		NettyConfig nettyConfig = new NettyConfig();
-		Element nettyElement = (Element) doc.getElementsByTagName("netty").item(0);
-		if (nettyElement != null) {
-			parsePropertyValue(nettyElement, "property", nettyConfig);
-		}
-
-		// 解析Registry
 		RegistryConfig registryConfig = new RegistryConfig();
-		Element registryElement = (Element) doc.getElementsByTagName("registry").item(0);
-		if (registryElement != null) {
-			parsePropertyValue(registryElement, "property", registryConfig);
-		}
+		if (is != null) {
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			factory.setValidating(false);
+			factory.setNamespaceAware(false);
+			DocumentBuilder builder = factory.newDocumentBuilder();
+			Document doc = builder.parse(is);
 
-		// 解析service
-		Node node = doc.getElementsByTagName("services").item(0);
-		if (node != null) {
-			parseServiceValue((Element) node, "service", configuration.serviceConfigMap);
-		}
+			// 解析Netty
+			Element nettyElement = (Element) doc.getElementsByTagName("netty").item(0);
+			if (nettyElement != null) {
+				parsePropertyValue(nettyElement, "property", nettyConfig);
+			}
 
+			// 解析Registry
+			Element registryElement = (Element) doc.getElementsByTagName("registry").item(0);
+			if (registryElement != null) {
+				parsePropertyValue(registryElement, "property", registryConfig);
+			}
+
+			// 解析service
+			Node node = doc.getElementsByTagName("services").item(0);
+			if (node != null) {
+				parseServiceValue((Element) node, "service", configuration.serviceConfigMap);
+			}
+			is.close();
+		}
 		configuration.setNettyConfig(nettyConfig);
 		configuration.setRegistryConfig(registryConfig);
-		is.close();
+
 		return configuration;
 	}
 

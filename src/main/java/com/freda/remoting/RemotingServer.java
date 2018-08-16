@@ -8,10 +8,7 @@ public abstract class RemotingServer extends AbstractRemoting {
 	public RemotingServer(Configuration configuration) {
 		super(configuration);
 	}
-	
-	
-	
-	
+
 	protected void registerSelf(Server server) {
 		if (registry != null) {
 			try {
