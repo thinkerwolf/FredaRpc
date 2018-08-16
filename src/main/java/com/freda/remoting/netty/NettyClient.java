@@ -14,9 +14,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.freda.registry.Server;
+import com.freda.remoting.RemotingClient;
+import com.freda.remoting.RemotingException;
 import com.freda.remoting.RequestMessage;
 import com.freda.remoting.ResponseMessage;
-import com.freda.registry.Registry;
+import com.freda.common.conf.Configuration;
+import com.freda.common.conf.ServiceConfig;
+import com.freda.common.proxy.ProxyHandler;
+import com.freda.common.util.ProxyUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -31,20 +36,24 @@ import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.regex.Pattern;
 
-public class NettyClient {
+public class NettyClient extends RemotingClient {
+
 	private static final Logger logger = LoggerFactory.getLogger(NettyClient.class);
 	private static final AtomicInteger THREAD_NUM = new AtomicInteger();
 	private static final AtomicInteger ID_GENARETOR = new AtomicInteger();
-	private static final Pattern PORT_PATTERN = Pattern.compile("\\d+");
 
 	private Bootstrap bootstrap;
 	private BlockingQueue<ResponseMessage> responseMessages = new LinkedBlockingQueue<ResponseMessage>();
 	private Map<Integer, ResponseFuture> waitResultMap = new HashMap<Integer, ResponseFuture>();
 	private Thread _responseHandleThread;
-	private Registry registry;
 	private Channel channel;
+	private Object lock = new Object();
+	private ChannelFuture startFuture;
+
+	public NettyClient(Configuration configuration) {
+		super(configuration);
+	}
 
 	public void doInit() {
 		_responseHandleThread = new Thread(new ResponseHandleTask(),
@@ -52,10 +61,11 @@ public class NettyClient {
 		_responseHandleThread.setDaemon(false);
 		_responseHandleThread.setPriority(Thread.NORM_PRIORITY);
 		_responseHandleThread.start();
-		EventLoopGroup nioEventLoopGroup = new NioEventLoopGroup();
+
+		EventLoopGroup bossGroup = new NioEventLoopGroup(configuration.getNettyConfig().getBossThreads());
 		try {
 			bootstrap = new Bootstrap();
-			bootstrap.group(nioEventLoopGroup);
+			bootstrap.group(bossGroup);
 			bootstrap.channel(NioSocketChannel.class);
 			bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
 			bootstrap.handler(new ChannelInitializer<SocketChannel>() {
@@ -68,22 +78,83 @@ public class NettyClient {
 			});
 		} catch (Exception e) {
 			_responseHandleThread.interrupt();
-			nioEventLoopGroup.shutdownGracefully();
+			bossGroup.shutdownGracefully();
 			logger.error(e.getMessage(), e);
 		}
+	}
 
-		try {
-			String CONN_STR = "10.8.10.49:2181";
-			// zkClient = new ZooKeeperClient(CONN_STR, 1000);
-		} catch (Exception e) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("ZookeeperClient start failed");
+	@Override
+	public <T> T invokeSync(final Class<T> clazz) {
+		if (!startFuture.isDone()) {
+			try {
+				startFuture.sync();
+			} catch (InterruptedException e) {
+				// Ingore
+				return null;
+			}
+		}
+		final ServiceConfig serviceConfig = configuration.getServiceConfig(clazz);
+		if (serviceConfig == null) {
+			return null;
+		}
+		return ProxyUtils.newProxy(clazz, new ProxyHandler() {
+			@Override
+			public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+				final int id = ID_GENARETOR.incrementAndGet();
+				RequestMessage rm = new RequestMessage();
+				rm.setId(id);
+				rm.setClazzName(serviceConfig.getId());
+				rm.setMethodName(method.getName());
+				rm.setParameterTypes(method.getParameterTypes());
+				rm.setArgs(args);
+				ResponseFuture rf = new ResponseFuture();
+				waitResultMap.put(id, rf);
+				ChannelFuture cf = channel.writeAndFlush(rm);
+				cf.sync();
+				rf.sync();
+				return rf.getResult();
+			}
+		});
+	}
+
+	@Override
+	public void invokeAsync() {
+	}
+
+	@Override
+	public void start() {
+		synchronized (lock) {
+			if (started) {
+				return;
 			}
 			try {
-				registry.close();
-				registry = null;
-			} catch (Exception e1) {
-				e1.printStackTrace();
+				doInit();
+				registry = initRegistry();
+				Server server = null;
+				try {
+					server = registry.getRandomServer();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				final String host = server.getHost();
+				final int port = server.getPort();
+
+				startFuture = bootstrap.connect(host, port).sync();
+				startFuture.addListener(new ChannelFutureListener() {
+					@Override
+					public void operationComplete(ChannelFuture future) throws Exception {
+						if (future.isSuccess()) {
+							if (logger.isDebugEnabled()) {
+								logger.debug(new StringBuilder("connect to [").append(host).append(":").append(port)
+										.append("] success!").toString());
+							}
+							started = true;
+						}
+					}
+				});
+				this.channel = startFuture.channel();
+			} catch (InterruptedException e) {
+				throw new RemotingException("netty client start error", e);
 			}
 		}
 	}
@@ -307,5 +378,4 @@ public class NettyClient {
 			ctx.close();
 		}
 	}
-
 }

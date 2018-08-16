@@ -1,4 +1,4 @@
-package com.freda.util;
+package com.freda.common.util;
 
 import com.alibaba.fastjson.JSON;
 
@@ -15,7 +15,7 @@ public class JsonUtils {
 	}
 
 	public static <T> T json2Obj(String json, Class<T> clazz) {
-		return JSON.toJavaObject(JSON.parseObject(json), clazz);
+		return JSON.parseObject(json, clazz);
 	}
 
 }

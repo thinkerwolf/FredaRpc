@@ -8,46 +8,45 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.handler.codec.MessageToByteEncoder;
-import org.apache.commons.lang3.StringUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.freda.registry.Registry;
+import com.freda.common.conf.Configuration;
+import com.freda.common.conf.NettyConfig;
+import com.freda.common.conf.ServiceConfig;
 import com.freda.registry.Server;
-import com.freda.registry.ZooKeeperRegistry;
+import com.freda.registry.ServerNameBuilder;
+import com.freda.remoting.RemotingServer;
 import com.freda.remoting.RequestMessage;
 import com.freda.remoting.ResponseMessage;
-import com.freda.spring.RpcBeanPostProcessor;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Method;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
-public class NettyServer {
+public class NettyServer extends RemotingServer {
+
 	private static final Logger logger = LoggerFactory.getLogger(NettyServer.class);
-	private static final AtomicInteger SERVER_NAME_ID = new AtomicInteger();
 	private static final String SERVER = "server";
 
-	private Registry registry;
-
-	private String registerAddress;
-
-	private RpcBeanPostProcessor processor;
-
-	public NettyServer() {
-
+	public NettyServer(Configuration configuration) {
+		super(configuration);
 	}
 
-	public void doStart(int port) throws Exception {
+	@Override
+	public synchronized void start() {
+		if (started) {
+			return;
+		}
+		NettyConfig nettyConfig = configuration.getNettyConfig();
 		ServerBootstrap sb = new ServerBootstrap();
-		EventLoopGroup fatherLoop = new NioEventLoopGroup(2);
-		EventLoopGroup childLoop = new NioEventLoopGroup(10);
+		EventLoopGroup fatherLoop = new NioEventLoopGroup(nettyConfig.getBossThreads());
+		EventLoopGroup childLoop = new NioEventLoopGroup(nettyConfig.getWorkerThreads());
 		sb.group(fatherLoop, childLoop).channel(NioServerSocketChannel.class)
 				.childHandler(new ChannelInitializer<SocketChannel>() {
 					@Override
@@ -58,15 +57,26 @@ public class NettyServer {
 						pipeline.addLast("handler", new MessageHandler());
 					}
 				});
-		String host = InetAddress.getLocalHost().getHostAddress();
-		ChannelFuture cf = sb.bind(new InetSocketAddress(host, port));
-		logger.info("listen tcp on " + port + " success");
+		final String host = nettyConfig.getIp();
+		final int port = nettyConfig.getPort();
+		final String serverName = ServerNameBuilder.getInstance().generateServerName(SERVER, host, port);
 
+		ChannelFuture cf = sb.bind(new InetSocketAddress(host, port));
+		cf.addListener(new ChannelFutureListener() {
+			@Override
+			public void operationComplete(ChannelFuture future) throws Exception {
+				if (future.isSuccess()) {
+					if (logger.isDebugEnabled()) {
+						logger.info(getClass().getSimpleName() + " listen tcp on " + port + " success");
+					}
+					started = true;
+					registry = initRegistry();
+					registerSelf(new Server(serverName, host, port));
+				}
+			}
+		});
 		Channel channel = cf.channel();
 		ChannelFuture closeFuture = channel.closeFuture();
-		initRegisterClient();
-		String serverName = new StringBuilder(SERVER).append("-").append(SERVER_NAME_ID.incrementAndGet()).toString();
-		registerSelf(new Server(serverName, host, port));
 		closeFuture.addListener(new ChannelFutureListener() {
 			@Override
 			public void operationComplete(ChannelFuture future) throws Exception {
@@ -75,40 +85,6 @@ public class NettyServer {
 				}
 			}
 		});
-
-	}
-
-	public void setRegisterAddress(String registerAddress) {
-		this.registerAddress = registerAddress;
-	}
-
-	public RpcBeanPostProcessor getProcessor() {
-		return processor;
-	}
-
-	public void setProcessor(RpcBeanPostProcessor processor) {
-		this.processor = processor;
-	}
-
-	private void initRegisterClient() {
-		if (StringUtils.isNotEmpty(registerAddress)) {
-			try {
-				registry = new ZooKeeperRegistry(registerAddress, 1000);
-			} catch (Exception e) {
-				logger.error("ZooKeeper start or register fail!", e);
-			}
-		}
-	}
-
-	private void registerSelf(Server server) {
-		if (registry != null) {
-			try {
-				registry.register(server);
-			} catch (Exception e) {
-				logger.error("Register ZooKeeper fail!", e);
-			}
-		}
-
 	}
 
 	static class InnerDecoder extends ByteToMessageDecoder {
@@ -176,17 +152,14 @@ public class NettyServer {
 		@Override
 		protected void channelRead0(ChannelHandlerContext channelHandlerContext, RequestMessage requestMessage)
 				throws Exception {
-			Object obj = null;
-			if (processor != null) {
-				obj = processor.refer(requestMessage.getClazzName());
-			}
-
+			ServiceConfig serviceConfig = configuration.getServiceConfig(requestMessage.getClazzName());
+			Object obj = serviceConfig.getServiceObj();
 			ResponseMessage responseMessage = new ResponseMessage();
 			responseMessage.setId(requestMessage.getId());
 			if (obj == null) {
 				responseMessage.setSuccess(false);
 			} else {
-				Method method = obj.getClass().getMethod(requestMessage.getMethodName(),
+				Method method = serviceConfig.getClazz().getMethod(requestMessage.getMethodName(),
 						requestMessage.getParameterTypes());
 				method.setAccessible(true);
 				Object result = method.invoke(obj, requestMessage.getArgs());

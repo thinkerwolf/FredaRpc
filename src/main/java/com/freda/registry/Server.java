@@ -1,6 +1,6 @@
 package com.freda.registry;
 
-import com.freda.util.JsonUtils;
+import com.freda.common.util.JsonUtils;
 
 /**
  * 服务器
@@ -9,16 +9,31 @@ import com.freda.util.JsonUtils;
  *
  */
 public class Server {
-	
+
 	private String name;
 
 	private String host;
 
 	private int port;
 
+	public Server() {
+	}
+
 	public Server(String name, String host, int port) {
 		this.name = name;
 		this.host = host;
+		this.port = port;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setHost(String host) {
+		this.host = host;
+	}
+
+	public void setPort(int port) {
 		this.port = port;
 	}
 
@@ -40,7 +55,13 @@ public class Server {
 
 	public static void main(String[] args) {
 		Server server = new Server("freda_1", "127.0.0.1", 11211);
-		System.out.println(JsonUtils.obj2Json(server));
+
+		String json = JsonUtils.obj2Json(server);
+		System.out.println(json);
+
+		Server s = JsonUtils.json2Obj(json, Server.class);
+		System.out.println(s.getPort());
+
 	}
 
 }

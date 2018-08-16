@@ -1,4 +1,4 @@
-package com.freda.conf;
+package com.freda.common.conf;
 
 import java.io.InputStream;
 import java.lang.reflect.Field;
@@ -18,7 +18,7 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.freda.util.ReflectionUtils;
+import com.freda.common.util.ReflectionUtils;
 
 /**
  * 项目配置 默认读取classpath下面的freda.xml文件
@@ -62,7 +62,17 @@ public class Configuration {
 	public void setRegistryConfig(RegistryConfig registryConfig) {
 		this.registryConfig = registryConfig;
 	}
-
+	
+	public ServiceConfig getServiceConfig(Class<?> clazz) {
+		for (ServiceConfig sc : serviceConfigMap.values()) {
+			if (sc.getClazz() == clazz) {
+				return sc;
+			}
+		}
+		return null;
+	}
+	
+	
 	public static Configuration newConfiguration(String path) throws Exception {
 		return newConfiguration(Configuration.class.getClassLoader().getResourceAsStream(path));
 	}
@@ -183,7 +193,7 @@ public class Configuration {
 		}
 		return null;
 	}
-
+	
 	public static void main(String[] args) throws Exception {
 		ClassLoader classLoader = Configuration.class.getClassLoader();
 		URL url = classLoader.getResource("freda.xml");

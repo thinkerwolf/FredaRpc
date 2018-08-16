@@ -1,4 +1,4 @@
-package com.freda.conf;
+package com.freda.common.conf;
 
 /**
  * Service配置
@@ -16,7 +16,7 @@ public class ServiceConfig {
 	 */
 	private String id;
 	/**
-	 * 接口class
+	 * class
 	 */
 	private Class<?> clazz;
 

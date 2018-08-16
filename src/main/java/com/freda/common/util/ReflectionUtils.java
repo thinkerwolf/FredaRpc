@@ -1,4 +1,4 @@
-package com.freda.util;
+package com.freda.common.util;
 
 public class ReflectionUtils {
 

@@ -3,7 +3,7 @@ package com.freda.spring;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 
-import com.freda.annotation.Service;
+import com.freda.common.annotation.Service;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;

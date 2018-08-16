@@ -1,4 +1,4 @@
-package com.freda.annotation;
+package com.freda.common.annotation;
 
 import java.lang.annotation.*;
 

@@ -10,9 +10,9 @@ import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.freda.util.JsonUtils;
+import com.freda.common.conf.RegistryConfig;
+import com.freda.common.util.JsonUtils;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
@@ -20,19 +20,20 @@ import java.util.concurrent.CountDownLatch;
 /**
  * @author wukai
  */
-public class ZooKeeperRegistry implements Registry {
+public class ZooKeeperRegistry extends AbstractRegistry {
 
 	private static final String DEFAULT_ROOT_PATH = "/freda/servers";
 	private static final Logger logger = LoggerFactory.getLogger(ZooKeeperRegistry.class);
 	private static final Random r = new Random();
 	private ZooKeeper zooKeeper;
 
-	public ZooKeeperRegistry(String connStr, int sessionTimeout) throws Exception {
+	public ZooKeeperRegistry(RegistryConfig conf) throws Exception {
+		super(conf);
 		CountDownLatch latch = new CountDownLatch(1);
-		zooKeeper = new ZooKeeper(connStr, sessionTimeout, new DefaultWatcher(latch));
+		zooKeeper = new ZooKeeper(conf.getConnAddress(), conf.getTimeout(), new DefaultWatcher(latch));
 		latch.await();
 		recursiveSafeCreate(DEFAULT_ROOT_PATH, null, Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT, false);
-		logger.debug("ZooKeeper client listen on " + connStr + " success!");
+		logger.debug("ZooKeeper client listen on " + conf.getConnAddress() + " success!");
 	}
 
 	@Override
@@ -132,24 +133,6 @@ public class ZooKeeperRegistry implements Registry {
 
 			}
 		}
-	}
-
-	// TEST code
-	public static void main(String[] args) {
-		String CONN_STR = "10.8.10.43:2181";
-		try {
-			ZooKeeperRegistry zkClient = new ZooKeeperRegistry(CONN_STR, 1000);
-			zkClient.register(new Server("freda_1", "127.0.0.1", 8080));
-			zkClient.unregister(new Server("freda_1", "127.0.0.1", 8080));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		try {
-			System.in.read();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
 	}
 
 }
