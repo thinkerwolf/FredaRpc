@@ -5,7 +5,7 @@ import com.freda.remoting.netty.NettyServer;
 
 public class NettyServerTest {
 	public static void main(String[] args) throws Exception {
-		Configuration conf = Configuration.newConfiguration("com/freda/test/freda-providor.xml");
+		Configuration conf = Configuration.newConfiguration("freda-providor.xml");
 		NettyServer server = new NettyServer(conf);
 		server.start();
 	}

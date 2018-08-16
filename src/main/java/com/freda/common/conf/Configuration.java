@@ -2,7 +2,6 @@ package com.freda.common.conf;
 
 import java.io.InputStream;
 import java.lang.reflect.Field;
-import java.net.URL;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -62,7 +61,7 @@ public class Configuration {
 	public void setRegistryConfig(RegistryConfig registryConfig) {
 		this.registryConfig = registryConfig;
 	}
-	
+
 	public ServiceConfig getServiceConfig(Class<?> clazz) {
 		for (ServiceConfig sc : serviceConfigMap.values()) {
 			if (sc.getClazz() == clazz) {
@@ -71,8 +70,7 @@ public class Configuration {
 		}
 		return null;
 	}
-	
-	
+
 	public static Configuration newConfiguration(String path) throws Exception {
 		return newConfiguration(Configuration.class.getClassLoader().getResourceAsStream(path));
 	}
@@ -192,12 +190,6 @@ public class Configuration {
 			return Boolean.parseBoolean(str);
 		}
 		return null;
-	}
-	
-	public static void main(String[] args) throws Exception {
-		ClassLoader classLoader = Configuration.class.getClassLoader();
-		URL url = classLoader.getResource("freda.xml");
-		newConfiguration(url.openConnection().getInputStream());
 	}
 
 }
