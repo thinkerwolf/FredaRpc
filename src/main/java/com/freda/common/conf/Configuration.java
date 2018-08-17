@@ -25,6 +25,7 @@ import com.freda.common.util.ReflectionUtils;
  * @author wukai
  *
  */
+@SuppressWarnings("rawtypes")
 public class Configuration {
 	private static final Logger logger = LoggerFactory.getLogger(Configuration.class);
 	/**
@@ -64,7 +65,7 @@ public class Configuration {
 
 	public ServiceConfig getServiceConfig(Class<?> clazz) {
 		for (ServiceConfig sc : serviceConfigMap.values()) {
-			if (sc.getClazz() == clazz) {
+			if (sc.getInterfaceClass() == clazz) {
 				return sc;
 			}
 		}
@@ -126,26 +127,24 @@ public class Configuration {
 			Node idNode = serviceAttrMap.getNamedItem("id");
 			Node classNode = serviceAttrMap.getNamedItem("class");
 			Node interfaceNode = serviceAttrMap.getNamedItem("interface");
-
+			
 			if (map.get(idNode.getTextContent()) != null) {
 				throw new RuntimeException("duplicate name " + idNode.getTextContent());
 			}
 
 			serviceConfig.setId(idNode.getTextContent());
+			serviceConfig.setServer(false);
 			if (classNode != null) {
 				Class<?> clazz = ReflectionUtils.getClassByName(classNode.getTextContent());
 				serviceConfig.setServer(true);
-				serviceConfig.setClazz(clazz);
-				serviceConfig.setServiceObj(ReflectionUtils.newInstance(clazz));
-			} else if (interfaceNode != null) {
+				serviceConfig.setRef(ReflectionUtils.newInstance(clazz));
+			} 
+			if (interfaceNode != null) {
 				Class<?> clazz = ReflectionUtils.getClassByName(interfaceNode.getTextContent());
-				serviceConfig.setServer(false);
-				serviceConfig.setClazz(clazz);
-			} else {
-				throw new RuntimeException("lack class or interface attr");
+				serviceConfig.setInterfaceClass(clazz);
 			}
 			if (serviceConfig.isServer()) {
-				parsePropertyValue(serviceElement, "property", serviceConfig.getServiceObj());
+				parsePropertyValue(serviceElement, "property", serviceConfig.getRef());
 			}
 			map.put(serviceConfig.getId(), serviceConfig);
 		}
