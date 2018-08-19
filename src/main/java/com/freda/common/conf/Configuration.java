@@ -1,5 +1,6 @@
 package com.freda.common.conf;
 
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.Map;
@@ -72,11 +73,16 @@ public class Configuration {
 	}
 
 	public static Configuration newConfiguration() throws Exception {
-		return newConfiguration((InputStream) null);
+		InputStream is = Configuration.class.getClassLoader().getResourceAsStream("freda.xml");
+		return newConfiguration(is);
 	}
 
 	public static Configuration newConfiguration(String path) throws Exception {
-		return newConfiguration(Configuration.class.getClassLoader().getResourceAsStream(path));
+        if (path.startsWith("classpath:")) {
+            return newConfiguration(Configuration.class.getClassLoader().getResourceAsStream(path.substring(10, path.length())));
+        } else {
+            return newConfiguration(new FileInputStream(path));
+        }
 	}
 
 	public static Configuration newConfiguration(InputStream is) throws Exception {

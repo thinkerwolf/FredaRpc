@@ -17,6 +17,5 @@ public abstract class RemotingServer extends AbstractRemoting {
 				e.printStackTrace();
 			}
 		}
-
 	}
 }
