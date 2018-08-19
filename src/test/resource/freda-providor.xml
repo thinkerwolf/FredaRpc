@@ -18,7 +18,7 @@
 
 	<!-- 需要暴漏的接口 -->
 	<services>
-		<service id="demoService" class="com.freda.example.DemoServiceImpl">
+		<service id="demoService" interface="com.freda.example.DemoService" class="com.freda.example.DemoServiceImpl">
 			<property name="persent">100</property>
 			<property name="server">true</property>
 			<property name="hello">Hello,sam</property>

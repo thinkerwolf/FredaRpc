@@ -6,11 +6,11 @@ package com.freda.common.conf;
  * @author wukai
  *
  */
-public class ServiceConfig {
+public class ServiceConfig<T> {
 	/**
-	 * Service实体
+	 * Service对应的实体
 	 */
-	private Object serviceObj;
+	private T ref;
 	/**
 	 * Service id
 	 */
@@ -18,16 +18,16 @@ public class ServiceConfig {
 	/**
 	 * class
 	 */
-	private Class<?> clazz;
+	private Class<T> interfaceClass;
 
 	private boolean server;
 
-	public Object getServiceObj() {
-		return serviceObj;
+	public T getRef() {
+		return ref;
 	}
 
-	public void setServiceObj(Object serviceObj) {
-		this.serviceObj = serviceObj;
+	public void setRef(T ref) {
+		this.ref = ref;
 	}
 
 	public String getId() {
@@ -38,12 +38,12 @@ public class ServiceConfig {
 		this.id = id;
 	}
 
-	public Class<?> getClazz() {
-		return clazz;
+	public Class<?> getInterfaceClass() {
+		return interfaceClass;
 	}
 
-	public void setClazz(Class<?> clazz) {
-		this.clazz = clazz;
+	public void setInterfaceClass(Class<T> interfaceClass) {
+		this.interfaceClass = interfaceClass;
 	}
 
 	public boolean isServer() {
@@ -56,7 +56,14 @@ public class ServiceConfig {
 
 	@Override
 	public String toString() {
-		return "id#" + id + ", clazz#" + clazz;
+		return "id#" + id + ", clazz#" + interfaceClass;
+	}
+
+	/**
+	 * 加入暴漏列表中
+	 */
+	public void doExport() {
+
 	}
 
 }

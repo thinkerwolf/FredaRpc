@@ -159,44 +159,6 @@ public class NettyClient extends RemotingClient {
 		}
 	}
 
-	public Channel doConnect(String host, int port) throws InterruptedException {
-		ChannelFuture f = bootstrap.connect(host, port).sync();
-		logger.info(new StringBuilder("connect to [").append(host).append(":").append(port).append("] success!")
-				.toString());
-		this.channel = f.channel();
-		return channel;
-	}
-
-	public Channel doConnect() throws Exception {
-		String host = null;
-		int port = -1;
-		if (registry != null && registry.isConnected()) {
-			Server server = registry.getRandomServer();
-			host = server.getHost();
-			port = server.getPort();
-		}
-		if (host == null) {
-			throw new RuntimeException("can't get address from ZooKeeper!");
-		}
-		ChannelFuture f = bootstrap.connect(host, port).sync();
-		logger.info(new StringBuilder("connect to [").append(host).append(":").append(port).append("] success!")
-				.toString());
-		Channel channel = f.channel();
-		return channel;
-	}
-
-	public void doStop() {
-		_responseHandleThread.interrupt();
-		channel.close();
-		if (registry != null) {
-			try {
-				registry.close();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
 	@SuppressWarnings("unchecked")
 	public <T> T refer(final Class<T> clazz) {
 		return (T) Proxy.newProxyInstance(clazz.getClassLoader(), new Class<?>[] { clazz }, new InvocationHandler() {
@@ -376,6 +338,19 @@ public class NettyClient extends RemotingClient {
 		protected void channelRead0(ChannelHandlerContext ctx, ResponseMessage responseMessage) throws Exception {
 			responseMessages.offer(responseMessage);
 			ctx.close();
+		}
+	}
+
+	@Override
+	public void stop() {
+		_responseHandleThread.interrupt();
+		channel.close();
+		if (registry != null) {
+			try {
+				registry.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 }

@@ -34,6 +34,10 @@ public class NettyServer extends RemotingServer {
 	private static final Logger logger = LoggerFactory.getLogger(NettyServer.class);
 	private static final String SERVER = "server";
 
+	private ServerBootstrap serverBootstrap;
+
+	private Channel channel;
+
 	public NettyServer(Configuration configuration) {
 		super(configuration);
 	}
@@ -43,11 +47,11 @@ public class NettyServer extends RemotingServer {
 		if (started) {
 			return;
 		}
+		serverBootstrap = new ServerBootstrap();
 		NettyConfig nettyConfig = configuration.getNettyConfig();
-		ServerBootstrap sb = new ServerBootstrap();
-		EventLoopGroup fatherLoop = new NioEventLoopGroup(nettyConfig.getBossThreads());
-		EventLoopGroup childLoop = new NioEventLoopGroup(nettyConfig.getWorkerThreads());
-		sb.group(fatherLoop, childLoop).channel(NioServerSocketChannel.class)
+		final EventLoopGroup bossGroup = new NioEventLoopGroup(nettyConfig.getBossThreads());
+		final EventLoopGroup workerGroup = new NioEventLoopGroup(nettyConfig.getWorkerThreads());
+		serverBootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
 				.childHandler(new ChannelInitializer<SocketChannel>() {
 					@Override
 					protected void initChannel(SocketChannel socketChannel) throws Exception {
@@ -61,7 +65,7 @@ public class NettyServer extends RemotingServer {
 		final int port = nettyConfig.getPort();
 		final String serverName = ServerNameBuilder.getInstance().generateServerName(SERVER, host, port);
 
-		ChannelFuture cf = sb.bind(new InetSocketAddress(host, port));
+		ChannelFuture cf = serverBootstrap.bind(new InetSocketAddress(host, port));
 		cf.addListener(new ChannelFutureListener() {
 			@Override
 			public void operationComplete(ChannelFuture future) throws Exception {
@@ -75,7 +79,7 @@ public class NettyServer extends RemotingServer {
 				}
 			}
 		});
-		Channel channel = cf.channel();
+		channel = cf.channel();
 		ChannelFuture closeFuture = channel.closeFuture();
 		closeFuture.addListener(new ChannelFutureListener() {
 			@Override
@@ -83,6 +87,8 @@ public class NettyServer extends RemotingServer {
 				if (registry != null) {
 					registry.close();
 				}
+				bossGroup.shutdownGracefully();
+				workerGroup.shutdownGracefully();
 			}
 		});
 	}
@@ -146,25 +152,26 @@ public class NettyServer extends RemotingServer {
 
 	class MessageHandler extends SimpleChannelInboundHandler<RequestMessage> {
 
-		public MessageHandler() {
+		MessageHandler() {
 		}
 
 		@Override
 		protected void channelRead0(ChannelHandlerContext channelHandlerContext, RequestMessage requestMessage)
 				throws Exception {
+			Object obj = null;
 			ServiceConfig serviceConfig = configuration.getServiceConfig(requestMessage.getClazzName());
-			Object obj = serviceConfig.getServiceObj();
 			ResponseMessage responseMessage = new ResponseMessage();
 			responseMessage.setId(requestMessage.getId());
-			if (obj == null) {
-				responseMessage.setSuccess(false);
-			} else {
-				Method method = serviceConfig.getClazz().getMethod(requestMessage.getMethodName(),
+			if (serviceConfig != null) {
+				obj = serviceConfig.getRef();
+				Method method = serviceConfig.getInterfaceClass().getMethod(requestMessage.getMethodName(),
 						requestMessage.getParameterTypes());
 				method.setAccessible(true);
 				Object result = method.invoke(obj, requestMessage.getArgs());
-				responseMessage.setSuccess(false);
+				responseMessage.setSuccess(true);
 				responseMessage.setResult(result);
+			} else {
+				responseMessage.setSuccess(false);
 			}
 			// ReferenceCountUtil.release(requestMessage);
 			channelHandlerContext.channel().write(responseMessage);
@@ -175,6 +182,18 @@ public class NettyServer extends RemotingServer {
 		public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
 			// super.exceptionCaught(ctx, cause);
 			logger.error("error", cause);
+		}
+	}
+
+	@Override
+	public void stop() {
+		channel.close();
+		if (registry != null) {
+			try {
+				registry.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
