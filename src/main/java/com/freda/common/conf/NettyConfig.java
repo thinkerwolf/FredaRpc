@@ -59,4 +59,38 @@ public class NettyConfig {
 		return "host#" + ip + ", port#" + port;
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((ip == null) ? 0 : ip.hashCode());
+		result = prime * result + port;
+		result = prime * result + ((protocal == null) ? 0 : protocal.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		NettyConfig other = (NettyConfig) obj;
+		if (ip == null) {
+			if (other.ip != null)
+				return false;
+		} else if (!ip.equals(other.ip))
+			return false;
+		if (port != other.port)
+			return false;
+		if (protocal == null) {
+			if (other.protocal != null)
+				return false;
+		} else if (!protocal.equals(other.protocal))
+			return false;
+		return true;
+	}
+
 }

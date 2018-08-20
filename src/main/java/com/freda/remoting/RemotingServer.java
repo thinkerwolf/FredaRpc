@@ -1,20 +1,23 @@
 package com.freda.remoting;
 
-import com.freda.common.conf.Configuration;
+import com.freda.common.conf.NettyConfig;
+import com.freda.registry.Registry;
 import com.freda.registry.Server;
 
 public abstract class RemotingServer extends AbstractRemoting {
 
-	public RemotingServer(Configuration configuration) {
-		super(configuration);
+	public RemotingServer(NettyConfig conf) {
+		super(conf);
 	}
 
 	protected void registerSelf(Server server) {
-		if (registry != null) {
-			try {
-				registry.register(server);
-			} catch (Exception e) {
-				e.printStackTrace();
+		if (registrys != null) {
+			for (Registry registry : registrys) {
+				try {
+					registry.register(server);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}

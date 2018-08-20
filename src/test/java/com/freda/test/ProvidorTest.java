@@ -1,14 +1,19 @@
 package com.freda.test;
 
-import com.freda.bootstrap.FredaProvidor;
+import com.freda.common.conf.Configuration;
 
 public class ProvidorTest {
 
     public static void main(String args[]) {
-
-        FredaProvidor providor = new FredaProvidor();
-        providor.setConfFilePath("classpath:freda-providor.xml");
-        providor.start();
+    	
+    	try {
+			Configuration conf = Configuration.newConfiguration("classpath:freda-providor.xml");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+    	
+    	
+    	
     }
 
 }

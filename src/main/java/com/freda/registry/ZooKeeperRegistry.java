@@ -2,7 +2,7 @@ package com.freda.registry;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.zookeeper.*;
-import org.apache.zookeeper.Watcher.Event.EventType;
+import org.apache.zookeeper.Watcher.Event.KeeperState;
 import org.apache.zookeeper.ZooDefs.Ids;
 import org.apache.zookeeper.ZooKeeper.States;
 import org.apache.zookeeper.data.ACL;
@@ -20,19 +20,21 @@ import java.util.concurrent.CountDownLatch;
 /**
  * @author wukai
  */
-public class ZooKeeperRegistry extends AbstractRegistry {
+public class ZooKeeperRegistry extends AbstractRegistry implements Watcher {
 
 	private static final String DEFAULT_ROOT_PATH = "/freda/servers";
 	private static final Logger logger = LoggerFactory.getLogger(ZooKeeperRegistry.class);
 	private static final Random r = new Random();
 	private ZooKeeper zooKeeper;
+	private CountDownLatch latch;
 
 	public ZooKeeperRegistry(RegistryConfig conf) throws Exception {
 		super(conf);
-		CountDownLatch latch = new CountDownLatch(1);
-		zooKeeper = new ZooKeeper(conf.getConnAddress(), conf.getTimeout(), new DefaultWatcher(latch));
+		latch = new CountDownLatch(1);
+		zooKeeper = new ZooKeeper(conf.getConnAddress(), conf.getTimeout(), this);
 		latch.await();
 		recursiveSafeCreate(DEFAULT_ROOT_PATH, null, Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT, false);
+		setConnected(true);
 		logger.debug("ZooKeeper client listen on " + conf.getConnAddress() + " success!");
 	}
 
@@ -104,35 +106,31 @@ public class ZooKeeperRegistry extends AbstractRegistry {
 		zooKeeper.close();
 	}
 
-	static class DefaultWatcher implements Watcher {
-		private CountDownLatch latch;
-
-		public DefaultWatcher(CountDownLatch latch) {
-			this.latch = latch;
-		}
-
-		@Override
-		public void process(WatchedEvent event) {
+	@Override
+	public void process(WatchedEvent event) {
+		if (latch.getCount() > 0) {
 			latch.countDown();
 		}
-
-	}
-
-	static class ClientWatcher implements Watcher {
-
-		@Override
-		public void process(WatchedEvent event) {
-			System.out.println(event);
-			if (event.getType() == EventType.NodeCreated) {
-
-			}
-			if (event.getType() == EventType.NodeDeleted) {
-
-			}
-			if (event.getType() == EventType.NodeDataChanged) {
-
-			}
+		KeeperState ks = event.getState();
+		if (ks == KeeperState.SyncConnected || ks == KeeperState.ConnectedReadOnly
+				|| ks == KeeperState.NoSyncConnected) {
+		} else {
+			setConnected(false);
 		}
+		switch (event.getType()) {
+
+		case NodeCreated:
+
+			break;
+		case NodeDeleted:
+
+			break;
+
+		default:
+			break;
+
+		}
+
 	}
 
 }

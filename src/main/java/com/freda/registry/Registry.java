@@ -1,5 +1,7 @@
 package com.freda.registry;
 
+import com.freda.common.conf.RegistryConfig;
+
 /**
  * 
  * @author wukai
@@ -29,9 +31,11 @@ public interface Registry {
 	 * @throws Exception
 	 */
 	Server getRandomServer() throws Exception;
-
+	
 	void close() throws Exception;
 
 	boolean isConnected();
-
+	
+	RegistryConfig getConf();
+	
 }

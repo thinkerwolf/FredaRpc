@@ -1,6 +1,6 @@
 package com.freda.example;
 
-public class DemoServiceImpl extends DemoService {
+public class DemoServiceImpl implements DemoService {
 
 	private Double persent;
 
@@ -44,6 +44,7 @@ public class DemoServiceImpl extends DemoService {
 
 	@Override
 	public String sayHello(String str) {
+		System.out.println( "Hello " + str);
 		return "Hello " + str;
 	}
 }

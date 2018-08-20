@@ -16,8 +16,6 @@ public class FredaProvidor {
 
     private Configuration conf;
 
-    private RemotingServer remoting;
-
     private String confFilePath;
 
     public FredaProvidor() {
@@ -27,21 +25,14 @@ public class FredaProvidor {
     public void setConfFilePath(String confFilePath) {
         this.confFilePath = confFilePath;
     }
-
-    private void init() {
+    
+    public void start() {
         try {
-            this.conf = Configuration.newConfiguration();
-            this.remoting = new NettyServer(conf);
+            this.conf = Configuration.newConfiguration(confFilePath);
         } catch (Exception e) {
             logger.error("FredaProvidor init error", e);
         }
     }
-
-
-    public void start() {
-        init();
-        this.remoting.start();
-    }
-
+    
 
 }

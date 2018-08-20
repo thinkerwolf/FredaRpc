@@ -1,9 +1,7 @@
 package com.freda.example;
 
-public class DemoService {
+public interface DemoService {
 
-	public String sayHello(String name) {
-		return null;
-	}
+	public String sayHello(String name);
 
 }

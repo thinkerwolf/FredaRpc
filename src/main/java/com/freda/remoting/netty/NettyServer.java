@@ -12,7 +12,6 @@ import io.netty.handler.codec.MessageToByteEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.freda.common.conf.Configuration;
 import com.freda.common.conf.NettyConfig;
 import com.freda.common.conf.ServiceConfig;
 import com.freda.registry.Server;
@@ -38,8 +37,8 @@ public class NettyServer extends RemotingServer {
 
 	private Channel channel;
 
-	public NettyServer(Configuration configuration) {
-		super(configuration);
+	public NettyServer(NettyConfig conf) {
+		super(conf);
 	}
 
 	@Override
@@ -48,9 +47,8 @@ public class NettyServer extends RemotingServer {
 			return;
 		}
 		serverBootstrap = new ServerBootstrap();
-		NettyConfig nettyConfig = configuration.getNettyConfig();
-		final EventLoopGroup bossGroup = new NioEventLoopGroup(nettyConfig.getBossThreads());
-		final EventLoopGroup workerGroup = new NioEventLoopGroup(nettyConfig.getWorkerThreads());
+		final EventLoopGroup bossGroup = new NioEventLoopGroup(conf.getBossThreads());
+		final EventLoopGroup workerGroup = new NioEventLoopGroup(conf.getWorkerThreads());
 		serverBootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
 				.childHandler(new ChannelInitializer<SocketChannel>() {
 					@Override
@@ -61,8 +59,8 @@ public class NettyServer extends RemotingServer {
 						pipeline.addLast("handler", new MessageHandler());
 					}
 				});
-		final String host = nettyConfig.getIp();
-		final int port = nettyConfig.getPort();
+		final String host = conf.getIp();
+		final int port = conf.getPort();
 		final String serverName = ServerNameBuilder.getInstance().generateServerName(SERVER, host, port);
 
 		ChannelFuture cf = serverBootstrap.bind(new InetSocketAddress(host, port));
@@ -74,7 +72,6 @@ public class NettyServer extends RemotingServer {
 						logger.info(getClass().getSimpleName() + " listen tcp on " + port + " success");
 					}
 					started = true;
-					registry = initRegistry();
 					registerSelf(new Server(serverName, host, port));
 				}
 			}
@@ -84,9 +81,6 @@ public class NettyServer extends RemotingServer {
 		closeFuture.addListener(new ChannelFutureListener() {
 			@Override
 			public void operationComplete(ChannelFuture future) throws Exception {
-				if (registry != null) {
-					registry.close();
-				}
 				bossGroup.shutdownGracefully();
 				workerGroup.shutdownGracefully();
 			}
@@ -159,7 +153,7 @@ public class NettyServer extends RemotingServer {
 		protected void channelRead0(ChannelHandlerContext channelHandlerContext, RequestMessage requestMessage)
 				throws Exception {
 			Object obj = null;
-			ServiceConfig serviceConfig = configuration.getServiceConfig(requestMessage.getClazzName());
+			ServiceConfig<?> serviceConfig = getServiceConfig(requestMessage.getClazzName());
 			ResponseMessage responseMessage = new ResponseMessage();
 			responseMessage.setId(requestMessage.getId());
 			if (serviceConfig != null) {
@@ -188,13 +182,6 @@ public class NettyServer extends RemotingServer {
 	@Override
 	public void stop() {
 		channel.close();
-		if (registry != null) {
-			try {
-				registry.close();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
 	}
 
 }

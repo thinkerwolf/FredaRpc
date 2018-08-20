@@ -18,7 +18,7 @@ import com.freda.remoting.RemotingClient;
 import com.freda.remoting.RemotingException;
 import com.freda.remoting.RequestMessage;
 import com.freda.remoting.ResponseMessage;
-import com.freda.common.conf.Configuration;
+import com.freda.common.conf.NettyConfig;
 import com.freda.common.conf.ServiceConfig;
 import com.freda.common.proxy.ProxyHandler;
 import com.freda.common.util.ProxyUtils;
@@ -51,8 +51,8 @@ public class NettyClient extends RemotingClient {
 	private Object lock = new Object();
 	private ChannelFuture startFuture;
 
-	public NettyClient(Configuration configuration) {
-		super(configuration);
+	public NettyClient(NettyConfig conf) {
+		super(conf);
 	}
 
 	public void doInit() {
@@ -62,7 +62,7 @@ public class NettyClient extends RemotingClient {
 		_responseHandleThread.setPriority(Thread.NORM_PRIORITY);
 		_responseHandleThread.start();
 
-		EventLoopGroup bossGroup = new NioEventLoopGroup(configuration.getNettyConfig().getBossThreads());
+		EventLoopGroup bossGroup = new NioEventLoopGroup(conf.getBossThreads());
 		try {
 			bootstrap = new Bootstrap();
 			bootstrap.group(bossGroup);
@@ -85,6 +85,10 @@ public class NettyClient extends RemotingClient {
 
 	@Override
 	public <T> T invokeSync(final Class<T> clazz) {
+		final ServiceConfig<?> serviceConfig = getServiceConfig(clazz);
+		if (serviceConfig == null) {
+			return null;
+		}
 		if (!startFuture.isDone()) {
 			try {
 				startFuture.sync();
@@ -92,10 +96,6 @@ public class NettyClient extends RemotingClient {
 				// Ingore
 				return null;
 			}
-		}
-		final ServiceConfig serviceConfig = configuration.getServiceConfig(clazz);
-		if (serviceConfig == null) {
-			return null;
 		}
 		return ProxyUtils.newProxy(clazz, new ProxyHandler() {
 			@Override
@@ -129,10 +129,9 @@ public class NettyClient extends RemotingClient {
 			}
 			try {
 				doInit();
-				registry = initRegistry();
 				Server server = null;
 				try {
-					server = registry.getRandomServer();
+					server = getRegistry().getRandomServer();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -345,12 +344,5 @@ public class NettyClient extends RemotingClient {
 	public void stop() {
 		_responseHandleThread.interrupt();
 		channel.close();
-		if (registry != null) {
-			try {
-				registry.close();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
 	}
 }

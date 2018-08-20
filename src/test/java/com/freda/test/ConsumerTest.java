@@ -6,11 +6,19 @@ import com.freda.example.DemoService;
 public class ConsumerTest {
 
     public static void main(String args[]) {
-        FredaConsumer consumer = new FredaConsumer();
-        consumer.setConfFilePath("classpath:freda-consumer.xml");
-        consumer.start();
-
-        DemoService ds = consumer.refer(DemoService.class);
-        ds.sayHello("freda");
+    	try {
+			FredaConsumer consumer = new FredaConsumer();
+			consumer.setConfFilePath("classpath:freda-consumer.xml");
+			consumer.start();
+			
+			
+			DemoService ds = consumer.refer(DemoService.class);
+			ds.sayHello("freda");
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+    	
+       
     }
 }
