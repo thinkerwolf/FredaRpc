@@ -43,7 +43,7 @@ public class ZooKeeperRegistry extends AbstractRegistry implements Watcher {
 		if (null == server) {
 			throw new IllegalArgumentException("server can't be null");
 		}
-		String path = DEFAULT_ROOT_PATH + "/" + server.getName();
+		String path = DEFAULT_ROOT_PATH + "/" + server.getProtocal() + "/" + server.getName();
 		recursiveSafeCreate(path, server.toJsonByte(), Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL, true);
 	}
 
@@ -84,13 +84,13 @@ public class ZooKeeperRegistry extends AbstractRegistry implements Watcher {
 	}
 
 	@Override
-	public Server getRandomServer() throws Exception {
-		List<String> list = zooKeeper.getChildren(DEFAULT_ROOT_PATH, false);
+	public Server getRandomServer(String protocal) throws Exception {
+		List<String> list = zooKeeper.getChildren(DEFAULT_ROOT_PATH + "/" + protocal, false);
 		if (list == null || list.size() == 0) {
 			return null;
 		}
 		String serverPath = list.get(r.nextInt(list.size()));
-		byte[] bytes = zooKeeper.getData(DEFAULT_ROOT_PATH + "/" + serverPath, true, null);
+		byte[] bytes = zooKeeper.getData(DEFAULT_ROOT_PATH + "/" + protocal + "/" + serverPath, true, null);
 		return JsonUtils.json2Obj(new String(bytes), Server.class);
 	}
 

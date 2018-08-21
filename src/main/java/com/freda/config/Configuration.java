@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentMap;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import com.freda.registry.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -144,14 +145,36 @@ public class Configuration {
 			}
 			registrys.add(registry);
 		}
+		if (registrys.size() <= 0) {
+		    throw new RuntimeException("registry num == 0");
+        }
+
 		NettyConfig nc = ref.getNettyConfig();
-		RemotingClient remoting = remotingClientMap.get(nc);
-		if (remoting == null) {
-			remoting = new NettyClient(nc);
-			remoting.addRegistrys(registrys);
-			remoting.start();
-			remotingClientMap.put(nc, remoting);
-		}
+        NettyConfig newNc = nc.clone();
+
+        RemotingClient remoting = remotingClientMap.get(newNc);
+        if (remoting == null) {
+            try {
+                Server server = registrys.get(0).getRandomServer(newNc.getProtocal());
+                if (server == null) {
+                    throw new RuntimeException("reference get server fail!");
+                }
+                newNc.setIp(server.getHost());
+                newNc.setPort(server.getPort());
+                ref.setNettyConf(newNc);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return;
+            }
+            remoting = remotingClientMap.get(newNc);
+
+            if (remoting == null) {
+                remoting = new NettyClient(newNc);
+                remoting.addRegistrys(registrys);
+                remoting.start();
+                remotingClientMap.put(newNc, remoting);
+            }
+        }
 		remoting.addReferenceConfig(ref);
 		exportRefRemoteMap.put(ref.getInterfaceClass(), remoting);
 	}
@@ -163,6 +186,27 @@ public class Configuration {
 	RemotingServer getRemotingServer(NettyConfig nc) {
 		return remotingServerMap.get(nc);
 	}
+
+
+	private static Configuration INSTANCE;
+	public static Configuration getInstance() {
+		if (INSTANCE == null) {
+			synchronized (Configuration.class) {
+				if (INSTANCE == null) {
+					try {
+						INSTANCE = newConfiguration();
+					} catch (Exception e) {
+						//e.printStackTrace();
+						INSTANCE = new Configuration();
+					}
+				}
+			}
+		}
+		return INSTANCE;
+	}
+
+
+
 
 	public static Configuration newConfiguration() throws Exception {
 		InputStream is = Configuration.class.getClassLoader().getResourceAsStream("freda.xml");
@@ -184,6 +228,7 @@ public class Configuration {
 		Map<String, InterfaceConfig<?>> serviceMap = new HashMap<>();
 		Map<String, InterfaceConfig<?>> referenceMap = new HashMap<>();
 		List<NettyConfig> nettyServerConfigs = new ArrayList<>();
+		NettyConfig nettyClientConfig = new NettyConfig();
 		if (is != null) {
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 			factory.setValidating(false);
@@ -202,7 +247,7 @@ public class Configuration {
 				}
 			}
 
-			NettyConfig nettyClientConfig = new NettyConfig();
+
 			// 解析Netty-client 一个
 			Element nettyClientElement = (Element) doc.getElementsByTagName("netty-client").item(0);
 			if (nettyClientElement != null) {
@@ -230,6 +275,7 @@ public class Configuration {
 
 			is.close();
 		}
+		configuration.setNettyClientConfig(nettyClientConfig);
 		configuration.addRegistryConfig(registryConfig);
 		configuration.setNettyServerConfigs(nettyServerConfigs);
 

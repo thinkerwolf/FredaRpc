@@ -1,5 +1,6 @@
 package com.freda.config.spring;
 
+import com.freda.config.Configuration;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
@@ -19,13 +20,15 @@ public class ServiceBean extends ServiceConfig implements InitializingBean, Appl
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		System.out.println("99999999999999<<<<<<<<<<<<<");
+		Configuration.getInstance().getNettyServerConfigs();
+
+
+
 	}
 
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		this.context = applicationContext;
-		System.out.println(context);
 	}
 
 }

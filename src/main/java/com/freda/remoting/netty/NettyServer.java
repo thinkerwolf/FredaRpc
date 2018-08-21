@@ -72,7 +72,7 @@ public class NettyServer extends RemotingServer {
 						logger.info(getClass().getSimpleName() + " listen tcp on " + port + " success");
 					}
 					started = true;
-					registerSelf(new Server(serverName, host, port));
+					registerSelf(new Server(serverName, host, port, conf.getProtocal()));
 				}
 			}
 		});

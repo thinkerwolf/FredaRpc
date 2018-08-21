@@ -30,7 +30,7 @@ public interface Registry {
 	 * @return
 	 * @throws Exception
 	 */
-	Server getRandomServer() throws Exception;
+	Server getRandomServer(String protocal) throws Exception;
 	
 	void close() throws Exception;
 

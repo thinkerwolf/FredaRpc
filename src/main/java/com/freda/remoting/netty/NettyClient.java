@@ -135,7 +135,7 @@ public class NettyClient extends RemotingClient {
 				doInit();
 				Server server = null;
 				try {
-					server = getRegistry().getRandomServer();
+					server = getRegistry().getRandomServer(conf.getProtocal());
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

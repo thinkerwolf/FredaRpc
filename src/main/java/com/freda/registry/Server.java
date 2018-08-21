@@ -16,13 +16,16 @@ public class Server {
 
 	private int port;
 
+	private String protocal;
+
 	public Server() {
 	}
 
-	public Server(String name, String host, int port) {
+	public Server(String name, String host, int port, String protocal) {
 		this.name = name;
 		this.host = host;
 		this.port = port;
+		this.protocal = protocal;
 	}
 
 	public void setName(String name) {
@@ -49,12 +52,20 @@ public class Server {
 		return port;
 	}
 
+	public String getProtocal() {
+		return protocal;
+	}
+
+	public void setProtocal(String protocal) {
+		this.protocal = protocal;
+	}
+
 	public byte[] toJsonByte() {
 		return JsonUtils.obj2Json(this).getBytes();
 	}
 
 	public static void main(String[] args) {
-		Server server = new Server("freda_1", "127.0.0.1", 11211);
+		Server server = new Server("freda_1", "127.0.0.1", 11211, "freda");
 
 		String json = JsonUtils.obj2Json(server);
 		System.out.println(json);

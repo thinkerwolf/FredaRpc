@@ -93,4 +93,17 @@ public class NettyConfig {
 		return true;
 	}
 
+	@Override
+	public NettyConfig clone() {
+		NettyConfig nettyConfig = new NettyConfig();
+		nettyConfig.setIp(this.ip);
+		nettyConfig.setPort(this.port);
+		nettyConfig.setProtocal(this.protocal);
+		nettyConfig.setBossThreads(this.bossThreads);
+		nettyConfig.setWorkerThreads(this.workerThreads);
+		return nettyConfig;
+	}
+
+
+
 }
