@@ -31,7 +31,11 @@ public abstract class RemotingClient extends AbstractRemoting {
 	public void addReferenceConfig(ReferenceConfig<?> reConfig) {
 		referenceMap.put(reConfig.getId(), reConfig);
 	}
-
+	
+	public void removeReferenceConfig(ReferenceConfig<?> reConfig) {
+		referenceMap.remove(reConfig.getId());
+	}
+	
 	/**
 	 * 同步调用
 	 * 

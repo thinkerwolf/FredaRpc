@@ -31,7 +31,11 @@ public abstract class RemotingServer extends AbstractRemoting {
 	public void addServiceConfig(ServiceConfig<?> sc) {
 		serviceMap.put(sc.getId(), sc);
 	}
-
+	
+	public void removeServiceConfig(ServiceConfig<?> sc) {
+		serviceMap.remove(sc.getId());
+	}
+	
 	public ServiceConfig<?> getServiceConfig(Class<?> clazz) {
 		for (ServiceConfig<?> sc : serviceMap.values()) {
 			if (sc.getInterfaceClass().equals(clazz)) {

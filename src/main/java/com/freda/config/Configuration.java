@@ -155,7 +155,16 @@ public class Configuration {
 		remoting.addReferenceConfig(ref);
 		exportRefRemoteMap.put(ref.getInterfaceClass(), remoting);
 	}
-
+	
+	
+	RemotingClient getRemotingClient(NettyConfig nc) {
+		return remotingClientMap.get(nc);
+	}
+	
+	RemotingServer getRemotingServer(NettyConfig nc) {
+		return remotingServerMap.get(nc);
+	}
+	
 	public static Configuration newConfiguration() throws Exception {
 		InputStream is = Configuration.class.getClassLoader().getResourceAsStream("freda.xml");
 		return newConfiguration(is);
