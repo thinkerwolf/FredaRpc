@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import com.freda.config.NettyConfig;
+import com.freda.common.conf.NettyConfig;
 import com.freda.registry.Registry;
 
 abstract class AbstractRemoting implements Remoting {

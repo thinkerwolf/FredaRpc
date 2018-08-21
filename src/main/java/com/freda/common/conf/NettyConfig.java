@@ -1,4 +1,4 @@
-package com.freda.config;
+package com.freda.common.conf;
 
 public class NettyConfig {
 

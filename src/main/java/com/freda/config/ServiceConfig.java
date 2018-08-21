@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.freda.common.conf.NettyConfig;
+
 /**
  * Service配置
  * 

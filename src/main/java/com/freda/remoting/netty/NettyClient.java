@@ -18,9 +18,9 @@ import com.freda.remoting.RemotingClient;
 import com.freda.remoting.RemotingException;
 import com.freda.remoting.RequestMessage;
 import com.freda.remoting.ResponseMessage;
+import com.freda.common.conf.NettyConfig;
 import com.freda.common.proxy.ProxyHandler;
 import com.freda.common.util.ProxyUtils;
-import com.freda.config.NettyConfig;
 import com.freda.config.ReferenceConfig;
 
 import java.io.ByteArrayInputStream;
@@ -42,7 +42,7 @@ public class NettyClient extends RemotingClient {
 	private static final Logger logger = LoggerFactory.getLogger(NettyClient.class);
 	private static final AtomicInteger THREAD_NUM = new AtomicInteger();
 	private static final AtomicInteger ID_GENARETOR = new AtomicInteger();
-
+	
 	private Bootstrap bootstrap;
 	private BlockingQueue<ResponseMessage> responseMessages = new LinkedBlockingQueue<ResponseMessage>();
 	private Map<Integer, ResponseFuture> waitResultMap = new HashMap<Integer, ResponseFuture>();

@@ -1,4 +1,4 @@
-package com.freda.config;
+package com.freda.common.conf;
 
 /**
  * 注册中心配置

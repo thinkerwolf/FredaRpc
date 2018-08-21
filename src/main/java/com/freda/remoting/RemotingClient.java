@@ -3,11 +3,11 @@ package com.freda.remoting;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import com.freda.config.NettyConfig;
+import com.freda.common.conf.NettyConfig;
 import com.freda.config.ReferenceConfig;
 
 public abstract class RemotingClient extends AbstractRemoting {
-
+	
 	protected ConcurrentMap<String, ReferenceConfig<?>> referenceMap = new ConcurrentHashMap<>();
 
 	public RemotingClient(NettyConfig conf) {

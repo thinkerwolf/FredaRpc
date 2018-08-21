@@ -1,6 +1,6 @@
 package com.freda.registry;
 
-import com.freda.config.RegistryConfig;
+import com.freda.common.conf.RegistryConfig;
 
 /**
  * 

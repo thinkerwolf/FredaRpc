@@ -21,6 +21,8 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.freda.common.conf.NettyConfig;
+import com.freda.common.conf.RegistryConfig;
 import com.freda.common.util.ReflectionUtils;
 import com.freda.registry.Registry;
 import com.freda.registry.ZooKeeperRegistry;
