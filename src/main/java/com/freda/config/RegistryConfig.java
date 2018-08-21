@@ -1,6 +1,8 @@
-package com.freda.common.conf;
+package com.freda.config;
+
 /**
  * 注册中心配置
+ * 
  * @author wukai
  *
  */

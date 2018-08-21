@@ -1,4 +1,4 @@
-package com.freda.spring.xml;
+package com.freda.config.spring.xml;
 
 import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
 

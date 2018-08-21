@@ -1,4 +1,4 @@
-package com.freda.spring.xml;
+package com.freda.config.spring.xml;
 
 import java.lang.reflect.Method;
 
@@ -12,8 +12,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
-import com.freda.common.conf.ServiceConfig;
-import com.freda.spring.ServiceBean;
+import com.freda.config.ServiceConfig;
+import com.freda.config.spring.ServiceBean;
 
 /**
  * 解析Freda标签

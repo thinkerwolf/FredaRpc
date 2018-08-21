@@ -3,7 +3,7 @@ package com.freda.test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.freda.common.conf.ServiceConfig;
+import com.freda.config.ServiceConfig;
 
 public class SpringFredaTst {
 	public static void main(String[] args) {

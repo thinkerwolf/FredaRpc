@@ -1,4 +1,4 @@
-package com.freda.spring;
+package com.freda.config.spring;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;

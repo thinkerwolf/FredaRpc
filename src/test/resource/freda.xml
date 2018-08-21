@@ -1,14 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- property 只支持基本数据类型和字符串 -->
 <configuration>
-	<!-- netty 配置 -->
-	<netty>
+	<!-- netty server 配置 -->
+	<netty-server>
 		<property name="bossThreads">2</property>
 		<property name="workerThreads">8</property>
 		<property name="ip">127.0.0.1</property>
 		<property name="port">8888</property>
 		<property name="protocal">freda</property>
-	</netty>
+	</netty-server>
+
+	<!-- netty client 配置 -->
+	<netty-client>
+		<property name="bossThreads">2</property>
+		<property name="workerThreads">8</property>
+		<property name="ip">127.0.0.1</property>
+		<property name="port">8888</property>
+		<property name="protocal">freda</property>
+	</netty-client>
 
 	<!-- 注册中心 zookeeper -->
 	<registry>
@@ -23,6 +32,7 @@
 			<property name="server">true</property>
 			<property name="hello">Hello,sam</property>
 		</service>
+
 		<service id="demoService1" interface="com.freda.example.DemoService" />
 	</services>
 

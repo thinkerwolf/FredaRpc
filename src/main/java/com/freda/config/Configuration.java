@@ -1,4 +1,4 @@
-package com.freda.common.conf;
+package com.freda.config;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -24,7 +24,8 @@ import org.w3c.dom.NodeList;
 import com.freda.common.util.ReflectionUtils;
 import com.freda.registry.Registry;
 import com.freda.registry.ZooKeeperRegistry;
-import com.freda.remoting.Remoting;
+import com.freda.remoting.RemotingClient;
+import com.freda.remoting.RemotingServer;
 import com.freda.remoting.netty.NettyClient;
 import com.freda.remoting.netty.NettyServer;
 
@@ -37,42 +38,43 @@ import com.freda.remoting.netty.NettyServer;
 @SuppressWarnings("rawtypes")
 public class Configuration {
 	private static final Logger logger = LoggerFactory.getLogger(Configuration.class);
-	/**
-	 * 通用netty配置
-	 */
-	private List<NettyConfig> nettyConfigs;
-	/**
-	 * 通用注册中心配置
-	 */
+	/** common netty server config list */
+	private List<NettyConfig> nettyServerConfigs;
+	/** common netty client config */
+	private NettyConfig nettyClientConfig;
+	/** common registry config list */
 	private List<RegistryConfig> registryConfigs;
-	/**
-	 * 所有的远程配置
-	 */
-	private ConcurrentMap<NettyConfig, Remoting> remotingMap = new ConcurrentHashMap<>();
-	/**
-	 * 所有注册中心配置
-	 */
+	/** Server map */
+	private ConcurrentMap<NettyConfig, RemotingServer> remotingServerMap = new ConcurrentHashMap<>();
+	/** Client map */
+	private ConcurrentMap<NettyConfig, RemotingClient> remotingClientMap = new ConcurrentHashMap<>();
+	/** Registry map */
 	private ConcurrentMap<RegistryConfig, Registry> registryMap = new ConcurrentHashMap<>();
+	/** Reference class client map */
+	private Map<Class<?>, RemotingClient> exportRefRemoteMap = new ConcurrentHashMap<>();
 
-	public List<NettyConfig> getNettyConfigs() {
-		return nettyConfigs;
+	public void setNettyClientConfig(NettyConfig nettyClientConfig) {
+		this.nettyClientConfig = nettyClientConfig;
 	}
 
-	public void addNettyConfig(NettyConfig nettyConfig) {
-		if (this.nettyConfigs == null) {
-			this.nettyConfigs = new ArrayList<>(1);
-		}
-		if (!this.nettyConfigs.contains(nettyConfig)) {
-			this.nettyConfigs.add(nettyConfig);
-		}
+	public NettyConfig getNettyClientConfig() {
+		return nettyClientConfig;
 	}
 
-	public void setNettyConfigs(List<NettyConfig> nettyConfigs) {
-		this.nettyConfigs = nettyConfigs;
+	public List<NettyConfig> getNettyServerConfigs() {
+		return nettyServerConfigs;
+	}
+
+	public void setNettyServerConfigs(List<NettyConfig> nettyServerConfigs) {
+		this.nettyServerConfigs = nettyServerConfigs;
 	}
 
 	public List<RegistryConfig> getRegistryConfigs() {
 		return registryConfigs;
+	}
+
+	public void setRegistryConfigs(List<RegistryConfig> registryConfigs) {
+		this.registryConfigs = registryConfigs;
 	}
 
 	public void addRegistryConfig(RegistryConfig registryConfig) {
@@ -84,26 +86,20 @@ public class Configuration {
 		}
 	}
 
-	public void setRegistryConfigs(List<RegistryConfig> registryConfigs) {
-		this.registryConfigs = registryConfigs;
-	}
-
 	public void removeRegistry(Registry registry) {
 		registryMap.remove(registry.getConf());
 	}
-	
-	public List<Remoting> getRemotings() {
-		return new ArrayList<>(remotingMap.values());
+
+	public RemotingClient getRefRemoting(Class<?> clazz) {
+		return exportRefRemoteMap.get(clazz);
 	}
-	
+
 	/**
 	 * 
 	 */
 	public void addServiceConfig(ServiceConfig<?> sc) {
-		List<RegistryConfig> rcs = sc.getRegistrys();
-		List<NettyConfig> ncs = sc.getNetties();
 		List<Registry> registrys = new ArrayList<>();
-		for (RegistryConfig rc : rcs) {
+		for (RegistryConfig rc : sc.getRegistryConfs()) {
 			Registry registry = registryMap.get(rc);
 			if (registry == null) {
 				try {
@@ -116,20 +112,46 @@ public class Configuration {
 			}
 			registrys.add(registry);
 		}
-		for (NettyConfig nc : ncs) {
-			Remoting remoting = remotingMap.get(nc);
+		for (NettyConfig nc : sc.getNettyConfs()) {
+			RemotingServer remoting = remotingServerMap.get(nc);
 			if (remoting == null) {
-				if (sc.isServer()) {
-					remoting = new NettyServer(nc);
-				} else {
-					remoting = new NettyClient(nc);
-				}
+				remoting = new NettyServer(nc);
 				remoting.addRegistrys(registrys);
 				remoting.start();
-				remotingMap.put(nc, remoting);
+				remotingServerMap.put(nc, remoting);
 			}
 			remoting.addServiceConfig(sc);
 		}
+	}
+
+	public void addReferenceConfig(ReferenceConfig<?> ref) {
+		if (exportRefRemoteMap.get(ref.getInterfaceClass()) != null) {
+			return;
+		}
+		List<Registry> registrys = new ArrayList<>();
+		for (RegistryConfig rc : ref.getRegistryConfs()) {
+			Registry registry = registryMap.get(rc);
+			if (registry == null) {
+				try {
+					registry = new ZooKeeperRegistry(rc);
+				} catch (Exception e) {
+					e.printStackTrace();
+					continue;
+				}
+				registryMap.put(rc, registry);
+			}
+			registrys.add(registry);
+		}
+		NettyConfig nc = ref.getNettyConf();
+		RemotingClient remoting = remotingClientMap.get(nc);
+		if (remoting == null) {
+			remoting = new NettyClient(nc);
+			remoting.addRegistrys(registrys);
+			remoting.start();
+			remotingClientMap.put(nc, remoting);
+		}
+		remoting.addReferenceConfig(ref);
+		exportRefRemoteMap.put(ref.getInterfaceClass(), remoting);
 	}
 
 	public static Configuration newConfiguration() throws Exception {
@@ -148,9 +170,9 @@ public class Configuration {
 
 	public static Configuration newConfiguration(InputStream is) throws Exception {
 		Configuration configuration = new Configuration();
-		NettyConfig nettyConfig = new NettyConfig();
 		RegistryConfig registryConfig = new RegistryConfig();
-		Map<String, ServiceConfig> serviceMap = new HashMap<String, ServiceConfig>();
+		Map<String, InterfaceConfig<?>> icMap = new HashMap<String, InterfaceConfig<?>>();
+		List<NettyConfig> nettyServerConfigs = new ArrayList<>();
 		if (is != null) {
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 			factory.setValidating(false);
@@ -158,12 +180,24 @@ public class Configuration {
 			DocumentBuilder builder = factory.newDocumentBuilder();
 			Document doc = builder.parse(is);
 
-			// 解析Netty
-			Element nettyElement = (Element) doc.getElementsByTagName("netty").item(0);
-
-			if (nettyElement != null) {
-				parsePropertyValue(nettyElement, "property", nettyConfig);
+			// 解析Netty-server 多个
+			NodeList nettyServerNodeList = doc.getElementsByTagName("netty-server");
+			for (int i = 0; i < nettyServerNodeList.getLength(); i++) {
+				NettyConfig nettyConfig = new NettyConfig();
+				Element nettyElement = (Element) nettyServerNodeList.item(i);
+				if (nettyElement != null) {
+					parsePropertyValue(nettyElement, "property", nettyConfig);
+					nettyServerConfigs.add(nettyConfig);
+				}
 			}
+
+			NettyConfig nettyClientConfig = new NettyConfig();
+			// 解析Netty-client 一个
+			Element nettyClientElement = (Element) doc.getElementsByTagName("netty-client").item(0);
+			if (nettyClientElement != null) {
+				parsePropertyValue(nettyClientElement, "property", nettyClientConfig);
+			}
+			configuration.setNettyClientConfig(nettyClientConfig);
 
 			// 解析Registry
 			Element registryElement = (Element) doc.getElementsByTagName("registry").item(0);
@@ -174,26 +208,30 @@ public class Configuration {
 			// 解析service
 			Node node = doc.getElementsByTagName("services").item(0);
 			if (node != null) {
-				parseServiceValue((Element) node, "service", serviceMap);
+				parseServiceValue((Element) node, "service", icMap);
 			}
 			is.close();
 		}
-		configuration.addNettyConfig(nettyConfig);
 		configuration.addRegistryConfig(registryConfig);
-		for (ServiceConfig<?> sc : serviceMap.values()) {
-			sc.addRegistry(registryConfig);
-			sc.addNetty(nettyConfig);
-			sc.setConf(configuration);
-			sc.export();
+		configuration.setNettyServerConfigs(nettyServerConfigs);
+		for (InterfaceConfig<?> ic : icMap.values()) {
+			ic.addRegistryConf(registryConfig);
+			if (ic instanceof ServiceConfig) {
+				((ServiceConfig<?>) ic).addNettyConfs(configuration.getNettyServerConfigs());
+			} else {
+				((ReferenceConfig<?>) ic).setNettyConf(configuration.getNettyClientConfig());
+			}
+			ic.setConf(configuration);
+			ic.export();
 		}
 		return configuration;
 	}
 
 	@SuppressWarnings("unchecked")
-	private static void parseServiceValue(Element element, String childTagName, Map<String, ServiceConfig> map) {
+	private static void parseServiceValue(Element element, String childTagName, Map<String, InterfaceConfig<?>> map) {
 		NodeList serviceNodeList = element.getElementsByTagName(childTagName);
 		for (int i = 0; i < serviceNodeList.getLength(); i++) {
-			ServiceConfig serviceConfig = new ServiceConfig();
+
 			Element serviceElement = (Element) serviceNodeList.item(i);
 			NamedNodeMap serviceAttrMap = serviceElement.getAttributes();
 
@@ -205,27 +243,29 @@ public class Configuration {
 				continue;
 			}
 
-			serviceConfig.setServer(false);
+			InterfaceConfig inConfig = null;
 			if (classNode != null) {
+				inConfig = new ServiceConfig();
 				Class<?> clazz = ReflectionUtils.getClassByName(classNode.getTextContent());
-				serviceConfig.setServer(true);
-				serviceConfig.setRef(ReflectionUtils.newInstance(clazz));
+				inConfig.setRef(ReflectionUtils.newInstance(clazz));
+			} else {
+				inConfig = new ReferenceConfig();
 			}
 
 			Class<?> interfaceClass = ReflectionUtils.getClassByName(interfaceNode.getTextContent());
-			serviceConfig.setInterfaceClass(interfaceClass);
+			inConfig.setInterfaceClass(interfaceClass);
 
 			String id = idNode == null ? interfaceClass.getName() : idNode.getTextContent();
 			if (map.get(id) != null) {
 				throw new RuntimeException("duplicate name " + idNode.getTextContent());
 			}
-			serviceConfig.setId(id);
+			inConfig.setId(id);
 
-			if (serviceConfig.isServer()) {
-				parsePropertyValue(serviceElement, "property", serviceConfig.getRef());
+			if (classNode != null) {
+				parsePropertyValue(serviceElement, "property", inConfig.getRef());
 			}
 
-			map.put(serviceConfig.getId(), serviceConfig);
+			map.put(inConfig.getId(), inConfig);
 		}
 	}
 
@@ -240,7 +280,7 @@ public class Configuration {
 			try {
 				Field field = clazz.getDeclaredField(propertyName);
 				field.setAccessible(true);
-				Object value = getFieldPropertyValue(field, propertyValue);
+				Object value = ReflectionUtils.getPrimitiveFieldValue(field, propertyValue);
 				if (value != null) {
 					field.set(obj, value);
 				}
@@ -249,28 +289,6 @@ public class Configuration {
 				continue;
 			}
 		}
-	}
-
-	private static Object getFieldPropertyValue(Field field, String str) {
-		Class<?> clazz = field.getType();
-		if (clazz == String.class) {
-			return str;
-		} else if (clazz == byte.class || clazz == Byte.class) {
-			return Byte.parseByte(str);
-		} else if (clazz == short.class || clazz == Short.class) {
-			return Short.parseShort(str);
-		} else if (clazz == int.class || clazz == Integer.class) {
-			return Integer.parseInt(str);
-		} else if (clazz == long.class || clazz == Long.class) {
-			return Long.parseLong(str);
-		} else if (clazz == float.class || clazz == Float.class) {
-			return Float.parseFloat(str);
-		} else if (clazz == double.class || clazz == Double.class) {
-			return Double.parseDouble(str);
-		} else if (clazz == boolean.class || clazz == Boolean.class) {
-			return Boolean.parseBoolean(str);
-		}
-		return null;
 	}
 
 }

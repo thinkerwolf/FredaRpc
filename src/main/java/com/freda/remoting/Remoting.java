@@ -2,7 +2,6 @@ package com.freda.remoting;
 
 import java.util.Collection;
 
-import com.freda.common.conf.ServiceConfig;
 import com.freda.registry.Registry;
 
 public interface Remoting {
@@ -14,7 +13,5 @@ public interface Remoting {
 	void addRegistry(Registry registry);
 
 	void addRegistrys(Collection<Registry> rs);
-	
-	void addServiceConfig(ServiceConfig<?> sc);
 	
 }

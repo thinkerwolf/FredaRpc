@@ -18,10 +18,10 @@ import com.freda.remoting.RemotingClient;
 import com.freda.remoting.RemotingException;
 import com.freda.remoting.RequestMessage;
 import com.freda.remoting.ResponseMessage;
-import com.freda.common.conf.NettyConfig;
-import com.freda.common.conf.ServiceConfig;
 import com.freda.common.proxy.ProxyHandler;
 import com.freda.common.util.ProxyUtils;
+import com.freda.config.NettyConfig;
+import com.freda.config.ReferenceConfig;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -85,8 +85,8 @@ public class NettyClient extends RemotingClient {
 
 	@Override
 	public <T> T invokeSync(final Class<T> clazz) {
-		final ServiceConfig<?> serviceConfig = getServiceConfig(clazz);
-		if (serviceConfig == null) {
+		final ReferenceConfig<T> refConfig = getReferenceConfig(clazz);
+		if (refConfig == null) {
 			return null;
 		}
 		if (!startFuture.isDone()) {
@@ -97,24 +97,28 @@ public class NettyClient extends RemotingClient {
 				return null;
 			}
 		}
-		return ProxyUtils.newProxy(clazz, new ProxyHandler() {
-			@Override
-			public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-				final int id = ID_GENARETOR.incrementAndGet();
-				RequestMessage rm = new RequestMessage();
-				rm.setId(id);
-				rm.setClazzName(serviceConfig.getId());
-				rm.setMethodName(method.getName());
-				rm.setParameterTypes(method.getParameterTypes());
-				rm.setArgs(args);
-				ResponseFuture rf = new ResponseFuture();
-				waitResultMap.put(id, rf);
-				ChannelFuture cf = channel.writeAndFlush(rm);
-				cf.sync();
-				rf.sync();
-				return rf.getResult();
-			}
-		});
+		if (refConfig.getRef() == null) {
+			T ref = ProxyUtils.newProxy(clazz, new ProxyHandler() {
+				@Override
+				public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+					final int id = ID_GENARETOR.incrementAndGet();
+					RequestMessage rm = new RequestMessage();
+					rm.setId(id);
+					rm.setClazzName(refConfig.getId());
+					rm.setMethodName(method.getName());
+					rm.setParameterTypes(method.getParameterTypes());
+					rm.setArgs(args);
+					ResponseFuture rf = new ResponseFuture();
+					waitResultMap.put(id, rf);
+					ChannelFuture cf = channel.writeAndFlush(rm);
+					cf.sync();
+					rf.sync();
+					return rf.getResult();
+				}
+			});
+			refConfig.setRef(ref);
+		}
+		return (T) refConfig.getRef();
 	}
 
 	@Override

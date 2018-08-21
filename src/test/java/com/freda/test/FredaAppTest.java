@@ -4,7 +4,7 @@ import java.net.URL;
 
 import org.junit.Test;
 
-import com.freda.common.conf.Configuration;
+import com.freda.config.Configuration;
 
 public class FredaAppTest {
 

@@ -2,13 +2,13 @@
 <!-- property 只支持基本数据类型和字符串 -->
 <configuration>
 	<!-- netty 配置 -->
-	<netty>
+	<netty-server>
 		<property name="bossThreads">2</property>
 		<property name="workerThreads">8</property>
 		<property name="ip">127.0.0.1</property>
 		<property name="port">8888</property>
 		<property name="protocal">freda</property>
-	</netty>
+	</netty-server>
 
 	<!-- 注册中心 zookeeper -->
 	<registry>

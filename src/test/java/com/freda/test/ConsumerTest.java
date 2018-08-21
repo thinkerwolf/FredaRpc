@@ -1,18 +1,16 @@
 package com.freda.test;
 
-import com.freda.bootstrap.FredaConsumer;
+import com.freda.bootstrap.Bootstrap;
 import com.freda.example.DemoService;
 
 public class ConsumerTest {
 
     public static void main(String args[]) {
     	try {
-			FredaConsumer consumer = new FredaConsumer();
-			consumer.setConfFilePath("classpath:freda-consumer.xml");
-			consumer.start();
-			
-			
-			DemoService ds = consumer.refer(DemoService.class);
+    		Bootstrap b = new Bootstrap();
+			b.setConfFilePath("classpath:freda-consumer.xml");
+			b.start();
+			DemoService ds = b.refer(DemoService.class);
 			ds.sayHello("freda");
 			
 		} catch (Exception e) {

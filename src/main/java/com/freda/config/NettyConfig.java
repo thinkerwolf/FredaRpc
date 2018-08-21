@@ -1,16 +1,16 @@
-package com.freda.common.conf;
+package com.freda.config;
 
 public class NettyConfig {
 
 	private static final int DEFAULT_THREAD_NUM = Math.max(1, Runtime.getRuntime().availableProcessors() * 2);
 
-	private String ip = "127.0.0.1";
+	private String ip;
 
-	private int port = 11211;
+	private int port;
 
 	private String protocal = "freda";
 
-	private int bossThreads = 2;
+	private int bossThreads = Math.max(1, DEFAULT_THREAD_NUM / 2);
 
 	private int workerThreads = DEFAULT_THREAD_NUM;
 

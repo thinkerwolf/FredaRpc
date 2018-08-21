@@ -1,5 +1,7 @@
 package com.freda.common.util;
 
+import java.lang.reflect.Field;
+
 public class ReflectionUtils {
 
 	public static Class<?> getClassByName(String name) {
@@ -27,4 +29,27 @@ public class ReflectionUtils {
 		}
 		return null;
 	}
+	
+	public static Object getPrimitiveFieldValue(Field field, String str) {
+		Class<?> clazz = field.getType();
+		if (clazz == String.class) {
+			return str;
+		} else if (clazz == byte.class || clazz == Byte.class) {
+			return Byte.parseByte(str);
+		} else if (clazz == short.class || clazz == Short.class) {
+			return Short.parseShort(str);
+		} else if (clazz == int.class || clazz == Integer.class) {
+			return Integer.parseInt(str);
+		} else if (clazz == long.class || clazz == Long.class) {
+			return Long.parseLong(str);
+		} else if (clazz == float.class || clazz == Float.class) {
+			return Float.parseFloat(str);
+		} else if (clazz == double.class || clazz == Double.class) {
+			return Double.parseDouble(str);
+		} else if (clazz == boolean.class || clazz == Boolean.class) {
+			return Boolean.parseBoolean(str);
+		}
+		return null;
+	}
+	
 }
