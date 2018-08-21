@@ -23,19 +23,23 @@
 	<registry>
 		<property name="ip">127.0.0.1</property>
 		<property name="port">2121</property>
+		<property name="type">zookeeper</property>
 	</registry>
 
 	<!-- 需要暴漏的接口 -->
 	<services>
-		<service id="demoService" class="com.freda.example.DemoServiceImpl">
+		<service id="demoService" interface="com.freda.example.DemoService" class="com.freda.example.DemoServiceImpl">
 			<property name="persent">100</property>
 			<property name="server">true</property>
 			<property name="hello">Hello,sam</property>
 		</service>
-
-		<service id="demoService1" interface="com.freda.example.DemoService" />
 	</services>
-
+	
+	<!--  -->
+	<references>
+		<reference id="demoService1" interface="com.freda.example.DemoService"></reference>
+	</references>
+	
 	<!-- 注解扫描 service -->
 	<compoent-scan basePackage="com.freda" />
 

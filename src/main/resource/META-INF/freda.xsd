@@ -12,33 +12,40 @@
 
 
 	<xsd:complexType name="serviceType">
+		<xsd:attribute name="id" type="xsd:string" />
 		<xsd:attribute name="interface" type="xsd:string" />
 		<xsd:attribute name="ref" type="xsd:string" />
 	</xsd:complexType>
 	<xsd:element name="service" type="serviceType">
 	</xsd:element>
-
+	
+	
+	<xsd:complexType name="referenceType">
+		<xsd:attribute name="id" type="xsd:string" />
+		<xsd:attribute name="interface" type="xsd:string" />
+	</xsd:complexType>
+	<xsd:element name="reference" type="referenceType">
+	</xsd:element>
+	
 
 	<xsd:complexType name="registryType">
 		<xsd:attribute name="protocal" type="xsd:string" />
-		<xsd:attribute name="ip" type="xsd:string" />
-		<xsd:attribute name="port" type="xsd:int" />
+		<xsd:attribute name="address" type="xsd:string" />
 	</xsd:complexType>
 	<xsd:element name="registry" type="registryType">
 	</xsd:element>
 
 
-
 	<xsd:complexType name="nettyType">
-		<xsd:attribute name="ip" type="xsd:string" />
-		<xsd:attribute name="port" type="xsd:int" />
+		<xsd:attribute name="address" type="xsd:string" />
 		<xsd:attribute name="protocal" type="xsd:string" />
 		<xsd:attribute name="bossThreads" type="xsd:int" />
 		<xsd:attribute name="workerThreads" type="xsd:int" />
 	</xsd:complexType>
-	<xsd:element name="netty" type="nettyType">
+	<xsd:element name="netty-client" type="nettyType">
 	</xsd:element>
-
-
+	<xsd:element name="netty-server" type="nettyType">
+	</xsd:element>
+	
 
 </xsd:schema>

@@ -8,7 +8,7 @@ public class ReflectionUtils {
 		try {
 			return Class.forName(name);
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			//throw new RuntimeException("class " + name + " not exist");
 		}
 		return null;
 	}

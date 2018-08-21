@@ -14,7 +14,8 @@ public class ReferenceBean extends ReferenceConfig implements InitializingBean {
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-
+		
+		
 	}
 
 }

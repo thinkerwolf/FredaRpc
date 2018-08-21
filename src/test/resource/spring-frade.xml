@@ -16,6 +16,23 @@
        http://www.freda.com/schema/freda/freda.xsd">
 
 	<bean id="demoService" class="com.freda.example.DemoServiceImpl"></bean>
-
-	<freda:service id="44566"></freda:service>
+	
+	
+	<!-- registry config 
+	<freda:registry protocal="zookeeper"  address="127.0.0.1:2181" /> -->
+	
+	<!-- netty-server config 1 
+	<freda:netty-server protocal="freda" address="127.0.0.1:8088" bossThreads="2" workerThreads="8" /> -->
+	
+	<!-- netty-server config 2 
+	<freda:netty-server protocal="freda" address="127.0.0.1:8089" bossThreads="2" workerThreads="8" /> -->
+	
+	<!-- netty-client config 
+	<freda:netty-client protocal="freda" address="127.0.0.1:8088" bossThreads="2"/> -->
+	
+	<freda:service id="demoService_service" interface="com.freda.example.DemoService" ref="demoService" />
+	
+	<freda:reference id="demoService_reference" />
+	
+	
 </beans>

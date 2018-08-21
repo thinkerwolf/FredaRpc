@@ -144,7 +144,7 @@ public class Configuration {
 			}
 			registrys.add(registry);
 		}
-		NettyConfig nc = ref.getNettyConf();
+		NettyConfig nc = ref.getNettyConfig();
 		RemotingClient remoting = remotingClientMap.get(nc);
 		if (remoting == null) {
 			remoting = new NettyClient(nc);
@@ -155,16 +155,15 @@ public class Configuration {
 		remoting.addReferenceConfig(ref);
 		exportRefRemoteMap.put(ref.getInterfaceClass(), remoting);
 	}
-	
-	
+
 	RemotingClient getRemotingClient(NettyConfig nc) {
 		return remotingClientMap.get(nc);
 	}
-	
+
 	RemotingServer getRemotingServer(NettyConfig nc) {
 		return remotingServerMap.get(nc);
 	}
-	
+
 	public static Configuration newConfiguration() throws Exception {
 		InputStream is = Configuration.class.getClassLoader().getResourceAsStream("freda.xml");
 		return newConfiguration(is);
@@ -182,7 +181,8 @@ public class Configuration {
 	public static Configuration newConfiguration(InputStream is) throws Exception {
 		Configuration configuration = new Configuration();
 		RegistryConfig registryConfig = new RegistryConfig();
-		Map<String, InterfaceConfig<?>> icMap = new HashMap<String, InterfaceConfig<?>>();
+		Map<String, InterfaceConfig<?>> serviceMap = new HashMap<>();
+		Map<String, InterfaceConfig<?>> referenceMap = new HashMap<>();
 		List<NettyConfig> nettyServerConfigs = new ArrayList<>();
 		if (is != null) {
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -217,24 +217,36 @@ public class Configuration {
 			}
 
 			// 解析service
-			Node node = doc.getElementsByTagName("services").item(0);
-			if (node != null) {
-				parseServiceValue((Element) node, "service", icMap);
+			Node serviceNode = doc.getElementsByTagName("services").item(0);
+			if (serviceNode != null) {
+				parseServiceValue((Element) serviceNode, "service", serviceMap);
 			}
+
+			// 解析reference
+			Node referenceNode = doc.getElementsByTagName("references").item(0);
+			if (referenceNode != null) {
+				parseReferenceValue((Element) referenceNode, "reference", referenceMap);
+			}
+
 			is.close();
 		}
 		configuration.addRegistryConfig(registryConfig);
 		configuration.setNettyServerConfigs(nettyServerConfigs);
-		for (InterfaceConfig<?> ic : icMap.values()) {
+
+		for (InterfaceConfig<?> ic : serviceMap.values()) {
 			ic.addRegistryConf(registryConfig);
-			if (ic instanceof ServiceConfig) {
-				((ServiceConfig<?>) ic).addNettyConfs(configuration.getNettyServerConfigs());
-			} else {
-				((ReferenceConfig<?>) ic).setNettyConf(configuration.getNettyClientConfig());
-			}
+			((ServiceConfig<?>) ic).addNettyConfs(configuration.getNettyServerConfigs());
 			ic.setConf(configuration);
 			ic.export();
 		}
+
+		for (InterfaceConfig<?> ic : referenceMap.values()) {
+			ic.addRegistryConf(registryConfig);
+			((ReferenceConfig<?>) ic).setNettyConf(configuration.getNettyClientConfig());
+			ic.setConf(configuration);
+			ic.export();
+		}
+
 		return configuration;
 	}
 
@@ -242,41 +254,52 @@ public class Configuration {
 	private static void parseServiceValue(Element element, String childTagName, Map<String, InterfaceConfig<?>> map) {
 		NodeList serviceNodeList = element.getElementsByTagName(childTagName);
 		for (int i = 0; i < serviceNodeList.getLength(); i++) {
-
 			Element serviceElement = (Element) serviceNodeList.item(i);
 			NamedNodeMap serviceAttrMap = serviceElement.getAttributes();
 
 			Node idNode = serviceAttrMap.getNamedItem("id");
 			Node classNode = serviceAttrMap.getNamedItem("class");
 			Node interfaceNode = serviceAttrMap.getNamedItem("interface");
-
 			if (interfaceNode == null) {
 				continue;
 			}
 
-			InterfaceConfig inConfig = null;
-			if (classNode != null) {
-				inConfig = new ServiceConfig();
-				Class<?> clazz = ReflectionUtils.getClassByName(classNode.getTextContent());
-				inConfig.setRef(ReflectionUtils.newInstance(clazz));
-			} else {
-				inConfig = new ReferenceConfig();
+			ServiceConfig sc = new ServiceConfig();
+			Class<?> clazz = ReflectionUtils.getClassByName(classNode.getTextContent());
+			sc.setRef(ReflectionUtils.newInstance(clazz));
+
+			sc.setInterface(interfaceNode.getTextContent());
+
+			String id = idNode == null ? interfaceNode.getTextContent() : idNode.getTextContent();
+			if (map.get(id) != null) {
+				throw new RuntimeException("duplicate name " + idNode.getTextContent());
 			}
+			sc.setId(id);
+			parsePropertyValue(serviceElement, "property", sc.getRef());
+			map.put(sc.getId(), sc);
+		}
+	}
 
+	private static void parseReferenceValue(Element element, String childTagName, Map<String, InterfaceConfig<?>> map) {
+		NodeList serviceNodeList = element.getElementsByTagName(childTagName);
+		for (int i = 0; i < serviceNodeList.getLength(); i++) {
+			Element serviceElement = (Element) serviceNodeList.item(i);
+			NamedNodeMap serviceAttrMap = serviceElement.getAttributes();
+
+			Node idNode = serviceAttrMap.getNamedItem("id");
+			Node interfaceNode = serviceAttrMap.getNamedItem("interface");
+			if (interfaceNode == null) {
+				continue;
+			}
+			ReferenceConfig rc = new ReferenceConfig();
 			Class<?> interfaceClass = ReflectionUtils.getClassByName(interfaceNode.getTextContent());
-			inConfig.setInterfaceClass(interfaceClass);
-
+			rc.setInterface(interfaceNode.getTextContent());
 			String id = idNode == null ? interfaceClass.getName() : idNode.getTextContent();
 			if (map.get(id) != null) {
 				throw new RuntimeException("duplicate name " + idNode.getTextContent());
 			}
-			inConfig.setId(id);
-
-			if (classNode != null) {
-				parsePropertyValue(serviceElement, "property", inConfig.getRef());
-			}
-
-			map.put(inConfig.getId(), inConfig);
+			rc.setId(id);
+			map.put(rc.getId(), rc);
 		}
 	}
 

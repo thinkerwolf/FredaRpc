@@ -38,6 +38,13 @@ public class ServiceConfig<T> extends InterfaceConfig<T> {
 	 * 暴漏接口
 	 */
 	public void export() {
+		if (interfaceClass == null) {
+			try {
+				interfaceClass = (Class<T>) Class.forName(interfaceName == null ? "" : interfaceName);
+			} catch (ClassNotFoundException e) {
+				throw new RuntimeException("can't init interfaceClass");
+			}
+		}
 		checkRef();
 		this.conf.addServiceConfig(this);
 	}

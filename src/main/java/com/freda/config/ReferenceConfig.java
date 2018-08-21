@@ -14,7 +14,7 @@ public class ReferenceConfig<T> extends InterfaceConfig<T> {
 
 	private NettyConfig nettyConf;
 
-	public NettyConfig getNettyConf() {
+	public NettyConfig getNettyConfig() {
 		return nettyConf;
 	}
 

@@ -5,13 +5,14 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.freda.common.conf.RegistryConfig;
+import com.freda.common.util.ReflectionUtils;
 
 public abstract class InterfaceConfig<T> {
 
 	protected String id;
 
 	protected Class<T> interfaceClass;
-
+	protected String interfaceName;
 	protected Set<RegistryConfig> registryConfs = new HashSet<RegistryConfig>();
 
 	protected T ref;
@@ -30,16 +31,18 @@ public abstract class InterfaceConfig<T> {
 		return interfaceClass;
 	}
 
-	public void setInterfaceClass(Class<T> interfaceClass) {
-		this.interfaceClass = interfaceClass;
+	@SuppressWarnings("unchecked")
+	public void setInterface(String interfaceName) {
+		this.interfaceName = interfaceName;
+		this.interfaceClass = (Class<T>) ReflectionUtils.getClassByName(interfaceName);
+	}
+
+	public String getInterface() {
+		return interfaceName;
 	}
 
 	public Set<RegistryConfig> getRegistryConfs() {
 		return registryConfs;
-	}
-
-	public void setRegistryConfs(Set<RegistryConfig> registryConfs) {
-		this.registryConfs = registryConfs;
 	}
 
 	public void addRegistryConfs(Collection<RegistryConfig> registrys) {
@@ -56,10 +59,6 @@ public abstract class InterfaceConfig<T> {
 
 	public void setRef(T ref) {
 		this.ref = ref;
-	}
-
-	public Configuration getConf() {
-		return conf;
 	}
 
 	public void setConf(Configuration conf) {
