@@ -20,6 +20,7 @@ import com.freda.remoting.RemotingClient;
  * @author wukai
  *
  */
+@SuppressWarnings("rawtypes")
 public class ReferenceBean extends ReferenceConfig
 		implements FactoryBean, ApplicationContextAware, InitializingBean, DisposableBean {
 
