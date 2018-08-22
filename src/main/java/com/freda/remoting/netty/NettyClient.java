@@ -44,7 +44,7 @@ public class NettyClient extends RemotingClient {
 	private static final Logger logger = LoggerFactory.getLogger(NettyClient.class);
 	private static final AtomicInteger THREAD_NUM = new AtomicInteger();
 	private static final AtomicInteger ID_GENARETOR = new AtomicInteger();
-	
+
 	private Bootstrap bootstrap;
 	private BlockingQueue<ResponseMessage> responseMessages = new LinkedBlockingQueue<ResponseMessage>();
 	private Map<Integer, ResponseFuture> waitResultMap = new HashMap<Integer, ResponseFuture>();
@@ -155,15 +155,15 @@ public class NettyClient extends RemotingClient {
 					port = server.getPort();
 				}
 				startFuture = bootstrap.connect(host, port).sync();
-				
+
 				final String debugStr = host + ":" + port;
 				startFuture.addListener(new ChannelFutureListener() {
 					@Override
 					public void operationComplete(ChannelFuture future) throws Exception {
 						if (future.isSuccess()) {
 							if (logger.isDebugEnabled()) {
-								logger.debug(new StringBuilder("connect to [").append(debugStr)
-										.append("] success!").toString());
+								logger.debug(new StringBuilder("connect to [").append(debugStr).append("] success!")
+										.toString());
 							}
 							started = true;
 						}

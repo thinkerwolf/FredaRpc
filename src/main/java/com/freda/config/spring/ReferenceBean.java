@@ -29,6 +29,7 @@ public class ReferenceBean extends ReferenceConfig
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		Map<String, NettyBean> nettyBeanMap = context.getBeansOfType(NettyBean.class);
+		this.setConf(Configuration.getInstance());
 		if (nettyBeanMap == null || nettyBeanMap.size() == 0) {
 			return;
 		}

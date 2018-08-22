@@ -20,14 +20,14 @@ import com.freda.config.ServiceConfig;
 public class ServiceBean extends ServiceConfig implements InitializingBean, ApplicationContextAware {
 
 	private ApplicationContext context;
-
+	
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		Map<String, NettyBean> nettyBeanMap  = context.getBeansOfType(NettyBean.class);
-		
 		if (nettyBeanMap == null || nettyBeanMap.size() == 0) {
 			return;
 		}
+		this.setConf(Configuration.getInstance());
 		int num = 0;
 		for (NettyBean nb : nettyBeanMap.values()) {
 			if (nb.isServer() && nb.isUseable()) {

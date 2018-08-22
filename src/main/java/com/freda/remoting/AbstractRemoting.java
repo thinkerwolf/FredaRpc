@@ -14,7 +14,6 @@ abstract class AbstractRemoting implements Remoting {
 
 	protected Set<Registry> registrys = new HashSet<>();
 
-	
 	protected volatile boolean started;
 
 	public AbstractRemoting(NettyConfig conf) {

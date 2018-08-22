@@ -10,7 +10,6 @@ import com.freda.common.util.ReflectionUtils;
 public abstract class InterfaceConfig<T> {
 
 	protected String id;
-
 	protected Class<T> interfaceClass;
 	protected String interfaceName;
 	protected Set<RegistryConfig> registryConfs = new HashSet<RegistryConfig>();

@@ -132,6 +132,7 @@ public class Configuration {
 			return null;
 		}
 		List<Registry> registrys = new ArrayList<>();
+		NettyConfig nc = ref.getNettyConfig();
 		for (RegistryConfig rc : ref.getRegistryConfs()) {
 			Registry registry = registryMap.get(rc);
 			if (registry == null) {
@@ -145,11 +146,10 @@ public class Configuration {
 			}
 			registrys.add(registry);
 		}
-		if (registrys.size() <= 0) {
-		    throw new RuntimeException("registry num == 0");
-        }
-
-		NettyConfig nc = ref.getNettyConfig();
+		if (registrys.size() <= 0 || !nc.isUseable()) {
+			throw new RuntimeException("can't export [" + ref.getInterface()
+					+ "], because there's no registry config and nettyConfig can't be used");
+		}
 		RemotingClient remoting = null;
 		if (nc.isUseable()) {
 			remoting = remotingClientMap.get(nc);
@@ -159,25 +159,25 @@ public class Configuration {
 				remotingClientMap.put(nc, remoting);
 			}
 		} else {
-			 NettyConfig newNc = nc.clone();
-			 try {
-	                Server server = registrys.get(0).getRandomServer(newNc.getProtocal());
-	                if (server == null) {
-	                    return null;
-	                }
-	                newNc.setIp(server.getHost());
-	                newNc.setPort(server.getPort());
-	                ref.setNettyConf(newNc);
-	            } catch (Exception e) {
-	                e.printStackTrace();
-	                return null;
-	            }
-	            remoting = remotingClientMap.get(newNc);
-	            if (remoting == null) {
-	                remoting = RemotingFactory.getInstance().createRemotingClient(newNc, registrys);
-	                remoting.start();
-	                remotingClientMap.put(newNc, remoting);
-	            }
+			NettyConfig newNc = nc.clone();
+			try {
+				Server server = registrys.get(0).getRandomServer(newNc.getProtocal());
+				if (server == null) {
+					return null;
+				}
+				newNc.setIp(server.getHost());
+				newNc.setPort(server.getPort());
+				ref.setNettyConf(newNc);
+			} catch (Exception e) {
+				e.printStackTrace();
+				return null;
+			}
+			remoting = remotingClientMap.get(newNc);
+			if (remoting == null) {
+				remoting = RemotingFactory.getInstance().createRemotingClient(newNc, registrys);
+				remoting.start();
+				remotingClientMap.put(newNc, remoting);
+			}
 		}
 		remoting.addReferenceConfig(ref);
 		exportRefRemoteMap.put(ref.getInterfaceClass(), remoting);
@@ -192,8 +192,8 @@ public class Configuration {
 		return remotingServerMap.get(nc);
 	}
 
-
 	private static Configuration INSTANCE;
+
 	public static Configuration getInstance() {
 		if (INSTANCE == null) {
 			synchronized (Configuration.class) {
@@ -201,7 +201,7 @@ public class Configuration {
 					try {
 						INSTANCE = newConfiguration();
 					} catch (Exception e) {
-						//e.printStackTrace();
+						// e.printStackTrace();
 						INSTANCE = new Configuration();
 					}
 				}
@@ -209,9 +209,6 @@ public class Configuration {
 		}
 		return INSTANCE;
 	}
-
-
-
 
 	public static Configuration newConfiguration() throws Exception {
 		InputStream is = Configuration.class.getClassLoader().getResourceAsStream("freda.xml");
@@ -251,7 +248,6 @@ public class Configuration {
 					nettyServerConfigs.add(nettyConfig);
 				}
 			}
-
 
 			// 解析Netty-client 一个
 			Element nettyClientElement = (Element) doc.getElementsByTagName("netty-client").item(0);

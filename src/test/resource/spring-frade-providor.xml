@@ -15,7 +15,7 @@
        http://www.freda.com/schema/freda
        http://www.freda.com/schema/freda/freda.xsd">
 
-	<bean id="demoService" class="com.freda.example.DemoServiceImpl"></bean>
+	<bean id="demoService" class="com.freda.example.DemoServiceImpl" />
 
 	<!-- registry config -->
 	<freda:registry ip="127.0.0.1" port="2181" protocal="zookeeper" />
