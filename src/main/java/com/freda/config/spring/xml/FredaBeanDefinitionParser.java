@@ -8,9 +8,12 @@ import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
+import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
+
+import com.freda.config.spring.NettyBean;
 
 /**
  * bean配置
@@ -35,21 +38,23 @@ public class FredaBeanDefinitionParser implements BeanDefinitionParser {
 		beanDefinition.setLazyInit(false);
 		NamedNodeMap attrs = element.getAttributes();
 
-		String id = element.getAttribute("id");
-		if (id == null || id.length() <= 0) {
-			String tempName = element.getAttribute("interface");
-			id = tempName;
+		// generate bean id and register
+		String beanId = element.getAttribute("id");
+		if (!StringUtils.hasText(beanId)) {
+			String generateName = element.getAttribute("interface");
+			if (!StringUtils.hasText(generateName)) {
+				generateName = beanClass.getName();
+			}
 			int count = 2;
-			while (parserContext.getRegistry().containsBeanDefinition(id)) {
-				id = tempName + (count++);
+			beanId = generateName + count;
+			while (parserContext.getRegistry().containsBeanDefinition(beanId)) {
+				beanId = generateName + (count++);
 			}
 		}
-		
-		if (parserContext.getRegistry().containsBeanDefinition(id)) {
-			throw new IllegalStateException("Duplicate spring bean id " + id);
+		if (parserContext.getRegistry().containsBeanDefinition(beanId)) {
+			throw new IllegalStateException("Duplicate spring bean id " + beanId);
 		}
-		parserContext.getRegistry().registerBeanDefinition(id, beanDefinition);
-		beanDefinition.getPropertyValues().addPropertyValue("id", id);
+		parserContext.getRegistry().registerBeanDefinition(beanId, beanDefinition);
 
 		// set and get is a parameter
 		for (Method setter : beanClass.getMethods()) {
@@ -57,20 +62,36 @@ public class FredaBeanDefinitionParser implements BeanDefinitionParser {
 			if (setName.length() > 3 && setName.startsWith("set") && Modifier.isPublic(setter.getModifiers())
 					&& setter.getParameterTypes().length == 1) {
 				String name = setName.substring(3, setName.length());
-				Method getter = null;
+				// Method getter = null;
 				try {
-					getter = beanClass.getMethod("get" + name);
+					// getter =
+					beanClass.getMethod("get" + name);
 				} catch (Exception e) {
 					try {
-						getter = beanClass.getMethod("is" + name);
+						// getter =
+						beanClass.getMethod("is" + name);
 					} catch (Exception e1) {
 						continue;
 					}
 				}
 				String property = getPropertyName(name);
+				
 				if ("id".equals(property)) {
+					String id = element.getAttribute("id");
+					if (!StringUtils.hasText(id)) {
+						id = element.getAttribute("ref");
+					}
+					if (!StringUtils.hasText(id)) {
+						id = element.getAttribute("interface");
+					}
+					if (!StringUtils.hasText(id)) {
+						beanDefinition.getPropertyValues().addPropertyValue("id", beanId);
+					} else {
+						beanDefinition.getPropertyValues().addPropertyValue("id", id);
+					}
 					continue;
 				}
+				
 				Node node = attrs.getNamedItem(property);
 				if (node != null) {
 					Object reference = null;
@@ -95,6 +116,16 @@ public class FredaBeanDefinitionParser implements BeanDefinitionParser {
 				}
 			}
 		}
+		
+		if (beanClass.equals(NettyBean.class)) {
+			String tag = element.getTagName();
+			if (tag.endsWith("netty-server")) {
+				beanDefinition.getPropertyValues().addPropertyValue("server", true);
+			} else {
+				beanDefinition.getPropertyValues().addPropertyValue("server", false);
+			}
+		}
+		
 		return beanDefinition;
 	}
 

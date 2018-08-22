@@ -7,7 +7,7 @@ import org.junit.Test;
 import com.freda.config.Configuration;
 import com.freda.config.ServiceConfig;
 
-public class FredaAppTest {
+public class FredaApp {
 
 	public void configurationTest() {
 		try {

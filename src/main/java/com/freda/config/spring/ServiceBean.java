@@ -1,6 +1,9 @@
 package com.freda.config.spring;
 
 import com.freda.config.Configuration;
+
+import java.util.Map;
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
@@ -20,10 +23,23 @@ public class ServiceBean extends ServiceConfig implements InitializingBean, Appl
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		Configuration.getInstance().getNettyServerConfigs();
-
-
-
+		Map<String, NettyBean> nettyBeanMap  = context.getBeansOfType(NettyBean.class);
+		
+		if (nettyBeanMap == null || nettyBeanMap.size() == 0) {
+			return;
+		}
+		int num = 0;
+		for (NettyBean nb : nettyBeanMap.values()) {
+			if (nb.isServer() && nb.isUseable()) {
+				num++;
+				this.addNettyConf(nb);
+			}
+		}
+		if (num > 0) {
+			Map<String, RegistryBean> registryBeanMap = context.getBeansOfType(RegistryBean.class);
+			this.addRegistryConfs(registryBeanMap.values());
+			Configuration.getInstance().addServiceConfig(this);
+		}
 	}
 
 	@Override

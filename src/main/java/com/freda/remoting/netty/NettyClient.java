@@ -10,6 +10,8 @@ import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.handler.codec.MessageToByteEncoder;
 import io.netty.util.Signal;
 import io.netty.util.concurrent.DefaultPromise;
+
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -133,22 +135,34 @@ public class NettyClient extends RemotingClient {
 			}
 			try {
 				doInit();
-				Server server = null;
-				try {
-					server = getRegistry().getRandomServer(conf.getProtocal());
-				} catch (Exception e) {
-					e.printStackTrace();
+				String host = null;
+				int port = 0;
+				if (StringUtils.isNotEmpty(conf.getIp()) && conf.getPort() > 0) {
+					host = conf.getIp();
+					port = conf.getPort();
+				} else {
+					Server server = null;
+					try {
+						server = getRegistry().getRandomServer(conf.getProtocal());
+						if (server == null) {
+							throw new RuntimeException("server null");
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+						throw new RuntimeException("server null");
+					}
+					host = server.getHost();
+					port = server.getPort();
 				}
-				final String host = server.getHost();
-				final int port = server.getPort();
-
 				startFuture = bootstrap.connect(host, port).sync();
+				
+				final String debugStr = host + ":" + port;
 				startFuture.addListener(new ChannelFutureListener() {
 					@Override
 					public void operationComplete(ChannelFuture future) throws Exception {
 						if (future.isSuccess()) {
 							if (logger.isDebugEnabled()) {
-								logger.debug(new StringBuilder("connect to [").append(host).append(":").append(port)
+								logger.debug(new StringBuilder("connect to [").append(debugStr)
 										.append("] success!").toString());
 							}
 							started = true;

@@ -28,8 +28,8 @@ import com.freda.common.util.ReflectionUtils;
 import com.freda.registry.Registry;
 import com.freda.registry.ZooKeeperRegistry;
 import com.freda.remoting.RemotingClient;
+import com.freda.remoting.RemotingFactory;
 import com.freda.remoting.RemotingServer;
-import com.freda.remoting.netty.NettyClient;
 import com.freda.remoting.netty.NettyServer;
 
 /**
@@ -127,9 +127,9 @@ public class Configuration {
 		}
 	}
 
-	public void addReferenceConfig(ReferenceConfig<?> ref) {
+	public RemotingClient addReferenceConfig(ReferenceConfig<?> ref) {
 		if (exportRefRemoteMap.get(ref.getInterfaceClass()) != null) {
-			return;
+			return null;
 		}
 		List<Registry> registrys = new ArrayList<>();
 		for (RegistryConfig rc : ref.getRegistryConfs()) {
@@ -150,33 +150,38 @@ public class Configuration {
         }
 
 		NettyConfig nc = ref.getNettyConfig();
-        NettyConfig newNc = nc.clone();
-
-        RemotingClient remoting = remotingClientMap.get(newNc);
-        if (remoting == null) {
-            try {
-                Server server = registrys.get(0).getRandomServer(newNc.getProtocal());
-                if (server == null) {
-                    throw new RuntimeException("reference get server fail!");
-                }
-                newNc.setIp(server.getHost());
-                newNc.setPort(server.getPort());
-                ref.setNettyConf(newNc);
-            } catch (Exception e) {
-                e.printStackTrace();
-                return;
-            }
-            remoting = remotingClientMap.get(newNc);
-
-            if (remoting == null) {
-                remoting = new NettyClient(newNc);
-                remoting.addRegistrys(registrys);
-                remoting.start();
-                remotingClientMap.put(newNc, remoting);
-            }
-        }
+		RemotingClient remoting = null;
+		if (nc.isUseable()) {
+			remoting = remotingClientMap.get(nc);
+			if (remoting == null) {
+				remoting = RemotingFactory.getInstance().createRemotingClient(nc, registrys);
+				remoting.start();
+				remotingClientMap.put(nc, remoting);
+			}
+		} else {
+			 NettyConfig newNc = nc.clone();
+			 try {
+	                Server server = registrys.get(0).getRandomServer(newNc.getProtocal());
+	                if (server == null) {
+	                    return null;
+	                }
+	                newNc.setIp(server.getHost());
+	                newNc.setPort(server.getPort());
+	                ref.setNettyConf(newNc);
+	            } catch (Exception e) {
+	                e.printStackTrace();
+	                return null;
+	            }
+	            remoting = remotingClientMap.get(newNc);
+	            if (remoting == null) {
+	                remoting = RemotingFactory.getInstance().createRemotingClient(newNc, registrys);
+	                remoting.start();
+	                remotingClientMap.put(newNc, remoting);
+	            }
+		}
 		remoting.addReferenceConfig(ref);
 		exportRefRemoteMap.put(ref.getInterfaceClass(), remoting);
+		return remoting;
 	}
 
 	RemotingClient getRemotingClient(NettyConfig nc) {

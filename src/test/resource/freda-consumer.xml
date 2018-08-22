@@ -4,9 +4,7 @@
 	<!-- netty 配置 -->
 	<netty-client>
 		<property name="bossThreads">2</property>
-		<property name="workerThreads">8</property>
-		<property name="ip">127.0.0.1</property>
-		<property name="port">8888</property>
+		<property name="workerThreads">4</property>
 		<property name="protocal">freda</property>
 	</netty-client>
 	

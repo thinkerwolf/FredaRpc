@@ -1,5 +1,7 @@
 package com.freda.common.conf;
 
+import org.apache.commons.lang3.StringUtils;
+
 public class NettyConfig {
 
 	private static final int DEFAULT_THREAD_NUM = Math.max(1, Runtime.getRuntime().availableProcessors() * 2);
@@ -53,7 +55,14 @@ public class NettyConfig {
 	public void setWorkerThreads(int workerThreads) {
 		this.workerThreads = workerThreads;
 	}
-
+	
+	public boolean isUseable() {
+		if (StringUtils.isNotEmpty(ip) && port > 0 && StringUtils.isNotEmpty(protocal)) {
+			return true;
+		}
+		return false;
+	}
+	
 	@Override
 	public String toString() {
 		return "host#" + ip + ", port#" + port;
