@@ -153,6 +153,9 @@ public class NettyClient extends RemotingClient {
 					}
 					host = server.getHost();
 					port = server.getPort();
+					this.conf = conf.clone();
+					this.conf.setIp(host);
+					this.conf.setPort(port);
 				}
 				startFuture = bootstrap.connect(host, port).sync();
 

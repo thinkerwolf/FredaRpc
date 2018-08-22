@@ -31,8 +31,5 @@
 		</service>
 	</services>
 
-	<!-- 注解扫描 service -->
-	<compoent-scan basePackage="com.freda" />
-
 </configuration>
 

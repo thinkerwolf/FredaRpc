@@ -37,6 +37,7 @@ abstract class AbstractRemoting implements Remoting {
 					return registry;
 				} else {
 					iter.remove();
+					
 				}
 			}
 		}
