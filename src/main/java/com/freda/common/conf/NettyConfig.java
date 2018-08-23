@@ -10,7 +10,7 @@ public class NettyConfig {
 
 	private int port;
 
-	private String protocal = "freda";
+	private String protocol = "freda";
 
 	private int bossThreads = Math.max(1, DEFAULT_THREAD_NUM / 2);
 
@@ -32,12 +32,12 @@ public class NettyConfig {
 		this.port = port;
 	}
 
-	public String getProtocal() {
-		return protocal;
+	public String getProtocol() {
+		return protocol;
 	}
 
-	public void setProtocal(String protocal) {
-		this.protocal = protocal;
+	public void setProtocol(String protocol) {
+		this.protocol = protocol;
 	}
 
 	public int getBossThreads() {
@@ -57,7 +57,7 @@ public class NettyConfig {
 	}
 	
 	public boolean isUseable() {
-		if (StringUtils.isNotEmpty(ip) && port > 0 && StringUtils.isNotEmpty(protocal)) {
+		if (StringUtils.isNotEmpty(ip) && port > 0 && StringUtils.isNotEmpty(protocol)) {
 			return true;
 		}
 		return false;
@@ -74,7 +74,7 @@ public class NettyConfig {
 		int result = 1;
 		result = prime * result + ((ip == null) ? 0 : ip.hashCode());
 		result = prime * result + port;
-		result = prime * result + ((protocal == null) ? 0 : protocal.hashCode());
+		result = prime * result + ((protocol == null) ? 0 : protocol.hashCode());
 		return result;
 	}
 
@@ -94,10 +94,10 @@ public class NettyConfig {
 			return false;
 		if (port != other.port)
 			return false;
-		if (protocal == null) {
-			if (other.protocal != null)
+		if (protocol == null) {
+			if (other.protocol != null)
 				return false;
-		} else if (!protocal.equals(other.protocal))
+		} else if (!protocol.equals(other.protocol))
 			return false;
 		return true;
 	}
@@ -107,7 +107,7 @@ public class NettyConfig {
 		NettyConfig nettyConfig = new NettyConfig();
 		nettyConfig.setIp(this.ip);
 		nettyConfig.setPort(this.port);
-		nettyConfig.setProtocal(this.protocal);
+		nettyConfig.setProtocol(this.protocol);
 		nettyConfig.setBossThreads(this.bossThreads);
 		nettyConfig.setWorkerThreads(this.workerThreads);
 		return nettyConfig;

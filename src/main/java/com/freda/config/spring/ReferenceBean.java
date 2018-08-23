@@ -65,7 +65,7 @@ public class ReferenceBean extends ReferenceConfig
 	public Object getObject() throws Exception {
 		if (getRef() == null) {
 			RemotingClient client = Configuration.getInstance().addReferenceConfig(this);
-			Object obj = client.invokeSync(this.getInterfaceClass());
+			Object obj = client.sendSync(this.getInterfaceClass());
 			this.setRef(obj);
 		}
 		return getRef();

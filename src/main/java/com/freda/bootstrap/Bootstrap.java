@@ -37,7 +37,7 @@ public class Bootstrap {
 
 	public <T> T refer(Class<T> clazz) {
 		RemotingClient rc = this.conf.getRefRemoting(clazz);
-		return rc.invokeSync(clazz);
+		return rc.sendSync(clazz);
 	}
 
 }

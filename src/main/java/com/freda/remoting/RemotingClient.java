@@ -1,47 +1,23 @@
 package com.freda.remoting;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
 import com.freda.common.conf.NettyConfig;
-import com.freda.config.ReferenceConfig;
 
 public abstract class RemotingClient extends AbstractRemoting {
-	
-	protected ConcurrentMap<String, ReferenceConfig<?>> referenceMap = new ConcurrentHashMap<>();
 
 	public RemotingClient(NettyConfig conf) {
 		super(conf);
 	}
 
-	@SuppressWarnings("unchecked")
-	public <T> ReferenceConfig<T> getReferenceConfig(Class<T> clazz) {
-		for (ReferenceConfig<?> rc : referenceMap.values()) {
-			if (clazz.equals(rc.getInterfaceClass())) {
-				return (ReferenceConfig<T>) rc;
-			}
-		}
-		return null;
+	public RemotingClient(NettyConfig conf, RemotingHandler handler) {
+		super(conf, handler);
 	}
 
-	public ReferenceConfig<?> getReferenceConfig(String id) {
-		return referenceMap.get(id);
-	}
-
-	public void addReferenceConfig(ReferenceConfig<?> reConfig) {
-		referenceMap.put(reConfig.getId(), reConfig);
-	}
-	
-	public void removeReferenceConfig(ReferenceConfig<?> reConfig) {
-		referenceMap.remove(reConfig.getId());
-	}
-	
 	/**
 	 * 同步调用
 	 * 
 	 * @return
 	 */
-	public abstract <T> T invokeSync(Class<T> clazz);
+	public abstract <T> T sendSync(Class<T> clazz);
 
 	/**
 	 * 异步调用
@@ -49,5 +25,10 @@ public abstract class RemotingClient extends AbstractRemoting {
 	 * @return
 	 */
 	public abstract void invokeAsync();
-
+	
+	@Override
+	public ClientRemotingHandler handler() {
+		return (ClientRemotingHandler) super.handler();
+	}
+	
 }

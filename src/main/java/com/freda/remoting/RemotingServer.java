@@ -1,19 +1,18 @@
 package com.freda.remoting;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import com.freda.common.conf.NettyConfig;
-import com.freda.config.ServiceConfig;
 import com.freda.registry.Registry;
 import com.freda.registry.Server;
 
 public abstract class RemotingServer extends AbstractRemoting {
 	
-	protected ConcurrentMap<String, ServiceConfig<?>> serviceMap = new ConcurrentHashMap<>();
-	
 	public RemotingServer(NettyConfig conf) {
 		super(conf);
+	}
+
+	public RemotingServer(NettyConfig conf, RemotingHandler handler) {
+		super(conf, handler);
 	}
 
 	protected void registerSelf(Server server) {
@@ -28,24 +27,9 @@ public abstract class RemotingServer extends AbstractRemoting {
 		}
 	}
 	
-	public void addServiceConfig(ServiceConfig<?> sc) {
-		serviceMap.put(sc.getId(), sc);
+	@Override
+	public ServerRemotingHandler handler() {
+		return (ServerRemotingHandler) super.handler();
 	}
 	
-	public void removeServiceConfig(ServiceConfig<?> sc) {
-		serviceMap.remove(sc.getId());
-	}
-	
-	public ServiceConfig<?> getServiceConfig(Class<?> clazz) {
-		for (ServiceConfig<?> sc : serviceMap.values()) {
-			if (sc.getInterfaceClass().equals(clazz)) {
-				return sc;
-			}
-		}
-		return null;
-	}
-
-	public ServiceConfig<?> getServiceConfig(String id) {
-		return serviceMap.get(id);
-	}
 }

@@ -60,7 +60,7 @@ public class ServiceConfig<T> extends InterfaceConfig<T> {
 	public void unexport() {
 		for (NettyConfig nc : nettyConfs) {
 			RemotingServer rs = conf.getRemotingServer(nc);
-			rs.removeServiceConfig(this);
+			rs.handler().removeServiceConfig(this);
 		}
 	}
 }

@@ -15,11 +15,20 @@ abstract class AbstractRemoting implements Remoting {
 	protected Set<Registry> registrys = new HashSet<>();
 
 	protected volatile boolean started;
-
+	
+	protected RemotingHandler handler;
+	
+	protected Channel channel;
+	
 	public AbstractRemoting(NettyConfig conf) {
 		this.conf = conf;
 	}
-
+	
+	public AbstractRemoting(NettyConfig conf, RemotingHandler handler) {
+		this.conf = conf;
+		this.handler = handler;
+	}
+	
 	public void addRegistry(Registry registry) {
 		registrys.add(registry);
 	}
@@ -47,5 +56,19 @@ abstract class AbstractRemoting implements Remoting {
 	public boolean isStarted() {
 		return started;
 	}
-
+	
+	@Override
+	public NettyConfig config() {
+		return conf;
+	}
+	
+	@Override
+	public RemotingHandler handler() {
+		return handler;
+	}
+	
+	@Override
+	public Channel channel() {
+		return channel;
+	}
 }

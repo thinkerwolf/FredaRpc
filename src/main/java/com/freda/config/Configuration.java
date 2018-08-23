@@ -30,7 +30,6 @@ import com.freda.registry.ZooKeeperRegistry;
 import com.freda.remoting.RemotingClient;
 import com.freda.remoting.RemotingFactory;
 import com.freda.remoting.RemotingServer;
-import com.freda.remoting.netty.NettyServer;
 
 /**
  * 项目配置 默认读取classpath下面的freda.xml文件
@@ -118,12 +117,12 @@ public class Configuration {
 		for (NettyConfig nc : sc.getNettyConfs()) {
 			RemotingServer remoting = remotingServerMap.get(nc);
 			if (remoting == null) {
-				remoting = new NettyServer(nc);
+				remoting = RemotingFactory.getInstance().createRemotingServer(nc, registrys);
 				remoting.addRegistrys(registrys);
 				remoting.start();
 				remotingServerMap.put(nc, remoting);
 			}
-			remoting.addServiceConfig(sc);
+			remoting.handler().addServiceConfig(sc);
 		}
 	}
 
@@ -146,7 +145,7 @@ public class Configuration {
 			}
 			registrys.add(registry);
 		}
-		if (registrys.size() <= 0 || !nc.isUseable()) {
+		if (registrys.size() <= 0 && !nc.isUseable()) {
 			throw new RuntimeException("can't export [" + ref.getInterface()
 					+ "], because there's no registry config and nettyConfig can't be used");
 		}
@@ -161,7 +160,7 @@ public class Configuration {
 		} else {
 			NettyConfig newNc = nc.clone();
 			try {
-				Server server = registrys.get(0).getRandomServer(newNc.getProtocal());
+				Server server = registrys.get(0).getRandomServer(newNc.getProtocol());
 				if (server == null) {
 					return null;
 				}
@@ -179,7 +178,7 @@ public class Configuration {
 				remotingClientMap.put(newNc, remoting);
 			}
 		}
-		remoting.addReferenceConfig(ref);
+		remoting.handler().addReferenceConfig(ref);
 		exportRefRemoteMap.put(ref.getInterfaceClass(), remoting);
 		return remoting;
 	}

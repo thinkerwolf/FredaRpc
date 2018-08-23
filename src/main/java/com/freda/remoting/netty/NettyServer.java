@@ -16,6 +16,7 @@ import com.freda.common.conf.NettyConfig;
 import com.freda.config.ServiceConfig;
 import com.freda.registry.Server;
 import com.freda.registry.ServerNameBuilder;
+import com.freda.remoting.RemotingHandler;
 import com.freda.remoting.RemotingServer;
 import com.freda.remoting.RequestMessage;
 import com.freda.remoting.ResponseMessage;
@@ -41,24 +42,21 @@ public class NettyServer extends RemotingServer {
 		super(conf);
 	}
 
+	public NettyServer(NettyConfig conf, RemotingHandler handler) {
+		super(conf, handler);
+	}
+
 	@Override
 	public synchronized void start() {
 		if (started) {
 			return;
 		}
-		serverBootstrap = new ServerBootstrap();
 		final EventLoopGroup bossGroup = new NioEventLoopGroup(conf.getBossThreads());
 		final EventLoopGroup workerGroup = new NioEventLoopGroup(conf.getWorkerThreads());
-		serverBootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
-				.childHandler(new ChannelInitializer<SocketChannel>() {
-					@Override
-					protected void initChannel(SocketChannel socketChannel) throws Exception {
-						ChannelPipeline pipeline = socketChannel.pipeline();
-						pipeline.addLast("decoder", new InnerDecoder());
-						pipeline.addLast("encoder", new InnerEncoder());
-						pipeline.addLast("handler", new MessageHandler());
-					}
-				});
+		serverBootstrap = new ServerBootstrap();
+		serverBootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class);
+		NettyChannelInitializer initializer = new NettyChannelInitializer(this);
+		serverBootstrap.childHandler(initializer);
 		final String host = conf.getIp();
 		final int port = conf.getPort();
 		final String serverName = ServerNameBuilder.getInstance().generateServerName(SERVER, host, port);
@@ -72,7 +70,7 @@ public class NettyServer extends RemotingServer {
 						logger.info(getClass().getSimpleName() + " listen tcp on " + port + " success");
 					}
 					started = true;
-					registerSelf(new Server(serverName, host, port, conf.getProtocal()));
+					registerSelf(new Server(serverName, host, port, conf.getProtocol()));
 				}
 			}
 		});
@@ -85,98 +83,6 @@ public class NettyServer extends RemotingServer {
 				workerGroup.shutdownGracefully();
 			}
 		});
-	}
-
-	static class InnerDecoder extends ByteToMessageDecoder {
-		@Override
-		protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> list)
-				throws Exception {
-			// 前4字节 消息主体长度。
-			try {
-				// 消息接收完成校验...
-				if (byteBuf.readableBytes() < 4) {
-					return;
-				}
-				int dataLen = byteBuf.getInt(byteBuf.readerIndex());
-				if (byteBuf.readableBytes() < dataLen + 4) {
-					return;
-				}
-				byteBuf.skipBytes(4);
-				int length = byteBuf.readableBytes();
-				byte[] msgBytes = new byte[length];
-				byteBuf.readBytes(msgBytes);
-				ByteArrayInputStream bais = new ByteArrayInputStream(msgBytes);
-				ObjectInputStream ois = new ObjectInputStream(bais);
-				RequestMessage message = (RequestMessage) ois.readObject();
-				list.add(message);
-				bais.close();
-				ois.close();
-				if (logger.isDebugEnabled()) {
-					logger.info("requestMessage : " + message);
-				}
-			} finally {
-				// ReferenceCountUtil.release(byteBuf);
-				// byteBuf.clear();
-			}
-
-		}
-
-		@Override
-		public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-			super.exceptionCaught(ctx, cause);
-			logger.error(cause.getMessage(), cause);
-		}
-	}
-
-	static class InnerEncoder extends MessageToByteEncoder<ResponseMessage> {
-
-		@Override
-		protected void encode(ChannelHandlerContext channelHandlerContext, ResponseMessage responseMessage,
-				ByteBuf byteBuf) throws Exception {
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			ObjectOutputStream oos = new ObjectOutputStream(baos);
-			oos.writeObject(responseMessage);
-			byte[] bytes = baos.toByteArray();
-			byteBuf.writeInt(bytes.length);
-			byteBuf.writeBytes(bytes);
-			baos.close();
-			oos.close();
-		}
-	}
-
-	class MessageHandler extends SimpleChannelInboundHandler<RequestMessage> {
-
-		MessageHandler() {
-		}
-
-		@Override
-		protected void channelRead0(ChannelHandlerContext channelHandlerContext, RequestMessage requestMessage)
-				throws Exception {
-			Object obj = null;
-			ServiceConfig<?> serviceConfig = getServiceConfig(requestMessage.getClazzName());
-			ResponseMessage responseMessage = new ResponseMessage();
-			responseMessage.setId(requestMessage.getId());
-			if (serviceConfig != null) {
-				obj = serviceConfig.getRef();
-				Method method = serviceConfig.getInterfaceClass().getMethod(requestMessage.getMethodName(),
-						requestMessage.getParameterTypes());
-				method.setAccessible(true);
-				Object result = method.invoke(obj, requestMessage.getArgs());
-				responseMessage.setSuccess(true);
-				responseMessage.setResult(result);
-			} else {
-				responseMessage.setSuccess(false);
-			}
-			// ReferenceCountUtil.release(requestMessage);
-			channelHandlerContext.channel().write(responseMessage);
-			channelHandlerContext.channel().flush();
-		}
-
-		@Override
-		public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-			// super.exceptionCaught(ctx, cause);
-			logger.error("error", cause);
-		}
 	}
 
 	@Override
