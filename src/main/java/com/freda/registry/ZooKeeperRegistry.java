@@ -27,7 +27,9 @@ public class ZooKeeperRegistry extends AbstractRegistry implements Watcher {
 	private static final Random r = new Random();
 	private ZooKeeper zooKeeper;
 	private CountDownLatch latch;
-
+	
+	private static final Logger mySpecialLogger = LoggerFactory.getLogger("com.freda.myspecial");
+	
 	public ZooKeeperRegistry(RegistryConfig conf) throws Exception {
 		super(conf);
 		latch = new CountDownLatch(1);
@@ -36,6 +38,8 @@ public class ZooKeeperRegistry extends AbstractRegistry implements Watcher {
 		recursiveSafeCreate(DEFAULT_ROOT_PATH, null, Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT, false);
 		setConnected(true);
 		logger.debug("ZooKeeper client listen on " + conf.getConnAddress() + " success!");
+		
+		mySpecialLogger.info("myspecial zookeeper registry success");
 	}
 
 	@Override
@@ -112,20 +116,24 @@ public class ZooKeeperRegistry extends AbstractRegistry implements Watcher {
 			latch.countDown();
 		}
 		KeeperState ks = event.getState();
-		if (ks == KeeperState.SyncConnected || ks == KeeperState.ConnectedReadOnly
-				|| ks == KeeperState.NoSyncConnected) {
+		if (ks == KeeperState.SyncConnected || ks == KeeperState.ConnectedReadOnly) {
 		} else {
 			setConnected(false);
 		}
 		switch (event.getType()) {
 
 		case NodeCreated:
-
+			mySpecialLogger.info("NodeCreated");
 			break;
 		case NodeDeleted:
-
+			mySpecialLogger.info("NodeDeleted");
 			break;
-
+		case NodeChildrenChanged:
+			mySpecialLogger.info("NodeChildrenChanged");
+			break;
+		case NodeDataChanged:
+			mySpecialLogger.info("NodeDataChanged");
+			break;
 		default:
 			break;
 

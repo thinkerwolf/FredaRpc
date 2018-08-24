@@ -12,7 +12,7 @@ import io.netty.handler.codec.MessageToByteEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.freda.common.conf.NettyConfig;
+import com.freda.common.conf.NetConfig;
 import com.freda.config.ServiceConfig;
 import com.freda.registry.Server;
 import com.freda.registry.ServerNameBuilder;
@@ -38,11 +38,11 @@ public class NettyServer extends RemotingServer {
 
 	private Channel channel;
 
-	public NettyServer(NettyConfig conf) {
+	public NettyServer(NetConfig conf) {
 		super(conf);
 	}
 
-	public NettyServer(NettyConfig conf, RemotingHandler handler) {
+	public NettyServer(NetConfig conf, RemotingHandler handler) {
 		super(conf, handler);
 	}
 

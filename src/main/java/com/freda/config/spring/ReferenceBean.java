@@ -28,7 +28,7 @@ public class ReferenceBean extends ReferenceConfig
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		Map<String, NettyBean> nettyBeanMap = context.getBeansOfType(NettyBean.class);
+		Map<String, NetBean> nettyBeanMap = context.getBeansOfType(NetBean.class);
 		this.setConf(Configuration.getInstance());
 		if (nettyBeanMap == null || nettyBeanMap.size() == 0) {
 			return;
@@ -37,7 +37,7 @@ public class ReferenceBean extends ReferenceConfig
 			this.setId(getInterface());
 		}
 		int num = 0;
-		for (NettyBean nb : nettyBeanMap.values()) {
+		for (NetBean nb : nettyBeanMap.values()) {
 			if (!nb.isServer()) {
 				this.setNettyConf(nb);
 				num++;

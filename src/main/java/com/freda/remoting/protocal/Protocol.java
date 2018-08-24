@@ -10,6 +10,6 @@ public interface Protocol {
 	
 	void send(Object obj);
 	
-	
+	<T> T refer(Class<T> clazz);
 	
 }

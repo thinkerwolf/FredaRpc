@@ -1,6 +1,6 @@
 package com.freda.config;
 
-import com.freda.common.conf.NettyConfig;
+import com.freda.common.conf.NetConfig;
 import com.freda.remoting.RemotingClient;
 
 /**
@@ -12,13 +12,13 @@ import com.freda.remoting.RemotingClient;
  */
 public class ReferenceConfig<T> extends InterfaceConfig<T> {
 
-	private NettyConfig nettyConf;
+	private NetConfig nettyConf;
 
-	public NettyConfig getNettyConfig() {
+	public NetConfig getNettyConfig() {
 		return nettyConf;
 	}
 
-	public void setNettyConf(NettyConfig nettyConf) {
+	public void setNettyConf(NetConfig nettyConf) {
 		this.nettyConf = nettyConf;
 	}
 

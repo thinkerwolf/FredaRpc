@@ -22,7 +22,7 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.freda.common.conf.NettyConfig;
+import com.freda.common.conf.NetConfig;
 import com.freda.common.conf.RegistryConfig;
 import com.freda.common.util.ReflectionUtils;
 import com.freda.registry.Registry;
@@ -41,33 +41,33 @@ import com.freda.remoting.RemotingServer;
 public class Configuration {
 	private static final Logger logger = LoggerFactory.getLogger(Configuration.class);
 	/** common netty server config list */
-	private List<NettyConfig> nettyServerConfigs;
+	private List<NetConfig> nettyServerConfigs;
 	/** common netty client config */
-	private NettyConfig nettyClientConfig;
+	private NetConfig nettyClientConfig;
 	/** common registry config list */
 	private List<RegistryConfig> registryConfigs;
 	/** Server map */
-	private ConcurrentMap<NettyConfig, RemotingServer> remotingServerMap = new ConcurrentHashMap<>();
+	private ConcurrentMap<NetConfig, RemotingServer> remotingServerMap = new ConcurrentHashMap<>();
 	/** Client map */
-	private ConcurrentMap<NettyConfig, RemotingClient> remotingClientMap = new ConcurrentHashMap<>();
+	private ConcurrentMap<NetConfig, RemotingClient> remotingClientMap = new ConcurrentHashMap<>();
 	/** Registry map */
 	private ConcurrentMap<RegistryConfig, Registry> registryMap = new ConcurrentHashMap<>();
 	/** Reference class client map */
 	private Map<Class<?>, RemotingClient> exportRefRemoteMap = new ConcurrentHashMap<>();
 
-	public void setNettyClientConfig(NettyConfig nettyClientConfig) {
+	public void setNettyClientConfig(NetConfig nettyClientConfig) {
 		this.nettyClientConfig = nettyClientConfig;
 	}
 
-	public NettyConfig getNettyClientConfig() {
+	public NetConfig getNettyClientConfig() {
 		return nettyClientConfig;
 	}
 
-	public List<NettyConfig> getNettyServerConfigs() {
+	public List<NetConfig> getNettyServerConfigs() {
 		return nettyServerConfigs;
 	}
 
-	public void setNettyServerConfigs(List<NettyConfig> nettyServerConfigs) {
+	public void setNettyServerConfigs(List<NetConfig> nettyServerConfigs) {
 		this.nettyServerConfigs = nettyServerConfigs;
 	}
 
@@ -114,7 +114,7 @@ public class Configuration {
 			}
 			registrys.add(registry);
 		}
-		for (NettyConfig nc : sc.getNettyConfs()) {
+		for (NetConfig nc : sc.getNettyConfs()) {
 			RemotingServer remoting = remotingServerMap.get(nc);
 			if (remoting == null) {
 				remoting = RemotingFactory.getInstance().createRemotingServer(nc, registrys);
@@ -131,7 +131,7 @@ public class Configuration {
 			return null;
 		}
 		List<Registry> registrys = new ArrayList<>();
-		NettyConfig nc = ref.getNettyConfig();
+		NetConfig nc = ref.getNettyConfig();
 		for (RegistryConfig rc : ref.getRegistryConfs()) {
 			Registry registry = registryMap.get(rc);
 			if (registry == null) {
@@ -158,7 +158,7 @@ public class Configuration {
 				remotingClientMap.put(nc, remoting);
 			}
 		} else {
-			NettyConfig newNc = nc.clone();
+			NetConfig newNc = nc.clone();
 			try {
 				Server server = registrys.get(0).getRandomServer(newNc.getProtocol());
 				if (server == null) {
@@ -183,11 +183,11 @@ public class Configuration {
 		return remoting;
 	}
 
-	RemotingClient getRemotingClient(NettyConfig nc) {
+	RemotingClient getRemotingClient(NetConfig nc) {
 		return remotingClientMap.get(nc);
 	}
 
-	RemotingServer getRemotingServer(NettyConfig nc) {
+	RemotingServer getRemotingServer(NetConfig nc) {
 		return remotingServerMap.get(nc);
 	}
 
@@ -228,8 +228,8 @@ public class Configuration {
 		RegistryConfig registryConfig = new RegistryConfig();
 		Map<String, InterfaceConfig<?>> serviceMap = new HashMap<>();
 		Map<String, InterfaceConfig<?>> referenceMap = new HashMap<>();
-		List<NettyConfig> nettyServerConfigs = new ArrayList<>();
-		NettyConfig nettyClientConfig = new NettyConfig();
+		List<NetConfig> nettyServerConfigs = new ArrayList<>();
+		NetConfig nettyClientConfig = new NetConfig();
 		if (is != null) {
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 			factory.setValidating(false);
@@ -240,7 +240,7 @@ public class Configuration {
 			// 解析Netty-server 多个
 			NodeList nettyServerNodeList = doc.getElementsByTagName("netty-server");
 			for (int i = 0; i < nettyServerNodeList.getLength(); i++) {
-				NettyConfig nettyConfig = new NettyConfig();
+				NetConfig nettyConfig = new NetConfig();
 				Element nettyElement = (Element) nettyServerNodeList.item(i);
 				if (nettyElement != null) {
 					parsePropertyValue(nettyElement, "property", nettyConfig);

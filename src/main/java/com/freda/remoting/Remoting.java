@@ -2,8 +2,9 @@ package com.freda.remoting;
 
 import java.util.Collection;
 
-import com.freda.common.conf.NettyConfig;
+import com.freda.common.conf.NetConfig;
 import com.freda.registry.Registry;
+import com.freda.remoting.protocal.Protocol;
 
 public interface Remoting {
 
@@ -15,13 +16,11 @@ public interface Remoting {
 
 	void addRegistrys(Collection<Registry> rs);
 	
-	NettyConfig config();
+	NetConfig config();
 	
 	RemotingHandler handler();
 	
 	Channel channel();
 	
-	//void sendSync(Object msg);
-	
-	//void sendAsync(Object msg);
+	Protocol protocol();
 }

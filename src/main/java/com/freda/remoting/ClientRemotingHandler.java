@@ -14,7 +14,7 @@ import com.freda.common.util.ProxyUtils;
 import com.freda.config.ReferenceConfig;
 
 public class ClientRemotingHandler implements RemotingHandler {
-	
+
 	protected ConcurrentMap<String, ReferenceConfig<?>> referenceMap = new ConcurrentHashMap<>();
 	private Map<Integer, ResponseFuture> waitResultMap = new HashMap<Integer, ResponseFuture>();
 	private static final AtomicInteger ID_GENARETOR = new AtomicInteger();

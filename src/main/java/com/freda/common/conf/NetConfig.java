@@ -1,8 +1,11 @@
 package com.freda.common.conf;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import org.apache.commons.lang3.StringUtils;
 
-public class NettyConfig {
+public class NetConfig {
 
 	private static final int DEFAULT_THREAD_NUM = Math.max(1, Runtime.getRuntime().availableProcessors() * 2);
 
@@ -55,14 +58,14 @@ public class NettyConfig {
 	public void setWorkerThreads(int workerThreads) {
 		this.workerThreads = workerThreads;
 	}
-	
+
 	public boolean isUseable() {
 		if (StringUtils.isNotEmpty(ip) && port > 0 && StringUtils.isNotEmpty(protocol)) {
 			return true;
 		}
 		return false;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "host#" + ip + ", port#" + port;
@@ -86,7 +89,7 @@ public class NettyConfig {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		NettyConfig other = (NettyConfig) obj;
+		NetConfig other = (NetConfig) obj;
 		if (ip == null) {
 			if (other.ip != null)
 				return false;
@@ -103,8 +106,8 @@ public class NettyConfig {
 	}
 
 	@Override
-	public NettyConfig clone() {
-		NettyConfig nettyConfig = new NettyConfig();
+	public NetConfig clone() {
+		NetConfig nettyConfig = new NetConfig();
 		nettyConfig.setIp(this.ip);
 		nettyConfig.setPort(this.port);
 		nettyConfig.setProtocol(this.protocol);
@@ -113,6 +116,19 @@ public class NettyConfig {
 		return nettyConfig;
 	}
 
+	public URI uri() {
+		// http://java.sun.com/j2se/1.3/
+		StringBuilder sb = new StringBuilder();
+		sb.append(protocol);
+		sb.append("://");
+		sb.append(ip);
+		sb.append(":" + port);
+		try {
+			return new URI(sb.toString());
+		} catch (URISyntaxException e) {
+			throw new RuntimeException("netty parse to uri fail", e);
+		}
 
+	}
 
 }

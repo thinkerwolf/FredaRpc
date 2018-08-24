@@ -1,16 +1,27 @@
 package com.freda.remoting.protocal;
 
-public abstract class HttpProtocol implements Protocol {
+/**
+ * Http协议
+ * 
+ * @author wukai
+ *
+ */
+public class HttpProtocol implements Protocol {
 	public static final String NAME = "http";
-
+	
 	@Override
 	public String name() {
-		return null;
+		return NAME;
 	}
 
 	@Override
 	public void send(Object obj) {
 
+	}
+
+	@Override
+	public <T> T refer(Class<T> clazz) {
+		return null;
 	}
 
 }

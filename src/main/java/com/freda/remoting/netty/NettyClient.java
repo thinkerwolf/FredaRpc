@@ -15,7 +15,7 @@ import com.freda.remoting.Channels;
 import com.freda.remoting.RemotingClient;
 import com.freda.remoting.RemotingException;
 import com.freda.remoting.RemotingHandler;
-import com.freda.common.conf.NettyConfig;
+import com.freda.common.conf.NetConfig;
 
 public class NettyClient extends RemotingClient {
 
@@ -25,16 +25,16 @@ public class NettyClient extends RemotingClient {
 	private Object lock = new Object();
 	private ChannelFuture startFuture;
 	
-	public NettyClient(NettyConfig conf, Channel channel) {
+	public NettyClient(NetConfig conf, Channel channel) {
 		super(conf);
 		this.channel = channel;
 	}
 	
-	public NettyClient(NettyConfig conf) {
+	public NettyClient(NetConfig conf) {
 		super(conf);
 	}
 	
-	public NettyClient(NettyConfig conf, RemotingHandler handler) {
+	public NettyClient(NetConfig conf, RemotingHandler handler) {
 		super(conf, handler);
 	}
 	

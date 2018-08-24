@@ -13,7 +13,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
-import com.freda.config.spring.NettyBean;
+import com.freda.config.spring.NetBean;
 
 /**
  * bean配置
@@ -117,7 +117,7 @@ public class FredaBeanDefinitionParser implements BeanDefinitionParser {
 			}
 		}
 		
-		if (beanClass.equals(NettyBean.class)) {
+		if (beanClass.equals(NetBean.class)) {
 			String tag = element.getTagName();
 			if (tag.endsWith("netty-server")) {
 				beanDefinition.getPropertyValues().addPropertyValue("server", true);

@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.freda.common.conf.NettyConfig;
+import com.freda.common.conf.NetConfig;
 import com.freda.remoting.RemotingServer;
 
 /**
@@ -15,17 +15,17 @@ import com.freda.remoting.RemotingServer;
  */
 public class ServiceConfig<T> extends InterfaceConfig<T> {
 
-	private Set<NettyConfig> nettyConfs = new HashSet<NettyConfig>();
+	private Set<NetConfig> nettyConfs = new HashSet<NetConfig>();
 
-	public Set<NettyConfig> getNettyConfs() {
+	public Set<NetConfig> getNettyConfs() {
 		return nettyConfs;
 	}
 
-	public void addNettyConfs(Collection<NettyConfig> netties) {
+	public void addNettyConfs(Collection<NetConfig> netties) {
 		this.nettyConfs.addAll(netties);
 	}
 
-	public void addNettyConf(NettyConfig netty) {
+	public void addNettyConf(NetConfig netty) {
 		this.nettyConfs.add(netty);
 	}
 
@@ -58,7 +58,7 @@ public class ServiceConfig<T> extends InterfaceConfig<T> {
 
 	@Override
 	public void unexport() {
-		for (NettyConfig nc : nettyConfs) {
+		for (NetConfig nc : nettyConfs) {
 			RemotingServer rs = conf.getRemotingServer(nc);
 			rs.handler().removeServiceConfig(this);
 		}

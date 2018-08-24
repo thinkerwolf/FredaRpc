@@ -23,13 +23,13 @@ public class ServiceBean extends ServiceConfig implements InitializingBean, Appl
 	
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		Map<String, NettyBean> nettyBeanMap  = context.getBeansOfType(NettyBean.class);
+		Map<String, NetBean> nettyBeanMap  = context.getBeansOfType(NetBean.class);
 		if (nettyBeanMap == null || nettyBeanMap.size() == 0) {
 			return;
 		}
 		this.setConf(Configuration.getInstance());
 		int num = 0;
-		for (NettyBean nb : nettyBeanMap.values()) {
+		for (NetBean nb : nettyBeanMap.values()) {
 			if (nb.isServer() && nb.isUseable()) {
 				num++;
 				this.addNettyConf(nb);

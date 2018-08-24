@@ -29,7 +29,7 @@
 
 
 	<xsd:complexType name="registryType">
-		<xsd:attribute name="protocal" type="xsd:string" />
+		<xsd:attribute name="protocol" type="xsd:string" />
 		<xsd:attribute name="ip" type="xsd:string" />
 		<xsd:attribute name="port" type="xsd:int" />
 	</xsd:complexType>
@@ -40,7 +40,7 @@
 	<xsd:complexType name="nettyType">
 		<xsd:attribute name="ip" type="xsd:string" />
 		<xsd:attribute name="port" type="xsd:int" />
-		<xsd:attribute name="protocal" type="xsd:string" />
+		<xsd:attribute name="protocol" type="xsd:string" />
 		<xsd:attribute name="bossThreads" type="xsd:int" />
 		<xsd:attribute name="workerThreads" type="xsd:int" />
 	</xsd:complexType>

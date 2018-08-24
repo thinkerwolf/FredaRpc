@@ -5,12 +5,13 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import com.freda.common.conf.NettyConfig;
+import com.freda.common.conf.NetConfig;
 import com.freda.registry.Registry;
+import com.freda.remoting.protocal.Protocol;
 
 abstract class AbstractRemoting implements Remoting {
 
-	protected NettyConfig conf;
+	protected NetConfig conf;
 
 	protected Set<Registry> registrys = new HashSet<>();
 
@@ -20,11 +21,11 @@ abstract class AbstractRemoting implements Remoting {
 	
 	protected Channel channel;
 	
-	public AbstractRemoting(NettyConfig conf) {
+	public AbstractRemoting(NetConfig conf) {
 		this.conf = conf;
 	}
 	
-	public AbstractRemoting(NettyConfig conf, RemotingHandler handler) {
+	public AbstractRemoting(NetConfig conf, RemotingHandler handler) {
 		this.conf = conf;
 		this.handler = handler;
 	}
@@ -58,7 +59,7 @@ abstract class AbstractRemoting implements Remoting {
 	}
 	
 	@Override
-	public NettyConfig config() {
+	public NetConfig config() {
 		return conf;
 	}
 	
@@ -70,5 +71,10 @@ abstract class AbstractRemoting implements Remoting {
 	@Override
 	public Channel channel() {
 		return channel;
+	}
+	
+	@Override
+	public Protocol protocol() {
+		return null;
 	}
 }

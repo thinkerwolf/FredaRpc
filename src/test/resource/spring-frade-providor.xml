@@ -18,15 +18,15 @@
 	<bean id="demoService" class="com.freda.example.DemoServiceImpl" />
 
 	<!-- registry config -->
-	<freda:registry ip="127.0.0.1" port="2181" protocal="zookeeper" />
+	<freda:registry ip="127.0.0.1" port="2181" protocol="zookeeper" />
 
 	<!-- netty-server config 1 -->
 	<freda:netty-server ip="127.0.0.1" port="8088"
-		protocal="freda" bossThreads="2" workerThreads="4" />
+		protocol="freda" bossThreads="2" workerThreads="4" />
 
 	<!-- netty-server config 2 -->
 	<freda:netty-server ip="127.0.0.1" port="8089"
-		protocal="freda" bossThreads="2" workerThreads="4" />
+		protocol="freda" bossThreads="2" workerThreads="4" />
 
 	<freda:service interface="com.freda.example.DemoService"
 		ref="demoService" />

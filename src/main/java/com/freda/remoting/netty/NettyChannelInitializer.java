@@ -4,96 +4,37 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.URI;
 import java.util.List;
 
-import com.freda.common.conf.NettyConfig;
 import com.freda.remoting.Channels;
 import com.freda.remoting.Remoting;
 import com.freda.remoting.RemotingClient;
-import com.freda.remoting.RemotingServer;
-import com.freda.remoting.RequestMessage;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelPipeline;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.ByteToMessageCodec;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.handler.codec.MessageToByteEncoder;
-import io.netty.handler.codec.MessageToMessageEncoder;
-import io.netty.handler.codec.http.ClientCookieEncoder;
-import io.netty.handler.codec.http.DefaultCookie;
-import io.netty.handler.codec.http.DefaultFullHttpRequest;
-import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpHeaderValues;
-import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.handler.codec.http.HttpMethod;
-import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.HttpRequestEncoder;
-import io.netty.handler.codec.http.HttpVersion;
 
 public class NettyChannelInitializer extends ChannelInitializer<Channel> {
 
 	private Remoting remoting;
 
-	private boolean server;
-
 	public NettyChannelInitializer(Remoting remoting) {
 		this.remoting = remoting;
-		this.server = remoting instanceof RemotingServer ? true : false;
 	}
 
 	@Override
 	protected void initChannel(Channel ch) throws Exception {
-		NettyConfig nc = remoting.config();
-		String protocol = nc.getProtocol();
-		
-		ch.pipeline().addLast("encoder", new InnerEncoder());
-		
-		// 根据不同协议新建Decoder
-		if ("freda".equals(protocol)) {
-			//ch.pipeline().addLast(new Http);
-		} else if ("http".equals(protocol)) {
-			ch.pipeline().addLast(new HttpRequestAppender(new URI("http:")));
-			ch.pipeline().addLast(new HttpRequestEncoder());
-		}
-		
-		ch.pipeline().addLast("decoder", new InnerDecoder());
-		ch.pipeline().addLast("handler", new ClientHandler());
+		ChannelPipeline p = ch.pipeline();
+		p.addLast("encoder", new InnerEncoder());
+		p.addLast("decoder", new InnerDecoder());
+		p.addLast("handler", new InnerHandler());
 	}
-	
-	static class  HttpRequestAppender extends MessageToMessageEncoder<ByteBuf> {
-		
-		private URI uri;
-		public HttpRequestAppender(URI uri) {
-			this.uri = uri;
-		}
 
-		@Override
-		protected void encode(ChannelHandlerContext ctx, ByteBuf msg, List<Object> out) throws Exception {
-			 // Prepare the HTTP request.
-			String host = uri.getHost() == null? "localhost" : uri.getHost();
-			
-			//HttpPost
-            HttpRequest request = new DefaultFullHttpRequest(
-                    HttpVersion.HTTP_1_1, HttpMethod.GET, uri.getRawPath(), msg);
-            request.headers().set(HttpHeaderNames.HOST, host);
-            request.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.CLOSE);
-            request.headers().set(HttpHeaderNames.ACCEPT_ENCODING, HttpHeaderValues.GZIP);
-            
-            // Set some example cookies.
-            request.headers().set(
-            		HttpHeaderNames.COOKIE,
-                    ClientCookieEncoder.encode(
-                            new DefaultCookie("my-cookie", "foo"),
-                            new DefaultCookie("another-cookie", "bar")));
-            out.add(request);
-		}
-	}
-	
-	
 	static class InnerEncoder extends MessageToByteEncoder<Object> {
 		@Override
 		protected void encode(ChannelHandlerContext ctx, Object msg, ByteBuf out) throws Exception {
@@ -130,7 +71,7 @@ public class NettyChannelInitializer extends ChannelInitializer<Channel> {
 		}
 	}
 
-	class ClientHandler extends SimpleChannelInboundHandler<Object> {
+	class InnerHandler extends SimpleChannelInboundHandler<Object> {
 		@Override
 		protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
 			if (remoting instanceof RemotingClient) {
