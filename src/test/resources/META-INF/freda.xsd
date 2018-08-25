@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns="http://www.freda.com/schema/freda"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.freda.com/schema/freda">
+	<xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+	<xsd:import namespace="http://www.springframework.org/schema/beans" />
+	<xsd:import namespace="http://www.springframework.org/schema/tool" />
+	<xsd:annotation>
+		<xsd:documentation>
+			<![CDATA[Namespace support for the dubbo services provided by dubbo framework.]]>
+		</xsd:documentation>
+	</xsd:annotation>
+
+
+	<xsd:complexType name="serviceType">
+		<xsd:attribute name="id" type="xsd:string" />
+		<xsd:attribute name="interface" type="xsd:string" />
+		<xsd:attribute name="ref" type="xsd:string" />
+	</xsd:complexType>
+	<xsd:element name="service" type="serviceType">
+	</xsd:element>
+
+
+	<xsd:complexType name="referenceType">
+		<xsd:attribute name="id" type="xsd:string" />
+		<xsd:attribute name="interface" type="xsd:string" />
+	</xsd:complexType>
+	<xsd:element name="reference" type="referenceType">
+	</xsd:element>
+
+
+	<xsd:complexType name="registryType">
+		<xsd:attribute name="protocol" type="xsd:string" />
+		<xsd:attribute name="ip" type="xsd:string" />
+		<xsd:attribute name="port" type="xsd:int" />
+	</xsd:complexType>
+	<xsd:element name="registry" type="registryType">
+	</xsd:element>
+
+
+	<xsd:complexType name="nettyType">
+		<xsd:attribute name="ip" type="xsd:string" />
+		<xsd:attribute name="port" type="xsd:int" />
+		<xsd:attribute name="protocol" type="xsd:string" />
+		<xsd:attribute name="bossThreads" type="xsd:int" />
+		<xsd:attribute name="workerThreads" type="xsd:int" />
+	</xsd:complexType>
+	<xsd:element name="netty-client" type="nettyType">
+	</xsd:element>
+	<xsd:element name="netty-server" type="nettyType">
+	</xsd:element>
+
+
+</xsd:schema>

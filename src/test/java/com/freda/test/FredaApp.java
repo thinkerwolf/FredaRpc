@@ -18,7 +18,7 @@ public class FredaApp {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Test
 	public void javaTest() {
 		Class<?> clazz = ServiceConfig.class;
@@ -29,14 +29,17 @@ public class FredaApp {
 		} catch (SecurityException e) {
 			e.printStackTrace();
 		}
-		
+
 		NetConfig nc = new NetConfig();
 		nc.setIp("127.0.0.1");
 		nc.setPort(9000);
 		System.out.println(nc.uri());
 	}
-	
-	
-	
-	
+
+	@Test
+	public void pathTest() {
+		URL url = Thread.currentThread().getContextClassLoader().getResource("");
+		System.out.println(url.getPath());
+	}
+
 }
