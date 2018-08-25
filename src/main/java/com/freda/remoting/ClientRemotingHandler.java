@@ -21,7 +21,7 @@ public class ClientRemotingHandler implements RemotingHandler {
 	private static final AtomicInteger THREAD_NUM = new AtomicInteger();
 	private Thread _responseHandleThread;
 	private BlockingQueue<ResponseMessage> responseMessages = new LinkedBlockingQueue<ResponseMessage>();
-	private boolean responseStart;
+	private volatile boolean responseStart;
 
 	public ClientRemotingHandler() {
 		_responseHandleThread = new Thread(new ResponseHandleTask(),

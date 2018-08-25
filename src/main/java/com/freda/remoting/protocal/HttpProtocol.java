@@ -8,7 +8,7 @@ package com.freda.remoting.protocal;
  */
 public class HttpProtocol implements Protocol {
 	public static final String NAME = "http";
-	
+
 	@Override
 	public String name() {
 		return NAME;
