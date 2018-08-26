@@ -1,374 +1,369 @@
 package com.freda.config;
 
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import com.freda.registry.Server;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
 import com.freda.common.conf.NetConfig;
 import com.freda.common.conf.RegistryConfig;
 import com.freda.common.util.ReflectionUtils;
 import com.freda.registry.Registry;
+import com.freda.registry.Server;
 import com.freda.registry.ZooKeeperRegistry;
 import com.freda.remoting.RemotingClient;
 import com.freda.remoting.RemotingFactory;
 import com.freda.remoting.RemotingServer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.*;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.lang.reflect.Field;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * 项目配置 默认读取classpath下面的freda.xml文件
- * 
- * @author wukai
  *
+ * @author wukai
  */
 @SuppressWarnings("rawtypes")
 public class Configuration {
-	private static final Logger logger = LoggerFactory.getLogger(Configuration.class);
-	/** common netty server config list */
-	private List<NetConfig> nettyServerConfigs;
-	/** common netty client config */
-	private NetConfig nettyClientConfig;
-	/** common registry config list */
-	private List<RegistryConfig> registryConfigs;
-	/** Server map */
-	private ConcurrentMap<NetConfig, RemotingServer> remotingServerMap = new ConcurrentHashMap<>();
-	/** Client map */
-	private ConcurrentMap<NetConfig, RemotingClient> remotingClientMap = new ConcurrentHashMap<>();
-	/** Registry map */
-	private ConcurrentMap<RegistryConfig, Registry> registryMap = new ConcurrentHashMap<>();
-	/** Reference class client map */
-	private Map<Class<?>, RemotingClient> exportRefRemoteMap = new ConcurrentHashMap<>();
+    private static final Logger logger = LoggerFactory.getLogger(Configuration.class);
+    private static Configuration INSTANCE;
+    /**
+     * common netty server config list
+     */
+    private List<NetConfig> nettyServerConfigs;
+    /**
+     * common netty client config
+     */
+    private NetConfig nettyClientConfig;
+    /**
+     * common registry config list
+     */
+    private List<RegistryConfig> registryConfigs;
+    /**
+     * Server map
+     */
+    private ConcurrentMap<NetConfig, RemotingServer> remotingServerMap = new ConcurrentHashMap<>();
+    /**
+     * Client map
+     */
+    private ConcurrentMap<NetConfig, RemotingClient> remotingClientMap = new ConcurrentHashMap<>();
+    /**
+     * Registry map
+     */
+    private ConcurrentMap<RegistryConfig, Registry> registryMap = new ConcurrentHashMap<>();
+    /**
+     * Reference class client map
+     */
+    private Map<Class<?>, RemotingClient> exportRefRemoteMap = new ConcurrentHashMap<>();
 
-	public void setNettyClientConfig(NetConfig nettyClientConfig) {
-		this.nettyClientConfig = nettyClientConfig;
-	}
+    public static Configuration getInstance() {
+        if (INSTANCE == null) {
+            synchronized (Configuration.class) {
+                if (INSTANCE == null) {
+                    try {
+                        INSTANCE = newConfiguration();
+                    } catch (Exception e) {
+                        // e.printStackTrace();
+                        INSTANCE = new Configuration();
+                    }
+                }
+            }
+        }
+        return INSTANCE;
+    }
 
-	public NetConfig getNettyClientConfig() {
-		return nettyClientConfig;
-	}
+    public static Configuration newConfiguration() throws Exception {
+        InputStream is = Configuration.class.getClassLoader().getResourceAsStream("freda.xml");
+        return newConfiguration(is);
+    }
 
-	public List<NetConfig> getNettyServerConfigs() {
-		return nettyServerConfigs;
-	}
+    public static Configuration newConfiguration(String path) throws Exception {
+        if (path.startsWith("classpath:")) {
+            return newConfiguration(
+                    Configuration.class.getClassLoader().getResourceAsStream(path.substring(10, path.length())));
+        } else {
+            return newConfiguration(new FileInputStream(path));
+        }
+    }
 
-	public void setNettyServerConfigs(List<NetConfig> nettyServerConfigs) {
-		this.nettyServerConfigs = nettyServerConfigs;
-	}
+    public static Configuration newConfiguration(InputStream is) throws Exception {
+        Configuration configuration = new Configuration();
+        RegistryConfig registryConfig = new RegistryConfig();
+        Map<String, InterfaceConfig<?>> serviceMap = new HashMap<>();
+        Map<String, InterfaceConfig<?>> referenceMap = new HashMap<>();
+        List<NetConfig> nettyServerConfigs = new ArrayList<>();
+        NetConfig nettyClientConfig = new NetConfig();
+        if (is != null) {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setValidating(false);
+            factory.setNamespaceAware(false);
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document doc = builder.parse(is);
 
-	public List<RegistryConfig> getRegistryConfigs() {
-		return registryConfigs;
-	}
+            // 解析Netty-server 多个
+            NodeList nettyServerNodeList = doc.getElementsByTagName("netty-server");
+            for (int i = 0; i < nettyServerNodeList.getLength(); i++) {
+                NetConfig nettyConfig = new NetConfig();
+                Element nettyElement = (Element) nettyServerNodeList.item(i);
+                if (nettyElement != null) {
+                    parsePropertyValue(nettyElement, "property", nettyConfig);
+                    nettyServerConfigs.add(nettyConfig);
+                }
+            }
 
-	public void setRegistryConfigs(List<RegistryConfig> registryConfigs) {
-		this.registryConfigs = registryConfigs;
-	}
+            // 解析Netty-client 一个
+            Element nettyClientElement = (Element) doc.getElementsByTagName("netty-client").item(0);
+            if (nettyClientElement != null) {
+                parsePropertyValue(nettyClientElement, "property", nettyClientConfig);
+            }
+            configuration.setNettyClientConfig(nettyClientConfig);
 
-	public void addRegistryConfig(RegistryConfig registryConfig) {
-		if (this.registryConfigs == null) {
-			this.registryConfigs = new ArrayList<>(1);
-		}
-		if (!this.registryConfigs.contains(registryConfig)) {
-			this.registryConfigs.add(registryConfig);
-		}
-	}
+            // 解析Registry
+            Element registryElement = (Element) doc.getElementsByTagName("registry").item(0);
+            if (registryElement != null) {
+                parsePropertyValue(registryElement, "property", registryConfig);
+            }
 
-	public void removeRegistry(Registry registry) {
-		registryMap.remove(registry.getConf());
-	}
+            // 解析service
+            Node serviceNode = doc.getElementsByTagName("services").item(0);
+            if (serviceNode != null) {
+                parseServiceValue((Element) serviceNode, "service", serviceMap);
+            }
 
-	public RemotingClient getRefRemoting(Class<?> clazz) {
-		return exportRefRemoteMap.get(clazz);
-	}
+            // 解析reference
+            Node referenceNode = doc.getElementsByTagName("references").item(0);
+            if (referenceNode != null) {
+                parseReferenceValue((Element) referenceNode, "reference", referenceMap);
+            }
 
-	/**
-	 * 
-	 */
-	public void addServiceConfig(ServiceConfig<?> sc) {
-		List<Registry> registrys = new ArrayList<>();
-		for (RegistryConfig rc : sc.getRegistryConfs()) {
-			Registry registry = registryMap.get(rc);
-			if (registry == null) {
-				try {
-					registry = new ZooKeeperRegistry(rc);
-				} catch (Exception e) {
-					e.printStackTrace();
-					continue;
-				}
-				registryMap.put(rc, registry);
-			}
-			registrys.add(registry);
-		}
-		for (NetConfig nc : sc.getNettyConfs()) {
-			RemotingServer remoting = remotingServerMap.get(nc);
-			if (remoting == null) {
-				remoting = RemotingFactory.getInstance().createRemotingServer(nc, registrys);
-				remoting.addRegistrys(registrys);
-				remoting.start();
-				remotingServerMap.put(nc, remoting);
-			}
-			remoting.handler().addServiceConfig(sc);
-		}
-	}
+            is.close();
+        }
+        configuration.setNettyClientConfig(nettyClientConfig);
+        configuration.addRegistryConfig(registryConfig);
+        configuration.setNettyServerConfigs(nettyServerConfigs);
 
-	public RemotingClient addReferenceConfig(ReferenceConfig<?> ref) {
-		if (exportRefRemoteMap.get(ref.getInterfaceClass()) != null) {
-			return null;
-		}
-		List<Registry> registrys = new ArrayList<>();
-		NetConfig nc = ref.getNettyConfig();
-		for (RegistryConfig rc : ref.getRegistryConfs()) {
-			Registry registry = registryMap.get(rc);
-			if (registry == null) {
-				try {
-					registry = new ZooKeeperRegistry(rc);
-				} catch (Exception e) {
-					e.printStackTrace();
-					continue;
-				}
-				registryMap.put(rc, registry);
-			}
-			registrys.add(registry);
-		}
-		if (registrys.size() <= 0 && !nc.isUseable()) {
-			throw new RuntimeException("can't export [" + ref.getInterface()
-					+ "], because there's no registry config and nettyConfig can't be used");
-		}
-		RemotingClient remoting = null;
-		if (nc.isUseable()) {
-			remoting = remotingClientMap.get(nc);
-			if (remoting == null) {
-				remoting = RemotingFactory.getInstance().createRemotingClient(nc, registrys);
-				remoting.start();
-				remotingClientMap.put(nc, remoting);
-			}
-		} else {
-			NetConfig newNc = nc.clone();
-			try {
-				Server server = registrys.get(0).getRandomServer(newNc.getProtocol());
-				if (server == null) {
-					return null;
-				}
-				newNc.setIp(server.getHost());
-				newNc.setPort(server.getPort());
-				ref.setNettyConf(newNc);
-			} catch (Exception e) {
-				e.printStackTrace();
-				return null;
-			}
-			remoting = remotingClientMap.get(newNc);
-			if (remoting == null) {
-				remoting = RemotingFactory.getInstance().createRemotingClient(newNc, registrys);
-				remoting.start();
-				remotingClientMap.put(newNc, remoting);
-			}
-		}
-		remoting.handler().addReferenceConfig(ref);
-		exportRefRemoteMap.put(ref.getInterfaceClass(), remoting);
-		return remoting;
-	}
+        for (InterfaceConfig<?> ic : serviceMap.values()) {
+            ic.addRegistryConf(registryConfig);
+            ((ServiceConfig<?>) ic).addNettyConfs(configuration.getNettyServerConfigs());
+            ic.setConf(configuration);
+            ic.export();
+        }
 
-	RemotingClient getRemotingClient(NetConfig nc) {
-		return remotingClientMap.get(nc);
-	}
+        for (InterfaceConfig<?> ic : referenceMap.values()) {
+            ic.addRegistryConf(registryConfig);
+            ((ReferenceConfig<?>) ic).setNettyConf(configuration.getNettyClientConfig());
+            ic.setConf(configuration);
+            ic.export();
+        }
 
-	RemotingServer getRemotingServer(NetConfig nc) {
-		return remotingServerMap.get(nc);
-	}
+        return configuration;
+    }
 
-	private static Configuration INSTANCE;
+    @SuppressWarnings("unchecked")
+    private static void parseServiceValue(Element element, String childTagName, Map<String, InterfaceConfig<?>> map) {
+        NodeList serviceNodeList = element.getElementsByTagName(childTagName);
+        for (int i = 0; i < serviceNodeList.getLength(); i++) {
+            Element serviceElement = (Element) serviceNodeList.item(i);
+            NamedNodeMap serviceAttrMap = serviceElement.getAttributes();
 
-	public static Configuration getInstance() {
-		if (INSTANCE == null) {
-			synchronized (Configuration.class) {
-				if (INSTANCE == null) {
-					try {
-						INSTANCE = newConfiguration();
-					} catch (Exception e) {
-						// e.printStackTrace();
-						INSTANCE = new Configuration();
-					}
-				}
-			}
-		}
-		return INSTANCE;
-	}
+            Node idNode = serviceAttrMap.getNamedItem("id");
+            Node classNode = serviceAttrMap.getNamedItem("class");
+            Node interfaceNode = serviceAttrMap.getNamedItem("interface");
+            if (interfaceNode == null) {
+                continue;
+            }
 
-	public static Configuration newConfiguration() throws Exception {
-		InputStream is = Configuration.class.getClassLoader().getResourceAsStream("freda.xml");
-		return newConfiguration(is);
-	}
+            ServiceConfig sc = new ServiceConfig();
+            Class<?> clazz = ReflectionUtils.getClassByName(classNode.getTextContent());
+            sc.setRef(ReflectionUtils.newInstance(clazz));
 
-	public static Configuration newConfiguration(String path) throws Exception {
-		if (path.startsWith("classpath:")) {
-			return newConfiguration(
-					Configuration.class.getClassLoader().getResourceAsStream(path.substring(10, path.length())));
-		} else {
-			return newConfiguration(new FileInputStream(path));
-		}
-	}
+            sc.setInterface(interfaceNode.getTextContent());
 
-	public static Configuration newConfiguration(InputStream is) throws Exception {
-		Configuration configuration = new Configuration();
-		RegistryConfig registryConfig = new RegistryConfig();
-		Map<String, InterfaceConfig<?>> serviceMap = new HashMap<>();
-		Map<String, InterfaceConfig<?>> referenceMap = new HashMap<>();
-		List<NetConfig> nettyServerConfigs = new ArrayList<>();
-		NetConfig nettyClientConfig = new NetConfig();
-		if (is != null) {
-			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-			factory.setValidating(false);
-			factory.setNamespaceAware(false);
-			DocumentBuilder builder = factory.newDocumentBuilder();
-			Document doc = builder.parse(is);
+            String id = idNode == null ? interfaceNode.getTextContent() : idNode.getTextContent();
+            if (map.get(id) != null) {
+                throw new RuntimeException("duplicate name " + idNode.getTextContent());
+            }
+            sc.setId(id);
+            parsePropertyValue(serviceElement, "property", sc.getRef());
+            map.put(sc.getId(), sc);
+        }
+    }
 
-			// 解析Netty-server 多个
-			NodeList nettyServerNodeList = doc.getElementsByTagName("netty-server");
-			for (int i = 0; i < nettyServerNodeList.getLength(); i++) {
-				NetConfig nettyConfig = new NetConfig();
-				Element nettyElement = (Element) nettyServerNodeList.item(i);
-				if (nettyElement != null) {
-					parsePropertyValue(nettyElement, "property", nettyConfig);
-					nettyServerConfigs.add(nettyConfig);
-				}
-			}
+    private static void parseReferenceValue(Element element, String childTagName, Map<String, InterfaceConfig<?>> map) {
+        NodeList serviceNodeList = element.getElementsByTagName(childTagName);
+        for (int i = 0; i < serviceNodeList.getLength(); i++) {
+            Element serviceElement = (Element) serviceNodeList.item(i);
+            NamedNodeMap serviceAttrMap = serviceElement.getAttributes();
 
-			// 解析Netty-client 一个
-			Element nettyClientElement = (Element) doc.getElementsByTagName("netty-client").item(0);
-			if (nettyClientElement != null) {
-				parsePropertyValue(nettyClientElement, "property", nettyClientConfig);
-			}
-			configuration.setNettyClientConfig(nettyClientConfig);
+            Node idNode = serviceAttrMap.getNamedItem("id");
+            Node interfaceNode = serviceAttrMap.getNamedItem("interface");
+            if (interfaceNode == null) {
+                continue;
+            }
+            ReferenceConfig rc = new ReferenceConfig();
+            Class<?> interfaceClass = ReflectionUtils.getClassByName(interfaceNode.getTextContent());
+            rc.setInterface(interfaceNode.getTextContent());
+            String id = idNode == null ? interfaceClass.getName() : idNode.getTextContent();
+            if (map.get(id) != null) {
+                throw new RuntimeException("duplicate name " + idNode.getTextContent());
+            }
+            rc.setId(id);
+            map.put(rc.getId(), rc);
+        }
+    }
 
-			// 解析Registry
-			Element registryElement = (Element) doc.getElementsByTagName("registry").item(0);
-			if (registryElement != null) {
-				parsePropertyValue(registryElement, "property", registryConfig);
-			}
+    private static void parsePropertyValue(Element element, String childTagName, Object obj) {
+        NodeList propertyNodeList = element.getElementsByTagName(childTagName);
+        Class<?> clazz = obj.getClass();
+        for (int i = 0; i < propertyNodeList.getLength(); i++) {
+            Node node = propertyNodeList.item(i);
+            NamedNodeMap map = node.getAttributes();
+            String propertyName = map.getNamedItem("name").getTextContent();
+            String propertyValue = node.getTextContent();
+            try {
+                Field field = clazz.getDeclaredField(propertyName);
+                field.setAccessible(true);
+                Object value = ReflectionUtils.getPrimitiveFieldValue(field, propertyValue);
+                if (value != null) {
+                    field.set(obj, value);
+                }
+            } catch (Exception e) {
+                logger.debug("propertyName not found", e);
+                continue;
+            }
+        }
+    }
 
-			// 解析service
-			Node serviceNode = doc.getElementsByTagName("services").item(0);
-			if (serviceNode != null) {
-				parseServiceValue((Element) serviceNode, "service", serviceMap);
-			}
+    public NetConfig getNettyClientConfig() {
+        return nettyClientConfig;
+    }
 
-			// 解析reference
-			Node referenceNode = doc.getElementsByTagName("references").item(0);
-			if (referenceNode != null) {
-				parseReferenceValue((Element) referenceNode, "reference", referenceMap);
-			}
+    public void setNettyClientConfig(NetConfig nettyClientConfig) {
+        this.nettyClientConfig = nettyClientConfig;
+    }
 
-			is.close();
-		}
-		configuration.setNettyClientConfig(nettyClientConfig);
-		configuration.addRegistryConfig(registryConfig);
-		configuration.setNettyServerConfigs(nettyServerConfigs);
+    public List<NetConfig> getNettyServerConfigs() {
+        return nettyServerConfigs;
+    }
 
-		for (InterfaceConfig<?> ic : serviceMap.values()) {
-			ic.addRegistryConf(registryConfig);
-			((ServiceConfig<?>) ic).addNettyConfs(configuration.getNettyServerConfigs());
-			ic.setConf(configuration);
-			ic.export();
-		}
+    public void setNettyServerConfigs(List<NetConfig> nettyServerConfigs) {
+        this.nettyServerConfigs = nettyServerConfigs;
+    }
 
-		for (InterfaceConfig<?> ic : referenceMap.values()) {
-			ic.addRegistryConf(registryConfig);
-			((ReferenceConfig<?>) ic).setNettyConf(configuration.getNettyClientConfig());
-			ic.setConf(configuration);
-			ic.export();
-		}
+    public List<RegistryConfig> getRegistryConfigs() {
+        return registryConfigs;
+    }
 
-		return configuration;
-	}
+    public void setRegistryConfigs(List<RegistryConfig> registryConfigs) {
+        this.registryConfigs = registryConfigs;
+    }
 
-	@SuppressWarnings("unchecked")
-	private static void parseServiceValue(Element element, String childTagName, Map<String, InterfaceConfig<?>> map) {
-		NodeList serviceNodeList = element.getElementsByTagName(childTagName);
-		for (int i = 0; i < serviceNodeList.getLength(); i++) {
-			Element serviceElement = (Element) serviceNodeList.item(i);
-			NamedNodeMap serviceAttrMap = serviceElement.getAttributes();
+    public void addRegistryConfig(RegistryConfig registryConfig) {
+        if (this.registryConfigs == null) {
+            this.registryConfigs = new ArrayList<>(1);
+        }
+        if (!this.registryConfigs.contains(registryConfig)) {
+            this.registryConfigs.add(registryConfig);
+        }
+    }
 
-			Node idNode = serviceAttrMap.getNamedItem("id");
-			Node classNode = serviceAttrMap.getNamedItem("class");
-			Node interfaceNode = serviceAttrMap.getNamedItem("interface");
-			if (interfaceNode == null) {
-				continue;
-			}
+    public void removeRegistry(Registry registry) {
+        registryMap.remove(registry.getConf());
+    }
 
-			ServiceConfig sc = new ServiceConfig();
-			Class<?> clazz = ReflectionUtils.getClassByName(classNode.getTextContent());
-			sc.setRef(ReflectionUtils.newInstance(clazz));
+    public RemotingClient getRefRemoting(Class<?> clazz) {
+        return exportRefRemoteMap.get(clazz);
+    }
 
-			sc.setInterface(interfaceNode.getTextContent());
+    /**
+     *
+     */
+    public void addServiceConfig(ServiceConfig<?> sc) {
+        List<Registry> registries = handleRegistries(sc.getRegistryConfs());
+        for (NetConfig nc : sc.getNettyConfs()) {
+            RemotingServer remoting = remotingServerMap.get(nc);
+            if (remoting == null) {
+                remoting = RemotingFactory.getInstance().createRemotingServer(nc, registries);
+                remoting.addRegistrys(registries);
+                remoting.start();
+                remotingServerMap.put(nc, remoting);
+            }
+            remoting.handler().addServiceConfig(sc);
+        }
+    }
 
-			String id = idNode == null ? interfaceNode.getTextContent() : idNode.getTextContent();
-			if (map.get(id) != null) {
-				throw new RuntimeException("duplicate name " + idNode.getTextContent());
-			}
-			sc.setId(id);
-			parsePropertyValue(serviceElement, "property", sc.getRef());
-			map.put(sc.getId(), sc);
-		}
-	}
+    public RemotingClient addReferenceConfig(ReferenceConfig<?> ref) {
+        if (exportRefRemoteMap.get(ref.getInterfaceClass()) != null) {
+            return null;
+        }
+        List<Registry> registries = handleRegistries(ref.getRegistryConfs());
+        NetConfig nc = ref.getNettyConfig();
+        if (registries.size() <= 0 && !nc.isUseable()) {
+            throw new RuntimeException("can't export [" + ref.getInterface()
+                    + "], because there's no registry config and nettyConfig can't be used");
+        }
+        RemotingClient remoting = null;
+        if (nc.isUseable()) {
+            remoting = remotingClientMap.get(nc);
+            if (remoting == null) {
+                remoting = RemotingFactory.getInstance().createRemotingClient(nc, registries);
+                remoting.start();
+                remotingClientMap.put(nc, remoting);
+            }
+        } else {
+            NetConfig newNc = nc.clone();
+            try {
+                Server server = registries.get(0).getRandomServer(newNc.getProtocol());
+                if (server == null) {
+                    return null;
+                }
+                newNc.setIp(server.getHost());
+                newNc.setPort(server.getPort());
+                ref.setNettyConf(newNc);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
+            remoting = remotingClientMap.get(newNc);
+            if (remoting == null) {
+                remoting = RemotingFactory.getInstance().createRemotingClient(newNc, registries);
+                remoting.start();
+                remotingClientMap.put(newNc, remoting);
+            }
+        }
+        remoting.handler().addReferenceConfig(ref);
+        exportRefRemoteMap.put(ref.getInterfaceClass(), remoting);
+        return remoting;
+    }
 
-	private static void parseReferenceValue(Element element, String childTagName, Map<String, InterfaceConfig<?>> map) {
-		NodeList serviceNodeList = element.getElementsByTagName(childTagName);
-		for (int i = 0; i < serviceNodeList.getLength(); i++) {
-			Element serviceElement = (Element) serviceNodeList.item(i);
-			NamedNodeMap serviceAttrMap = serviceElement.getAttributes();
+    private List<Registry> handleRegistries(Set<RegistryConfig> set) {
+        List<Registry> registries = new ArrayList<>();
+        for (RegistryConfig rc : set) {
+            Registry registry = registryMap.get(rc);
+            if (registry == null) {
+                try {
+                    registry = new ZooKeeperRegistry(rc);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    continue;
+                }
+                registryMap.put(rc, registry);
+            }
+            registries.add(registry);
+        }
+        return registries;
+    }
 
-			Node idNode = serviceAttrMap.getNamedItem("id");
-			Node interfaceNode = serviceAttrMap.getNamedItem("interface");
-			if (interfaceNode == null) {
-				continue;
-			}
-			ReferenceConfig rc = new ReferenceConfig();
-			Class<?> interfaceClass = ReflectionUtils.getClassByName(interfaceNode.getTextContent());
-			rc.setInterface(interfaceNode.getTextContent());
-			String id = idNode == null ? interfaceClass.getName() : idNode.getTextContent();
-			if (map.get(id) != null) {
-				throw new RuntimeException("duplicate name " + idNode.getTextContent());
-			}
-			rc.setId(id);
-			map.put(rc.getId(), rc);
-		}
-	}
+    RemotingClient getRemotingClient(NetConfig nc) {
+        return remotingClientMap.get(nc);
+    }
 
-	private static void parsePropertyValue(Element element, String childTagName, Object obj) {
-		NodeList propertyNodeList = element.getElementsByTagName(childTagName);
-		Class<?> clazz = obj.getClass();
-		for (int i = 0; i < propertyNodeList.getLength(); i++) {
-			Node node = propertyNodeList.item(i);
-			NamedNodeMap map = node.getAttributes();
-			String propertyName = map.getNamedItem("name").getTextContent();
-			String propertyValue = node.getTextContent();
-			try {
-				Field field = clazz.getDeclaredField(propertyName);
-				field.setAccessible(true);
-				Object value = ReflectionUtils.getPrimitiveFieldValue(field, propertyValue);
-				if (value != null) {
-					field.set(obj, value);
-				}
-			} catch (Exception e) {
-				logger.debug("propertyName not found", e);
-				continue;
-			}
-		}
-	}
+    RemotingServer getRemotingServer(NetConfig nc) {
+        return remotingServerMap.get(nc);
+    }
 
 }

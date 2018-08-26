@@ -2,10 +2,10 @@ package com.freda.remoting.web;
 
 public interface WebServerFactory {
 
-	WebServer getWebServer();
+    WebServer getWebServer();
 
-	int getPort();
-	
-	void setPort(int port);
-	
+    int getPort();
+
+    void setPort(int port);
+
 }

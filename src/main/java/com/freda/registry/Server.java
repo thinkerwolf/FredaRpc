@@ -4,75 +4,74 @@ import com.freda.common.util.JsonUtils;
 
 /**
  * 服务器
- * 
- * @author wukai
  *
+ * @author wukai
  */
 public class Server {
 
-	private String name;
+    private String name;
 
-	private String host;
+    private String host;
 
-	private int port;
+    private int port;
 
-	private String protocal;
+    private String protocal;
 
-	public Server() {
-	}
+    public Server() {
+    }
 
-	public Server(String name, String host, int port, String protocal) {
-		this.name = name;
-		this.host = host;
-		this.port = port;
-		this.protocal = protocal;
-	}
+    public Server(String name, String host, int port, String protocal) {
+        this.name = name;
+        this.host = host;
+        this.port = port;
+        this.protocal = protocal;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public static void main(String[] args) {
+        Server server = new Server("freda_1", "127.0.0.1", 11211, "freda");
 
-	public void setHost(String host) {
-		this.host = host;
-	}
+        String json = JsonUtils.obj2Json(server);
+        System.out.println(json);
 
-	public void setPort(int port) {
-		this.port = port;
-	}
+        Server s = JsonUtils.json2Obj(json, Server.class);
+        System.out.println(s.getPort());
 
-	public String getName() {
-		return name;
-	}
+    }
 
-	public String getHost() {
-		return host;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public int getPort() {
-		return port;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public String getProtocal() {
-		return protocal;
-	}
+    public String getHost() {
+        return host;
+    }
 
-	public void setProtocal(String protocal) {
-		this.protocal = protocal;
-	}
+    public void setHost(String host) {
+        this.host = host;
+    }
 
-	public byte[] toJsonByte() {
-		return JsonUtils.obj2Json(this).getBytes();
-	}
+    public int getPort() {
+        return port;
+    }
 
-	public static void main(String[] args) {
-		Server server = new Server("freda_1", "127.0.0.1", 11211, "freda");
+    public void setPort(int port) {
+        this.port = port;
+    }
 
-		String json = JsonUtils.obj2Json(server);
-		System.out.println(json);
+    public String getProtocal() {
+        return protocal;
+    }
 
-		Server s = JsonUtils.json2Obj(json, Server.class);
-		System.out.println(s.getPort());
+    public void setProtocal(String protocal) {
+        this.protocal = protocal;
+    }
 
-	}
+    public byte[] toJsonByte() {
+        return JsonUtils.obj2Json(this).getBytes();
+    }
 
 }
