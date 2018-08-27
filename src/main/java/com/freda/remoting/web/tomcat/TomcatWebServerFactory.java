@@ -16,12 +16,8 @@ import java.io.IOException;
 
 public class TomcatWebServerFactory extends AbstractWebServerFactory {
 
-    /**
-     * The class name of default protocol used.
-     */
-    public static final String DEFAULT_PROTOCOL = "org.apache.coyote.http11.Http11NioProtocol";
-    private int port = 8080;
-    private String docBase;
+	private int port = 8080;
+	private String docBase;
 
 	@Override
 	public WebServer getWebServer() {
@@ -39,53 +35,47 @@ public class TomcatWebServerFactory extends AbstractWebServerFactory {
 		context.setPath(contextPath);
 		context.addLifecycleListener(new FixContextListener());
 		tomcat.getHost().addChild(context);
-		
-        String contextPath = "/";
-        StandardContext context = new StandardContext();
-        context.setPath(contextPath);
-        context.addLifecycleListener(new FixContextListener());
-        tomcat.getHost().addChild(context);
 
-        // tomcat.addServlet(contextPath, "InternalServlet", new
-        // InnerServlet());
-        tomcat.addServlet("/", "dispatchServlet", new FredaDispatchServlet());
-        context.addServletMappingDecoded("/service", "dispatchServlet");
+		// tomcat.addServlet(contextPath, "InternalServlet", new
+		// InnerServlet());
+		tomcat.addServlet("/", "dispatchServlet", new FredaDispatchServlet());
+		context.addServletMappingDecoded("/service", "dispatchServlet");
 
+		return getTomcatWebServer(tomcat);
+	}
 
-        return getTomcatWebServer(tomcat);
-    }
+	/**
+	 * Return the absolute temp dir for given web server.
+	 *
+	 * @param prefix
+	 *            server name
+	 * @return The temp dir for given server.
+	 */
+	protected final File createTempDir(String prefix) {
+		try {
+			File tempDir = File.createTempFile(prefix + ".", "." + getPort());
+			tempDir.delete();
+			tempDir.mkdir();
+			tempDir.deleteOnExit();
+			return tempDir;
+		} catch (IOException ex) {
+			throw new WebServerException(
+					"Unable to create tempDir. java.io.tmpdir is set to " + System.getProperty("java.io.tmpdir"), ex);
+		}
+	}
 
-    /**
-     * Return the absolute temp dir for given web server.
-     *
-     * @param prefix server name
-     * @return The temp dir for given server.
-     */
-    protected final File createTempDir(String prefix) {
-        try {
-            File tempDir = File.createTempFile(prefix + ".", "." + getPort());
-            tempDir.delete();
-            tempDir.mkdir();
-            tempDir.deleteOnExit();
-            return tempDir;
-        } catch (IOException ex) {
-            throw new WebServerException(
-                    "Unable to create tempDir. java.io.tmpdir is set to " + System.getProperty("java.io.tmpdir"), ex);
-        }
-    }
+	private TomcatWebServer getTomcatWebServer(Tomcat tomcat) {
+		return new TomcatWebServer(tomcat);
+	}
 
-    private TomcatWebServer getTomcatWebServer(Tomcat tomcat) {
-        return new TomcatWebServer(tomcat);
-    }
+	@Override
+	public int getPort() {
+		return port;
+	}
 
-    @Override
-    public int getPort() {
-        return port;
-    }
-
-    @Override
-    public void setPort(int port) {
-        this.port = port;
-    }
+	@Override
+	public void setPort(int port) {
+		this.port = port;
+	}
 
 }

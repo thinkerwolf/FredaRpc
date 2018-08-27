@@ -34,9 +34,10 @@ public class Bootstrap {
         this.confFilePath = confFilePath;
     }
 
-    public <T> T refer(Class<T> clazz) {
+    @SuppressWarnings("unchecked")
+	public <T> T refer(Class<T> clazz) {
         RemotingClient rc = this.conf.getRefRemoting(clazz);
-        return rc.sendSync(clazz);
+        return (T) rc.handler().send(rc, clazz);
     }
 
 }

@@ -4,6 +4,7 @@ package com.freda.remoting;
 import com.freda.common.conf.NetConfig;
 import com.freda.registry.Registry;
 import com.freda.registry.Server;
+import com.freda.rpc.ServerRemotingHandler;
 
 public abstract class RemotingServer extends AbstractRemoting {
 

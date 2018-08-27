@@ -2,7 +2,6 @@ package com.freda.remoting;
 
 import com.freda.common.conf.NetConfig;
 import com.freda.registry.Registry;
-import com.freda.remoting.protocal.Protocol;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -73,8 +72,4 @@ abstract class AbstractRemoting implements Remoting {
         return channel;
     }
 
-    @Override
-    public Protocol protocol() {
-        return null;
-    }
 }

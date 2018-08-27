@@ -2,7 +2,6 @@ package com.freda.remoting;
 
 import com.freda.common.conf.NetConfig;
 import com.freda.registry.Registry;
-import com.freda.remoting.protocal.Protocol;
 
 import java.util.Collection;
 
@@ -22,5 +21,4 @@ public interface Remoting {
 
     Channel channel();
 
-    Protocol protocol();
 }

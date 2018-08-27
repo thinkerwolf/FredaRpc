@@ -9,68 +9,66 @@ import java.util.Set;
 
 public abstract class InterfaceConfig<T> {
 
-    protected String id;
-    protected Class<T> interfaceClass;
-    protected String interfaceName;
-    protected Set<RegistryConfig> registryConfs = new HashSet<RegistryConfig>();
+	protected String id;
+	protected Class<T> interfaceClass;
+	protected String interfaceName;
+	protected Set<RegistryConfig> registryConfs = new HashSet<RegistryConfig>();
+	protected T ref;
+	protected Configuration conf;
 
-    protected T ref;
+	public String getId() {
+		return id;
+	}
 
-    protected Configuration conf;
+	public void setId(String id) {
+		this.id = id;
+	}
 
-    public String getId() {
-        return id;
-    }
+	public Class<T> getInterfaceClass() {
+		return interfaceClass;
+	}
 
-    public void setId(String id) {
-        this.id = id;
-    }
+	public String getInterface() {
+		return interfaceName;
+	}
 
-    public Class<T> getInterfaceClass() {
-        return interfaceClass;
-    }
+	@SuppressWarnings("unchecked")
+	public void setInterface(String interfaceName) {
+		this.interfaceName = interfaceName;
+		this.interfaceClass = (Class<T>) ReflectionUtils.getClassByName(interfaceName);
+	}
 
-    public String getInterface() {
-        return interfaceName;
-    }
+	public Set<RegistryConfig> getRegistryConfs() {
+		return registryConfs;
+	}
 
-    @SuppressWarnings("unchecked")
-    public void setInterface(String interfaceName) {
-        this.interfaceName = interfaceName;
-        this.interfaceClass = (Class<T>) ReflectionUtils.getClassByName(interfaceName);
-    }
+	public void addRegistryConfs(Collection<RegistryConfig> registrys) {
+		this.registryConfs.addAll(registrys);
+	}
 
-    public Set<RegistryConfig> getRegistryConfs() {
-        return registryConfs;
-    }
+	public void addRegistryConf(RegistryConfig registry) {
+		this.registryConfs.add(registry);
+	}
 
-    public void addRegistryConfs(Collection<RegistryConfig> registrys) {
-        this.registryConfs.addAll(registrys);
-    }
+	public T getRef() {
+		return ref;
+	}
 
-    public void addRegistryConf(RegistryConfig registry) {
-        this.registryConfs.add(registry);
-    }
+	public void setRef(T ref) {
+		this.ref = ref;
+	}
 
-    public T getRef() {
-        return ref;
-    }
+	public void setConf(Configuration conf) {
+		this.conf = conf;
+	}
 
-    public void setRef(T ref) {
-        this.ref = ref;
-    }
+	/**
+	 * export
+	 */
+	public abstract void export();
 
-    public void setConf(Configuration conf) {
-        this.conf = conf;
-    }
-
-    /**
-     * export
-     */
-    public abstract void export();
-
-    /**
-     * unexport
-     */
-    public abstract void unexport();
+	/**
+	 * unexport
+	 */
+	public abstract void unexport();
 }

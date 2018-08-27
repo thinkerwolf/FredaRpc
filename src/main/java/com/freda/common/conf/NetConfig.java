@@ -128,7 +128,11 @@ public class NetConfig {
         } catch (URISyntaxException e) {
             throw new RuntimeException("netty parse to uri fail", e);
         }
-
     }
+    
+    public String key() {
+    	return port > 0 ? ip + ":" + port : ip;
+    }
+    
 
 }

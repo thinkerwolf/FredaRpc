@@ -52,17 +52,7 @@ public class NettyClient extends RemotingClient {
             logger.error(e.getMessage(), e);
         }
     }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T> T sendSync(final Class<T> clazz) {
-        return (T) handler.send(this, clazz);
-    }
-
-    @Override
-    public void invokeAsync() {
-    }
-
+    
     @Override
     public void start() {
         synchronized (lock) {

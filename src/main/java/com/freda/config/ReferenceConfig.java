@@ -13,11 +13,11 @@ public class ReferenceConfig<T> extends InterfaceConfig<T> {
 
     private NetConfig nettyConf;
 
-    public NetConfig getNettyConfig() {
+    public NetConfig getNetConfig() {
         return nettyConf;
     }
 
-    public void setNettyConf(NetConfig nettyConf) {
+    public void setNetConf(NetConfig nettyConf) {
         this.nettyConf = nettyConf;
     }
 

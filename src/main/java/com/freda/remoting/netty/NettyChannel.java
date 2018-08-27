@@ -14,10 +14,12 @@ public class NettyChannel implements com.freda.remoting.Channel {
     @Override
     public void send(Object msg) {
         ChannelFuture cf = channel.writeAndFlush(msg);
-        try {
-            cf.sync();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        if (!cf.isSuccess()) {
+        	 try {
+                 cf.sync();
+             } catch (InterruptedException e) {
+                 e.printStackTrace();
+             }
         }
     }
 

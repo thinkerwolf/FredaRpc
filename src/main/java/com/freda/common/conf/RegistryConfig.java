@@ -84,5 +84,9 @@ public class RegistryConfig {
             return false;
         return true;
     }
-
+    
+    public String key() {
+    	return ip + ":" + port;
+    }
+    
 }

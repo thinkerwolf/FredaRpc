@@ -1,7 +1,9 @@
-package com.freda.remoting;
+package com.freda.rpc;
 
 import com.freda.common.conf.NetConfig;
 import com.freda.registry.Registry;
+import com.freda.remoting.RemotingClient;
+import com.freda.remoting.RemotingServer;
 import com.freda.remoting.netty.NettyClient;
 import com.freda.remoting.netty.NettyServer;
 

@@ -24,7 +24,8 @@ public class ReferenceBean extends ReferenceConfig
 
     private ApplicationContext context;
 
-    @Override
+    @SuppressWarnings("unchecked")
+	@Override
     public void afterPropertiesSet() throws Exception {
         Map<String, NetBean> nettyBeanMap = context.getBeansOfType(NetBean.class);
         this.setConf(Configuration.getInstance());
@@ -37,7 +38,7 @@ public class ReferenceBean extends ReferenceConfig
         int num = 0;
         for (NetBean nb : nettyBeanMap.values()) {
             if (!nb.isServer()) {
-                this.setNettyConf(nb);
+                this.setNetConf(nb);
                 num++;
                 break;
             }
@@ -59,13 +60,14 @@ public class ReferenceBean extends ReferenceConfig
 
     }
 
-    @Override
+    @SuppressWarnings("unchecked")
+	@Override
     public Object getObject() throws Exception {
         if (getRef() == null) {
             synchronized (this) {
                 if (getRef() == null) {
                     RemotingClient client = Configuration.getInstance().addReferenceConfig(this);
-                    Object obj = client.sendSync(this.getInterfaceClass());
+                    Object obj = client.handler().send(client, this.getInterfaceClass());
                     this.setRef(obj);
                 }
             }
