@@ -4,12 +4,12 @@ import javax.servlet.Servlet;
 
 public interface WebServerFactory {
 
-	WebServer getWebServer();
+    WebServer getWebServer();
 
-	int getPort();
-	
-	void setPort(int port);
-	
+    int getPort();
+
+    void setPort(int port);
+
 	void addServlet(String contextPath, String name, Servlet servlet);
 	
 }

@@ -2,12 +2,11 @@ package com.freda.common.proxy;
 
 /**
  * 代理
- * 
- * @author wukai
  *
+ * @author wukai
  */
 public interface Proxy {
 
-	<T> T newProxy(Class<T> clazz, ProxyHandler handler);
-	
+    <T> T newProxy(Class<T> clazz, ProxyHandler handler);
+
 }

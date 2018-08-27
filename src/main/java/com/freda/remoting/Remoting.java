@@ -1,26 +1,26 @@
 package com.freda.remoting;
 
-import java.util.Collection;
-
 import com.freda.common.conf.NetConfig;
 import com.freda.registry.Registry;
 import com.freda.remoting.protocal.Protocol;
 
+import java.util.Collection;
+
 public interface Remoting {
 
-	void start();
+    void start();
 
-	void stop();
+    void stop();
 
-	void addRegistry(Registry registry);
+    void addRegistry(Registry registry);
 
-	void addRegistrys(Collection<Registry> rs);
-	
-	NetConfig config();
-	
-	RemotingHandler handler();
-	
-	Channel channel();
-	
-	Protocol protocol();
+    void addRegistrys(Collection<Registry> rs);
+
+    NetConfig config();
+
+    RemotingHandler handler();
+
+    Channel channel();
+
+    Protocol protocol();
 }

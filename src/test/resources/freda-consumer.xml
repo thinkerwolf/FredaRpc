@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- property 只支持基本数据类型和字符串 -->
 <configuration>
-	<!-- netty 配置 -->
-	<netty-client>
-		<property name="bossThreads">2</property>
-		<property name="workerThreads">4</property>
-		<property name="protocal">freda</property>
-	</netty-client>
-	
-	<!-- 注册中心 zookeeper -->
-	<registry>
-		<property name="ip">127.0.0.1</property>
-		<property name="port">2181</property>
-	</registry>
+    <!-- netty 配置 -->
+    <netty-client>
+        <property name="bossThreads">2</property>
+        <property name="workerThreads">4</property>
+        <property name="protocal">freda</property>
+    </netty-client>
 
-	<!-- 需要暴漏的接口 -->
-	<references>
-		<reference id="demoService" interface="com.freda.example.DemoService" />
-	</references>
+    <!-- 注册中心 zookeeper -->
+    <registry>
+        <property name="ip">127.0.0.1</property>
+        <property name="port">2181</property>
+    </registry>
 
-	<!-- 注解扫描 service -->
-	<compoent-scan basePackage="com.freda" />
+    <!-- 需要暴漏的接口 -->
+    <references>
+        <reference id="demoService" interface="com.freda.example.DemoService"/>
+    </references>
+
+    <!-- 注解扫描 service -->
+    <compoent-scan basePackage="com.freda"/>
 
 </configuration>
