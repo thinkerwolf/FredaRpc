@@ -7,11 +7,11 @@ import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.catalina.startup.Tomcat.FixContextListener;
 
+import com.freda.remoting.web.AbstractWebServerFactory;
 import com.freda.remoting.web.WebServer;
 import com.freda.remoting.web.WebServerException;
-import com.freda.remoting.web.WebServerFactory;
 
-public class TomcatWebServerFactory implements WebServerFactory {
+public class TomcatWebServerFactory extends AbstractWebServerFactory {
 
 	/**
 	 * The class name of default protocol used.
@@ -30,13 +30,13 @@ public class TomcatWebServerFactory implements WebServerFactory {
 		tomcat.setPort(port);
 		tomcat.setBaseDir(file.getAbsolutePath());
 		tomcat.getHost().setAutoDeploy(false);
-		
+
 		String contextPath = "/freda";
 		StandardContext context = new StandardContext();
 		context.setPath(contextPath);
 		context.addLifecycleListener(new FixContextListener());
 		tomcat.getHost().addChild(context);
-
+		
 		// tomcat.addServlet(contextPath, "InternalServlet", new
 		// InnerServlet());
 		context.addServletMappingDecoded("/home", "InternalServlet");
