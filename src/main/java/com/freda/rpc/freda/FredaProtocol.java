@@ -1,6 +1,8 @@
 package com.freda.rpc.freda;
 
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.freda.common.conf.NetConfig;
 import com.freda.remoting.RemotingClient;
@@ -15,7 +17,9 @@ public class FredaProtocol extends AbstractProtocol {
 
 	public static final String NAME = "freda";
 	public static FredaProtocol INSTANCE = new FredaProtocol();
-
+	protected Map<String, RemotingClient> remotingClientMap = new ConcurrentHashMap<>();
+	protected Map<String, RemotingServer> remotingServerMap = new ConcurrentHashMap<>();
+	
 	@Override
 	public String name() {
 		return NAME;
