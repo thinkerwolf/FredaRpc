@@ -5,18 +5,17 @@ import com.freda.example.DemoService;
 
 public class Consumer {
 
-    public static void main(String args[]) {
-        try {
-            Bootstrap b = new Bootstrap();
-            b.setConfFilePath("classpath:freda-consumer.xml");
-            b.start();
-            DemoService ds = b.refer(DemoService.class);
-            ds.sayHello("freda");
+	public static void main(String args[]) {
+		try {
+			Bootstrap b = new Bootstrap();
+			b.setConfFilePath("classpath:freda-consumer.xml");
+			b.start();
+			DemoService ds = b.refer(DemoService.class);
+			ds.sayHello("freda");
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
-
-    }
+	}
 }

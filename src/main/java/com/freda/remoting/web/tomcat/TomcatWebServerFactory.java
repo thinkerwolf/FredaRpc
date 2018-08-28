@@ -1,16 +1,12 @@
 package com.freda.remoting.web.tomcat;
 
-import com.freda.remoting.web.FredaDispatchServlet;
 import com.freda.remoting.web.WebServer;
 import com.freda.remoting.web.WebServerException;
-import com.freda.remoting.web.WebServerFactory;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.catalina.startup.Tomcat.FixContextListener;
 
 import com.freda.remoting.web.AbstractWebServerFactory;
-import com.freda.remoting.web.WebServer;
-import com.freda.remoting.web.WebServerException;
 import java.io.File;
 import java.io.IOException;
 
@@ -38,19 +34,10 @@ public class TomcatWebServerFactory extends AbstractWebServerFactory {
 
 		// tomcat.addServlet(contextPath, "InternalServlet", new
 		// InnerServlet());
-		tomcat.addServlet("/", "dispatchServlet", new FredaDispatchServlet());
-		context.addServletMappingDecoded("/service", "dispatchServlet");
 
 		return getTomcatWebServer(tomcat);
 	}
 
-	/**
-	 * Return the absolute temp dir for given web server.
-	 *
-	 * @param prefix
-	 *            server name
-	 * @return The temp dir for given server.
-	 */
 	protected final File createTempDir(String prefix) {
 		try {
 			File tempDir = File.createTempFile(prefix + ".", "." + getPort());
