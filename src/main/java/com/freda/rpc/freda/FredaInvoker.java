@@ -4,6 +4,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.freda.remoting.RemotingClient;
 import com.freda.remoting.RequestMessage;
+import com.freda.remoting.ResponseFuture;
 import com.freda.rpc.AbstractInvoker;
 import com.freda.rpc.RpcException;
 
@@ -13,8 +14,8 @@ public class FredaInvoker<T> extends AbstractInvoker<T> {
 
 	private AtomicInteger round;
 
-	public FredaInvoker(Class<T> type, RemotingClient[] clients) {
-		super(type);
+	public FredaInvoker(String id, Class<T> type, RemotingClient[] clients) {
+		super(id, type);
 		this.clients = clients;
 	}
 
@@ -26,8 +27,13 @@ public class FredaInvoker<T> extends AbstractInvoker<T> {
 		} else {
 			client = clients[Math.abs(round.getAndIncrement() % clients.length)];
 		}
-		return client.handler().send(client, inv);
+		ResponseFuture rf = client.handler().send(client, inv);
+		try {
+			rf.sync();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		return rf.getResult();
 	}
-
 
 }

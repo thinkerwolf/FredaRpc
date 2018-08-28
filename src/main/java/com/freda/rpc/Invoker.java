@@ -8,4 +8,5 @@ public interface Invoker<T> {
 	
 	Class<T> getType();
 	
+	String id();
 }

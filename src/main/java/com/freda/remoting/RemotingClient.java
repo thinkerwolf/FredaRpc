@@ -1,7 +1,6 @@
 package com.freda.remoting;
 
 import com.freda.common.conf.NetConfig;
-import com.freda.rpc.ClientRemotingHandler;
 
 public abstract class RemotingClient extends AbstractRemoting {
 
@@ -13,9 +12,9 @@ public abstract class RemotingClient extends AbstractRemoting {
 		super(conf, handler);
 	}
 
-	@Override
-	public ClientRemotingHandler handler() {
-		return (ClientRemotingHandler) super.handler();
-	}
+//	@Override
+//	public ClientRemotingHandler handler() {
+//		return (ClientRemotingHandler) super.handler();
+//	}
 
 }

@@ -15,17 +15,17 @@ public class NetBean extends NetConfig implements InitializingBean {
     public void afterPropertiesSet() throws Exception {
         Configuration conf = Configuration.getInstance();
         if (server) {
-            List<NetConfig> list = conf.getNettyServerConfigs();
+            List<NetConfig> list = conf.getNetServerConfigs();
             if (list == null) {
                 list = new ArrayList<>();
-                conf.setNettyServerConfigs(list);
+                conf.setNetServerConfigs(list);
             }
             if (!list.contains(this)) {
                 list.add(this);
             }
         } else {
-            if (Configuration.getInstance().getNettyClientConfig() == null) {
-                Configuration.getInstance().setNettyClientConfig(this);
+            if (Configuration.getInstance().getNetClientConfig() == null) {
+                Configuration.getInstance().setNetClientConfig(this);
             }
         }
     }

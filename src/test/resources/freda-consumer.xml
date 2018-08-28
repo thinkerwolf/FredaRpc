@@ -2,11 +2,11 @@
 <!-- property 只支持基本数据类型和字符串 -->
 <configuration>
     <!-- netty 配置 -->
-    <netty-client>
+    <net-client>
         <property name="bossThreads">2</property>
         <property name="workerThreads">4</property>
         <property name="protocal">freda</property>
-    </netty-client>
+    </net-client>
 
     <!-- 注册中心 zookeeper -->
     <registry>

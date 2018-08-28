@@ -14,11 +14,11 @@ import java.util.Map;
  *
  * @author wukai
  */
-public class ServiceBean extends ServiceConfig implements InitializingBean, ApplicationContextAware {
+public class ServiceBean<T> extends ServiceConfig<T> implements InitializingBean, ApplicationContextAware {
 
     private ApplicationContext context;
 
-    @Override
+	@Override
     public void afterPropertiesSet() throws Exception {
         Map<String, NetBean> nettyBeanMap = context.getBeansOfType(NetBean.class);
         if (nettyBeanMap == null || nettyBeanMap.size() == 0) {
@@ -34,8 +34,11 @@ public class ServiceBean extends ServiceConfig implements InitializingBean, Appl
         }
         if (num > 0) {
             Map<String, RegistryBean> registryBeanMap = context.getBeansOfType(RegistryBean.class);
-            this.addRegistryConfs(registryBeanMap.values());
-            Configuration.getInstance().addServiceConfig(this);
+            for (RegistryBean rb : registryBeanMap.values()) {
+            	this.addRegistryConf(rb);
+            }
+            export();
+            Configuration.getInstance().addServiceConf(this);
         }
     }
 

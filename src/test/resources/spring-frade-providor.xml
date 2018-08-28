@@ -1,32 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:freda="http://www.freda.com/schema/freda"
-       xmlns="http://www.springframework.org/schema/beans"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans
+	xmlns:freda="http://www.freda.com/schema/freda" xmlns="http://www.springframework.org/schema/beans"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-
-
-
-
-
-
        http://www.freda.com/schema/freda
        http://www.freda.com/schema/freda/freda.xsd">
 
-    <bean id="demoService" class="com.freda.example.DemoServiceImpl"/>
+	<bean id="demoService" class="com.freda.example.DemoServiceImpl" />
 
-    <!-- registry config -->
-    <freda:registry ip="127.0.0.1" port="2181" protocol="zookeeper"/>
+	<!-- registry config -->
+	<freda:registry ip="127.0.0.1" port="2181" protocol="zookeeper" />
 
-    <!-- netty-server config 1 -->
-    <freda:netty-server ip="127.0.0.1" port="8088"
-                        protocol="freda" bossThreads="2" workerThreads="4"/>
+	<!-- netty-server config 1 -->
+	<freda:net-server ip="127.0.0.1" port="8088"
+		protocol="freda" bossThreads="2" workerThreads="4" />
 
-    <!-- netty-server config 2 -->
-    <freda:netty-server ip="127.0.0.1" port="8089"
-                        protocol="freda" bossThreads="2" workerThreads="4"/>
+	<!-- netty-server config 2 -->
+	<freda:net-server ip="127.0.0.1" port="8089"
+		protocol="freda" bossThreads="2" workerThreads="4" />
 
-    <freda:service interface="com.freda.example.DemoService"
-                   ref="demoService"/>
+	<freda:service interface="com.freda.example.DemoService"
+		ref="demoService" />
 
 </beans>

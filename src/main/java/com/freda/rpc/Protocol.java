@@ -13,10 +13,8 @@ public interface Protocol {
 	
     String name();
 
-    void send(Object obj);
-
-    <T> Invoker<T> refer(Class<T> type, List<NetConfig> ncs);
+    <T> Invoker<T> refer(String id, Class<T> type, List<NetConfig> ncs);
     
-    <T> Exporter<T> export(Class<T> type, T ref, List<NetConfig> ncs);
+    <T> Exporter<T> export(String id, Class<T> type, T ref, NetConfig nc);
     
 }

@@ -65,10 +65,10 @@ public abstract class InterfaceConfig<T> {
 	/**
 	 * export
 	 */
-	public abstract void export();
+	public abstract void export() throws Exception;
 
 	/**
 	 * unexport
 	 */
-	public abstract void unexport();
+	public abstract void unexport() throws Exception;
 }

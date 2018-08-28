@@ -45,9 +45,9 @@
         <xsd:attribute name="bossThreads" type="xsd:int"/>
         <xsd:attribute name="workerThreads" type="xsd:int"/>
     </xsd:complexType>
-    <xsd:element name="netty-client" type="netType">
+    <xsd:element name="net-client" type="netType">
     </xsd:element>
-    <xsd:element name="netty-server" type="netType">
+    <xsd:element name="net-server" type="netType">
     </xsd:element>
 
 

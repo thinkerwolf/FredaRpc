@@ -1,69 +1,54 @@
 package com.freda.rpc;
 
-import com.freda.config.ServiceConfig;
 import com.freda.remoting.Remoting;
 import com.freda.remoting.RemotingHandler;
 import com.freda.remoting.RequestMessage;
+import com.freda.remoting.ResponseFuture;
 import com.freda.remoting.ResponseMessage;
 
 import java.lang.reflect.Method;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 public class ServerRemotingHandler implements RemotingHandler {
-    protected ConcurrentMap<String, ServiceConfig<?>> serviceMap = new ConcurrentHashMap<>();
-    
-    @Override
-    public Object send(Remoting remoting, Object msg) {
-        remoting.channel().send(msg);
-        return null;
-    }
 
-    @Override
-    public void received(Remoting remoting, Object msg) {
-        RequestMessage requestMessage = (RequestMessage) msg;
-        ResponseMessage responseMessage = new ResponseMessage();
-        try {
-            Object obj = null;
-            ServiceConfig<?> serviceConfig = getServiceConfig(requestMessage.getClazzName());
-            responseMessage.setId(requestMessage.getId());
-            if (serviceConfig != null) {
-                obj = serviceConfig.getRef();
-                Method method = serviceConfig.getInterfaceClass().getMethod(requestMessage.getMethodName(),
-                        requestMessage.getParameterTypes());
-                method.setAccessible(true);
-                Object result = method.invoke(obj, requestMessage.getArgs());
-                responseMessage.setSuccess(true);
-                responseMessage.setResult(result);
-            } else {
-                responseMessage.setSuccess(false);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        responseMessage.setSuccess(false);
-        send(remoting, responseMessage);
-    }
+	private Map<String, Exporter<?>> exporters = new ConcurrentHashMap<>();
 
-    public void addServiceConfig(ServiceConfig<?> sc) {
-        serviceMap.put(sc.getId(), sc);
-    }
+	@Override
+	public ResponseFuture send(Remoting remoting, Object msg) {
+		remoting.channel().send(msg);
+		return null;
+	}
 
-    public void removeServiceConfig(ServiceConfig<?> sc) {
-        serviceMap.remove(sc.getId());
-    }
+	@Override
+	public void received(Remoting remoting, Object msg) {
+		RequestMessage requestMessage = (RequestMessage) msg;
+		ResponseMessage responseMessage = new ResponseMessage();
+		try {
+			Object obj = null;
+			Exporter<?> exporter = exporters.get(requestMessage.getClazzName());
+			responseMessage.setId(requestMessage.getId());
+			if (exporter != null) {
+				obj = exporter.ref();
+				Method method = obj.getClass().getMethod(requestMessage.getMethodName(),
+						requestMessage.getParameterTypes());
+				method.setAccessible(true);
+				Object result = method.invoke(obj, requestMessage.getArgs());
+				responseMessage.setSuccess(true);
+				responseMessage.setResult(result);
+			} else {
+				responseMessage.setSuccess(false);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			responseMessage.setSuccess(false);
+		}
+		
+		send(remoting, responseMessage);
+	}
 
-    public ServiceConfig<?> getServiceConfig(Class<?> clazz) {
-        for (ServiceConfig<?> sc : serviceMap.values()) {
-            if (sc.getInterfaceClass().equals(clazz)) {
-                return sc;
-            }
-        }
-        return null;
-    }
-
-    public ServiceConfig<?> getServiceConfig(String id) {
-        return serviceMap.get(id);
-    }
+	public void addExeporter(Exporter<?> e) {
+		exporters.put(e.id(), e);
+	}
 
 }

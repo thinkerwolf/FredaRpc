@@ -4,11 +4,7 @@ import com.freda.common.conf.NetConfig;
 import com.freda.common.conf.RegistryConfig;
 import com.freda.common.util.ReflectionUtils;
 import com.freda.registry.Registry;
-import com.freda.registry.Server;
 import com.freda.registry.ZooKeeperRegistry;
-import com.freda.remoting.RemotingClient;
-import com.freda.remoting.RemotingServer;
-import com.freda.rpc.RemotingFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,31 +31,35 @@ public class Configuration {
 	/**
 	 * common netty server config list
 	 */
-	private List<NetConfig> nettyServerConfigs;
+	private List<NetConfig> netServerConfigs;
 	/**
 	 * common netty client config
 	 */
-	private NetConfig nettyClientConfig;
+	private NetConfig netClientConfig;
 	/**
 	 * common registry config list
 	 */
 	private List<RegistryConfig> registryConfigs;
+	
 	/**
 	 * Server map
-	 */
-	private ConcurrentMap<String, RemotingServer> remotingServerMap = new ConcurrentHashMap<>();
+	private ConcurrentMap<String, RemotingServer> remotingServerMap = new ConcurrentHashMap<>(); */
 	/**
 	 * Client map
-	 */
-	private ConcurrentMap<String, RemotingClient> remotingClientMap = new ConcurrentHashMap<>();
+	private ConcurrentMap<String, RemotingClient> remotingClientMap = new ConcurrentHashMap<>();  */
+	/**
+	 * Reference class client map
+	private Map<Class<?>, RemotingClient> exportRefRemoteMap = new ConcurrentHashMap<>(); */
+	
+	private ConcurrentMap<String, ReferenceConfig<?>> referenceConfMap = new ConcurrentHashMap<>();
+	
+	private ConcurrentMap<String, ServiceConfig<?>> serviceConfMap = new ConcurrentHashMap<>();
+	
 	/**
 	 * Registry map
 	 */
 	private ConcurrentMap<String, Registry> registryMap = new ConcurrentHashMap<>();
-	/**
-	 * Reference class client map
-	 */
-	private Map<Class<?>, RemotingClient> exportRefRemoteMap = new ConcurrentHashMap<>();
+	
 
 	public static Configuration getInstance() {
 		if (INSTANCE == null) {
@@ -106,7 +106,7 @@ public class Configuration {
 			Document doc = builder.parse(is);
 
 			// 解析Netty-server 多个
-			NodeList nettyServerNodeList = doc.getElementsByTagName("netty-server");
+			NodeList nettyServerNodeList = doc.getElementsByTagName("net-server");
 			for (int i = 0; i < nettyServerNodeList.getLength(); i++) {
 				NetConfig nettyConfig = new NetConfig();
 				Element nettyElement = (Element) nettyServerNodeList.item(i);
@@ -117,11 +117,11 @@ public class Configuration {
 			}
 
 			// 解析Netty-client 一个
-			Element nettyClientElement = (Element) doc.getElementsByTagName("netty-client").item(0);
+			Element nettyClientElement = (Element) doc.getElementsByTagName("net-client").item(0);
 			if (nettyClientElement != null) {
 				parsePropertyValue(nettyClientElement, "property", nettyClientConfig);
 			}
-			configuration.setNettyClientConfig(nettyClientConfig);
+			configuration.setNetClientConfig(nettyClientConfig);
 
 			// 解析Registry
 			Element registryElement = (Element) doc.getElementsByTagName("registry").item(0);
@@ -143,22 +143,24 @@ public class Configuration {
 
 			is.close();
 		}
-		configuration.setNettyClientConfig(nettyClientConfig);
+		configuration.setNetClientConfig(nettyClientConfig);
 		configuration.addRegistryConfig(registryConfig);
-		configuration.setNettyServerConfigs(nettyServerConfigs);
+		configuration.setNetServerConfigs(nettyServerConfigs);
 
 		for (InterfaceConfig<?> ic : serviceMap.values()) {
 			ic.addRegistryConf(registryConfig);
-			((ServiceConfig<?>) ic).addNettyConfs(configuration.getNettyServerConfigs());
+			((ServiceConfig<?>) ic).addNettyConfs(configuration.getNetServerConfigs());
 			ic.setConf(configuration);
 			ic.export();
+			configuration.addServiceConf((ServiceConfig<?>) ic);
 		}
 
 		for (InterfaceConfig<?> ic : referenceMap.values()) {
 			ic.addRegistryConf(registryConfig);
-			((ReferenceConfig<?>) ic).setNetConf(configuration.getNettyClientConfig());
+			((ReferenceConfig<?>) ic).setNetConf(configuration.getNetClientConfig());
 			ic.setConf(configuration);
 			ic.export();
+			configuration.addReferenceConf((ReferenceConfig<?>) ic);
 		}
 
 		return configuration;
@@ -239,20 +241,20 @@ public class Configuration {
 		}
 	}
 
-	public NetConfig getNettyClientConfig() {
-		return nettyClientConfig;
+	public NetConfig getNetClientConfig() {
+		return netClientConfig;
 	}
 
-	public void setNettyClientConfig(NetConfig nettyClientConfig) {
-		this.nettyClientConfig = nettyClientConfig;
+	public void setNetClientConfig(NetConfig nettyClientConfig) {
+		this.netClientConfig = nettyClientConfig;
 	}
 
-	public List<NetConfig> getNettyServerConfigs() {
-		return nettyServerConfigs;
+	public List<NetConfig> getNetServerConfigs() {
+		return netServerConfigs;
 	}
 
-	public void setNettyServerConfigs(List<NetConfig> nettyServerConfigs) {
-		this.nettyServerConfigs = nettyServerConfigs;
+	public void setNetServerConfigs(List<NetConfig> netServerConfigs) {
+		this.netServerConfigs = netServerConfigs;
 	}
 
 	public List<RegistryConfig> getRegistryConfigs() {
@@ -275,14 +277,33 @@ public class Configuration {
 	public void removeRegistry(Registry registry) {
 		registryMap.remove(registry.getConf());
 	}
-
+	
+	public void addReferenceConf(ReferenceConfig<?> rc) {
+		referenceConfMap.put(rc.interfaceName, rc);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <T> ReferenceConfig<T> getReferenceConf(Class<T> clazz) {
+		return (ReferenceConfig<T>) referenceConfMap.get(clazz.getName());
+	}
+	
+	public void addServiceConf(ServiceConfig<?> sc) {
+		serviceConfMap.put(sc.interfaceName, sc);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <T> ServiceConfig<T> getServiceConf(Class<T> clazz) {
+		return (ServiceConfig<T>) serviceConfMap.get(clazz.getName());
+	}
+	
+	/**
 	public RemotingClient getRefRemoting(Class<?> clazz) {
 		return exportRefRemoteMap.get(clazz);
 	}
+	*/
 
 	/**
 	 *
-	 */
 	public void addServiceConfig(ServiceConfig<?> sc) {
 		List<Registry> registries = handleRegistries(sc.getRegistryConfs());
 		for (NetConfig nc : sc.getNettyConfs()) {
@@ -296,7 +317,6 @@ public class Configuration {
 			remoting.handler().addServiceConfig(sc);
 		}
 	}
-
 	public RemotingClient addReferenceConfig(ReferenceConfig<?> ref) {
 		if (exportRefRemoteMap.get(ref.getInterfaceClass()) != null) {
 			return null;
@@ -340,6 +360,7 @@ public class Configuration {
 		exportRefRemoteMap.put(ref.getInterfaceClass(), remoting);
 		return remoting;
 	}
+	*/
 
 	public List<Registry> handleRegistries(Set<RegistryConfig> set) {
 		List<Registry> registries = new ArrayList<>();
@@ -359,12 +380,13 @@ public class Configuration {
 		return registries;
 	}
 
+	/**
 	RemotingClient getRemotingClient(NetConfig nc) {
 		return remotingClientMap.get(nc);
 	}
-
 	RemotingServer getRemotingServer(NetConfig nc) {
 		return remotingServerMap.get(nc);
 	}
+	*/
 
 }

@@ -2,7 +2,7 @@ package com.freda.config.spring;
 
 import com.freda.config.Configuration;
 import com.freda.config.ReferenceConfig;
-import com.freda.remoting.RemotingClient;
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
@@ -18,71 +18,61 @@ import java.util.Map;
  *
  * @author wukai
  */
-@SuppressWarnings("rawtypes")
-public class ReferenceBean extends ReferenceConfig
-        implements FactoryBean, ApplicationContextAware, InitializingBean, DisposableBean {
+public class ReferenceBean<T> extends ReferenceConfig<T>
+		implements FactoryBean<T>, ApplicationContextAware, InitializingBean, DisposableBean {
+	private ApplicationContext context;
 
-    private ApplicationContext context;
-
-    @SuppressWarnings("unchecked")
 	@Override
-    public void afterPropertiesSet() throws Exception {
-        Map<String, NetBean> nettyBeanMap = context.getBeansOfType(NetBean.class);
-        this.setConf(Configuration.getInstance());
-        if (nettyBeanMap == null || nettyBeanMap.size() == 0) {
-            return;
-        }
-        if (!StringUtils.hasText(getId())) {
-            this.setId(getInterface());
-        }
-        int num = 0;
-        for (NetBean nb : nettyBeanMap.values()) {
-            if (!nb.isServer()) {
-                this.setNetConf(nb);
-                num++;
-                break;
-            }
-        }
-        if (num > 0) {
-            Map<String, RegistryBean> registryBeanMap = context.getBeansOfType(RegistryBean.class);
-            this.addRegistryConfs(registryBeanMap.values());
-        }
+	public void afterPropertiesSet() throws Exception {
+		Map<String, NetBean> nettyBeanMap = context.getBeansOfType(NetBean.class);
+		this.setConf(Configuration.getInstance());
+		if (nettyBeanMap == null || nettyBeanMap.size() == 0) {
+			return;
+		}
+		if (!StringUtils.hasText(getId())) {
+			this.setId(getInterface());
+		}
+		int num = 0;
+		for (NetBean nb : nettyBeanMap.values()) {
+			if (!nb.isServer()) {
+				this.setNetConf(nb);
+				num++;
+				break;
+			}
+		}
+		if (num > 0) {
+			Map<String, RegistryBean> registryBeanMap = context.getBeansOfType(RegistryBean.class);
+			for (RegistryBean rb : registryBeanMap.values()) {
+				this.addRegistryConf(rb);
+			}
+			export();
+			Configuration.getInstance().addReferenceConf(this);
+		}
+	}
 
-    }
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.context = applicationContext;
-    }
-
-    @Override
-    public void destroy() throws Exception {
-
-    }
-
-    @SuppressWarnings("unchecked")
 	@Override
-    public Object getObject() throws Exception {
-        if (getRef() == null) {
-            synchronized (this) {
-                if (getRef() == null) {
-                    RemotingClient client = Configuration.getInstance().addReferenceConfig(this);
-                    Object obj = client.handler().send(client, this.getInterfaceClass());
-                    this.setRef(obj);
-                }
-            }
-        }
-        return getRef();
-    }
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+		this.context = applicationContext;
+	}
 
-    @Override
-    public Class<?> getObjectType() {
-        return getInterfaceClass();
-    }
+	@Override
+	public void destroy() throws Exception {
 
-    @Override
-    public boolean isSingleton() {
-        return true;
-    }
+	}
+
+	@Override
+	public T getObject() throws Exception {
+		return getRef();
+	}
+
+	@Override
+	public Class<?> getObjectType() {
+		return getInterfaceClass();
+	}
+
+	@Override
+	public boolean isSingleton() {
+		return true;
+	}
 
 }

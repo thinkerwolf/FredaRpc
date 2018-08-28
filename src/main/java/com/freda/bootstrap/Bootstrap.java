@@ -1,6 +1,7 @@
 package com.freda.bootstrap;
 
 import com.freda.config.Configuration;
+import com.freda.config.ReferenceConfig;
 import com.freda.remoting.RemotingClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,10 +35,9 @@ public class Bootstrap {
         this.confFilePath = confFilePath;
     }
 
-    @SuppressWarnings("unchecked")
 	public <T> T refer(Class<T> clazz) {
-        RemotingClient rc = this.conf.getRefRemoting(clazz);
-        return (T) rc.handler().send(rc, clazz);
+        ReferenceConfig<T> rc = this.conf.getReferenceConf(clazz);
+        return rc.getRef();
     }
 
 }

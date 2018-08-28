@@ -4,10 +4,12 @@ import java.util.List;
 
 import com.freda.common.conf.NetConfig;
 import com.freda.remoting.RemotingClient;
+import com.freda.remoting.RemotingServer;
 import com.freda.rpc.AbstractProtocol;
 import com.freda.rpc.Exporter;
 import com.freda.rpc.Invoker;
 import com.freda.rpc.RemotingFactory;
+import com.freda.rpc.ServerRemotingHandler;
 
 public class FredaProtocol extends AbstractProtocol {
 
@@ -20,15 +22,10 @@ public class FredaProtocol extends AbstractProtocol {
 	}
 
 	@Override
-	public void send(Object obj) {
-
-	}
-
-	@Override
-	public <T> Invoker<T> refer(Class<T> type, List<NetConfig> ncs) {
+	public <T> Invoker<T> refer(String id, Class<T> type, List<NetConfig> ncs) {
 		RemotingClient[] clients = getClients(ncs);
-		FredaInvoker<T> invoker = new FredaInvoker<>(type, clients);
-		invokers.put(type.getName(), invoker);
+		FredaInvoker<T> invoker = new FredaInvoker<>(id == null ? type.getName() : id, type, clients);
+		invokers.put(id == null ? type.getName() : id, invoker);
 		return invoker;
 	}
 
@@ -46,10 +43,22 @@ public class FredaProtocol extends AbstractProtocol {
 		return clients;
 	}
 
-	@Override
-	public <T> Exporter<T> export(Class<T> type, T ref, List<NetConfig> ncs) {
+	private RemotingServer getServer(NetConfig nc) {
+		RemotingServer server = remotingServerMap.get(nc.key());
+		if (server == null) {
+			server = RemotingFactory.getInstance().createRemotingServer(nc, null);
+			server.start();
+			remotingServerMap.put(nc.key(), server);
+		}
+		return server;
+	}
 
-		return null;
+	@Override
+	public <T> Exporter<T> export(String id, Class<T> type, T ref, NetConfig nc) {
+		FredaExporter<T> e = new FredaExporter<T>(id, type, ref);
+		RemotingServer server = getServer(nc);
+		((ServerRemotingHandler) server.handler()).addExeporter(e);
+		return e;
 	}
 
 }
