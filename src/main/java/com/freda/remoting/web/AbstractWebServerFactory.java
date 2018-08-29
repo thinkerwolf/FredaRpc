@@ -1,20 +1,22 @@
 package com.freda.remoting.web;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.servlet.Servlet;
-
 public abstract class AbstractWebServerFactory implements WebServerFactory {
 	/** port */
 	private int port;
 	/** <contextPath, <servletName, Servlet>> */
-	private Map<String, Map<String, Servlet>> servletMap = new HashMap<>();
+	protected Map<String, Map<String, ServletConfig>> servletMap = new HashMap<>();
 	/** all contextPaths */
-	private Set<String> contextPaths = new HashSet<String>();
-	
+	protected Set<String> contextPaths = new HashSet<String>();
+
+	protected String baseDir;
+
 	@Override
 	public int getPort() {
 		return port;
@@ -25,8 +27,8 @@ public abstract class AbstractWebServerFactory implements WebServerFactory {
 		this.port = port;
 	}
 
-	public synchronized void addServlet(String contextPath, String name, Servlet servlet) {
-		Map<String, Servlet> map = servletMap.get(contextPath);
+	public synchronized void addServlet(String contextPath, ServletConfig servlet) {
+		Map<String, ServletConfig> map = servletMap.get(contextPath);
 		if (map == null) {
 			map = new HashMap<>();
 			servletMap.put(contextPath, map);
@@ -34,11 +36,29 @@ public abstract class AbstractWebServerFactory implements WebServerFactory {
 		if (!contextPaths.contains(contextPath)) {
 			contextPaths.add(contextPath);
 		}
-		map.put(name, servlet);
+		map.put(servlet.getName(), servlet);
 	}
 
 	public synchronized void addContextPath(String contextPath) {
 		contextPaths.add(contextPath);
 	}
 
+	@Override
+	public void setBaseDir(String baseDir) {
+		this.baseDir = baseDir;
+	}
+	
+	
+	protected final File createTempDir(String prefix) {
+		try {
+			File tempDir = File.createTempFile(prefix + ".", "." + getPort());
+			tempDir.delete();
+			tempDir.mkdir();
+			tempDir.deleteOnExit();
+			return tempDir;
+		} catch (IOException ex) {
+			throw new WebServerException(
+					"Unable to create tempDir. java.io.tmpdir is set to " + System.getProperty("java.io.tmpdir"), ex);
+		}
+	}
 }

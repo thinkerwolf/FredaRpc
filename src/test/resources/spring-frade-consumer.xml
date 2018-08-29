@@ -9,8 +9,8 @@
 	<!-- registry config -->
 	<freda:registry ip="127.0.0.1" port="2181" protocol="zookeeper" />
 	<!-- netty-client config -->
-	<freda:net-client ip="127.0.0.1" port="8088"
-		protocol="freda" bossThreads="2" />
+	<freda:net-client ip="127.0.0.1" port="8089"
+		protocol="http" bossThreads="2" />
 
 	<freda:reference id="demoService" interface="com.freda.example.DemoService" />
 

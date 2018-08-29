@@ -18,8 +18,8 @@ public class FredaNamespaceHandler extends NamespaceHandlerSupport {
         registerBeanDefinitionParser("service", new FredaBeanDefinitionParser(ServiceBean.class));
         registerBeanDefinitionParser("reference", new FredaBeanDefinitionParser(ReferenceBean.class));
         registerBeanDefinitionParser("registry", new FredaBeanDefinitionParser(RegistryBean.class));
-        registerBeanDefinitionParser("netty-server", new FredaBeanDefinitionParser(NetBean.class));
-        registerBeanDefinitionParser("netty-client", new FredaBeanDefinitionParser(NetBean.class));
+        registerBeanDefinitionParser("net-server", new FredaBeanDefinitionParser(NetBean.class));
+        registerBeanDefinitionParser("net-client", new FredaBeanDefinitionParser(NetBean.class));
     }
 
 }

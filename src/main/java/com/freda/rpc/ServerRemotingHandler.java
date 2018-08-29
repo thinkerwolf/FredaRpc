@@ -6,7 +6,6 @@ import com.freda.remoting.RequestMessage;
 import com.freda.remoting.ResponseFuture;
 import com.freda.remoting.ResponseMessage;
 
-import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -25,15 +24,11 @@ public class ServerRemotingHandler implements RemotingHandler {
 		RequestMessage requestMessage = (RequestMessage) msg;
 		ResponseMessage responseMessage = new ResponseMessage();
 		try {
-			Object obj = null;
 			Exporter<?> exporter = exporters.get(requestMessage.getClazzName());
 			responseMessage.setId(requestMessage.getId());
 			if (exporter != null) {
-				obj = exporter.ref();
-				Method method = obj.getClass().getMethod(requestMessage.getMethodName(),
-						requestMessage.getParameterTypes());
-				method.setAccessible(true);
-				Object result = method.invoke(obj, requestMessage.getArgs());
+				Object result = exporter.invoke(requestMessage.getMethodName(), requestMessage.getParameterTypes(),
+						requestMessage.getArgs());
 				responseMessage.setSuccess(true);
 				responseMessage.setResult(result);
 			} else {
@@ -43,7 +38,7 @@ public class ServerRemotingHandler implements RemotingHandler {
 			e.printStackTrace();
 			responseMessage.setSuccess(false);
 		}
-		
+
 		send(remoting, responseMessage);
 	}
 

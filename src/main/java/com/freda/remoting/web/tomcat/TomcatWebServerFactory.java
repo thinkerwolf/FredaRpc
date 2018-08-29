@@ -1,68 +1,52 @@
 package com.freda.remoting.web.tomcat;
 
 import com.freda.remoting.web.WebServer;
-import com.freda.remoting.web.WebServerException;
-import org.apache.catalina.core.StandardContext;
+
+import org.apache.catalina.Context;
 import org.apache.catalina.startup.Tomcat;
-import org.apache.catalina.startup.Tomcat.FixContextListener;
 
 import com.freda.remoting.web.AbstractWebServerFactory;
+import com.freda.remoting.web.ServletConfig;
+
 import java.io.File;
-import java.io.IOException;
+import java.util.Map;
 
 public class TomcatWebServerFactory extends AbstractWebServerFactory {
 
-	private int port = 8080;
-	private String docBase;
-
+	@SuppressWarnings("deprecation")
 	@Override
 	public WebServer getWebServer() {
-		File file = docBase == null ? createTempDir("tomcat") : new File(docBase);
+		File file = baseDir == null ? createTempDir("tomcat") : new File(baseDir);
 		if (file.isDirectory() && file.exists()) {
 			file.mkdirs();
 		}
+		baseDir = file.getAbsolutePath();
 		Tomcat tomcat = new Tomcat();
-		tomcat.setPort(port);
-		tomcat.setBaseDir(file.getAbsolutePath());
-		tomcat.getHost().setAutoDeploy(false);
-
-		String contextPath = "/freda";
-		StandardContext context = new StandardContext();
-		context.setPath(contextPath);
-		context.addLifecycleListener(new FixContextListener());
-		tomcat.getHost().addChild(context);
-
-		// tomcat.addServlet(contextPath, "InternalServlet", new
-		// InnerServlet());
-
+		tomcat.setPort(getPort());
+		tomcat.setBaseDir(baseDir);
+		tomcat.getConnector().setProperty("URIEncoding", "UTF-8");
+		tomcat.getConnector().setProperty("connectionTimeout", "60000");
+		tomcat.getConnector().setProperty("maxKeepAliveRequests", "-1");
+		tomcat.getConnector().setProtocol("org.apache.coyote.http11.Http11NioProtocol");
+		initTest(tomcat);
 		return getTomcatWebServer(tomcat);
 	}
 
-	protected final File createTempDir(String prefix) {
-		try {
-			File tempDir = File.createTempFile(prefix + ".", "." + getPort());
-			tempDir.delete();
-			tempDir.mkdir();
-			tempDir.deleteOnExit();
-			return tempDir;
-		} catch (IOException ex) {
-			throw new WebServerException(
-					"Unable to create tempDir. java.io.tmpdir is set to " + System.getProperty("java.io.tmpdir"), ex);
+	private void initTest(Tomcat tomcat) {
+		for (String contextPath : contextPaths) {
+			Context context = tomcat.addContext(contextPath, baseDir);
+			Map<String, ServletConfig> map = servletMap.get(contextPath);
+			if (map != null) {
+				for (ServletConfig sc : map.values()) {
+					Tomcat.addServlet(context, sc.getName(), sc.getServlet());
+					context.addServletMappingDecoded(sc.getMappingPath(), sc.getName());
+				}
+			}
 		}
 	}
 
 	private TomcatWebServer getTomcatWebServer(Tomcat tomcat) {
 		return new TomcatWebServer(tomcat);
-	}
-
-	@Override
-	public int getPort() {
-		return port;
-	}
-
-	@Override
-	public void setPort(int port) {
-		this.port = port;
 	}
 
 }

@@ -1,6 +1,5 @@
 package com.freda.remoting.web;
 
-import javax.servlet.Servlet;
 
 public interface WebServerFactory {
 
@@ -10,6 +9,8 @@ public interface WebServerFactory {
 
     void setPort(int port);
 
-	void addServlet(String contextPath, String name, Servlet servlet);
+	void addServlet(String contextPath, ServletConfig servlet);
+	
+	void setBaseDir(String baseDir);
 	
 }

@@ -12,7 +12,7 @@ public class FredaInvoker<T> extends AbstractInvoker<T> {
 
 	private RemotingClient[] clients;
 
-	private AtomicInteger round;
+	private AtomicInteger round = new AtomicInteger(0);
 
 	public FredaInvoker(String id, Class<T> type, RemotingClient[] clients) {
 		super(id, type);

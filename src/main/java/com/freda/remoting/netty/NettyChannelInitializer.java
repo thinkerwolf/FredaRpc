@@ -14,7 +14,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.List;
 
-public class NettyChannelInitializer extends ChannelInitializer<Channel> {
+class NettyChannelInitializer extends ChannelInitializer<Channel> {
 
 	private Remoting remoting;
 

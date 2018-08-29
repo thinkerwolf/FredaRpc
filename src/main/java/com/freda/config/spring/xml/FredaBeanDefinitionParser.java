@@ -122,7 +122,7 @@ public class FredaBeanDefinitionParser implements BeanDefinitionParser {
 
         if (beanClass.equals(NetBean.class)) {
             String tag = element.getTagName();
-            if (tag.endsWith("netty-server")) {
+            if (tag.endsWith("net-server")) {
                 beanDefinition.getPropertyValues().addPropertyValue("server", true);
             } else {
                 beanDefinition.getPropertyValues().addPropertyValue("server", false);
