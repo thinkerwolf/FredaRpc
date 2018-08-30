@@ -1,4 +1,4 @@
-package com.freda.example;
+package com.freda.test.example;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;

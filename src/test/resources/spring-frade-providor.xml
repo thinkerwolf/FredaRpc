@@ -6,7 +6,7 @@
        http://www.freda.com/schema/freda
        http://www.freda.com/schema/freda/freda.xsd">
 
-	<bean id="demoService" class="com.freda.example.DemoServiceImpl" />
+	<bean id="demoService" class="com.freda.test.example.DemoServiceImpl" />
 
 	<!-- registry config -->
 	<freda:registry ip="127.0.0.1" port="2181" protocol="zookeeper" />
@@ -18,7 +18,7 @@
 	<!-- netty-server config 2 -->
 	<freda:net-server ip="127.0.0.1" port="8089" protocol="http"/>
 
-	<freda:service interface="com.freda.example.DemoService"
+	<freda:service interface="com.freda.test.example.DemoService"
 		ref="demoService" />
 
 </beans>

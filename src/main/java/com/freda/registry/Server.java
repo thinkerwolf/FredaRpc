@@ -73,5 +73,9 @@ public class Server {
     public byte[] toJsonByte() {
         return JsonUtils.obj2Json(this).getBytes();
     }
-
+    
+    public static Server jsonToServer(String json) {
+    	return JsonUtils.json2Obj(json, Server.class);
+    }
+    
 }

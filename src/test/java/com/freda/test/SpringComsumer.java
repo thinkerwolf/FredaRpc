@@ -1,8 +1,9 @@
 package com.freda.test;
 
-import com.freda.example.DemoService;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import com.freda.test.example.DemoService;
 
 public class SpringComsumer {
     @SuppressWarnings("resource")

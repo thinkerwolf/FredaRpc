@@ -1,7 +1,7 @@
 package com.freda.test;
 
 import com.freda.bootstrap.Bootstrap;
-import com.freda.example.DemoService;
+import com.freda.test.example.DemoService;
 
 public class Consumer {
 

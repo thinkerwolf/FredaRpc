@@ -16,7 +16,7 @@
 
     <!-- 需要暴漏的接口 -->
     <references>
-        <reference id="demoService" interface="com.freda.example.DemoService"/>
+        <reference id="demoService" interface="com.freda.test.example.DemoService"/>
     </references>
 
     <!-- 注解扫描 service -->
