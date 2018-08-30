@@ -1,2 +1,2 @@
 # Freda Rpc
-Java RPC framework based on Netty
+FredaRpc是基于Netty开发的RPC框架，协议支持自带的freda和http协议。使用java自带序列化对传输对象进行序列化。
