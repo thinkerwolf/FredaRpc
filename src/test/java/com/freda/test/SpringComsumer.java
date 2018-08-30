@@ -10,6 +10,13 @@ public class SpringComsumer {
     public static void main(String[] args) {
         ApplicationContext context = new ClassPathXmlApplicationContext("spring-frade-consumer.xml");
         DemoService ds = (DemoService) context.getBean("demoService");
-        System.out.println(ds.sayHello("liyulong"));
+        
+        int i = 1000;
+        long startTime = System.currentTimeMillis();
+        while (i-- > 0) {
+        	 System.out.println(ds.sayHello("liyulong-" + i));
+        }
+        System.out.println("total time -> " + (System.currentTimeMillis() - startTime));
+       
     }
 }

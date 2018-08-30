@@ -1,7 +1,6 @@
 package com.freda.remoting.netty;
 
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
 
 public class NettyChannel implements com.freda.remoting.Channel {
 
@@ -13,14 +12,15 @@ public class NettyChannel implements com.freda.remoting.Channel {
 
     @Override
     public void send(Object msg) {
-        ChannelFuture cf = channel.writeAndFlush(msg);
-        if (!cf.isSuccess()) {
+        //ChannelFuture cf = 
+        channel.writeAndFlush(msg);
+        /*if (!cf.isSuccess()) {
         	 try {
                  cf.sync();
              } catch (InterruptedException e) {
                  e.printStackTrace();
              }
-        }
+        }*/
     }
 
     @Override
