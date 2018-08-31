@@ -12,7 +12,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ServiceConfigurationError;
 import java.util.Set;
 
 /**
@@ -54,7 +53,7 @@ public class ServiceConfig<T> extends InterfaceConfig<T> {
 			try {
 				interfaceClass = (Class<T>) Class.forName(interfaceName == null ? "" : interfaceName);
 			} catch (ClassNotFoundException e) {
-				throw new ServiceConfigurationError("can't init interfaceClass [" + interfaceName + "]");
+				throw new ServiceConfigException("can't init interfaceClass [" + interfaceName + "]");
 			}
 		}
 		checkRef();
@@ -75,9 +74,8 @@ public class ServiceConfig<T> extends InterfaceConfig<T> {
 
 	private void checkRef() {
 		if (!interfaceClass.isInstance(ref)) {
-			throw new RuntimeException("ref is not the instance of " + interfaceClass.getName());
+			throw new ServiceConfigException("ref is not the instance of " + interfaceClass.getName());
 		}
-
 	}
 
 	@Override

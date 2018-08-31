@@ -6,15 +6,15 @@ import io.netty.util.concurrent.DefaultPromise;
 /**
  * 参考netty {@link DefaultPromise}
  */
-public class ResponseFuture {
-    private static final Signal SUCCESS = Signal.valueOf(ResponseFuture.class, "SUCCESS");
-    private static final Signal UNCANCELLABLE = Signal.valueOf(ResponseFuture.class, "UNCANCELLABLE");
+public class RpcFuture {
+    private static final Signal SUCCESS = Signal.valueOf(RpcFuture.class, "SUCCESS");
+    private static final Signal UNCANCELLABLE = Signal.valueOf(RpcFuture.class, "UNCANCELLABLE");
     /**  */
     private Object result;
     private int waiters;
     private Object waitState;
 
-    public ResponseFuture() {
+    public RpcFuture() {
         waitState = UNCANCELLABLE;
         this.waiters = 0;
     }

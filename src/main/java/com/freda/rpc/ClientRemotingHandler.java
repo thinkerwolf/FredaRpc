@@ -3,7 +3,7 @@ package com.freda.rpc;
 import com.freda.remoting.Remoting;
 import com.freda.remoting.RemotingHandler;
 import com.freda.remoting.RequestMessage;
-import com.freda.remoting.ResponseFuture;
+import com.freda.remoting.RpcFuture;
 import com.freda.remoting.ResponseMessage;
 
 import java.util.HashMap;
@@ -18,7 +18,7 @@ public class ClientRemotingHandler implements RemotingHandler {
 	private static final AtomicInteger THREAD_NUM = new AtomicInteger();
 	// protected ConcurrentMap<String, Invoker<?>> invokers = new
 	// ConcurrentHashMap<>();
-	private Map<Integer, ResponseFuture> waitResultMap = new HashMap<Integer, ResponseFuture>();
+	private Map<Integer, RpcFuture> waitResultMap = new HashMap<Integer, RpcFuture>();
 	private Executor responseExecutor;
 
 	public ClientRemotingHandler() {
@@ -33,9 +33,9 @@ public class ClientRemotingHandler implements RemotingHandler {
 	}
 
 	@Override
-	public ResponseFuture send(Remoting remoting, Object msg) {
+	public RpcFuture send(Remoting remoting, Object msg) {
 		remoting.channel().send(msg);
-		ResponseFuture rf = new ResponseFuture();
+		RpcFuture rf = new RpcFuture();
 		waitResultMap.put(((RequestMessage) msg).getId(), rf);
 		return rf;
 	}
@@ -68,7 +68,7 @@ public class ClientRemotingHandler implements RemotingHandler {
 		@Override
 		public void run() {
 			try {
-				ResponseFuture rf = waitResultMap.remove(new Integer(responseMessage.getId()));
+				RpcFuture rf = waitResultMap.remove(new Integer(responseMessage.getId()));
 				if (rf != null) {
 					rf.setResult(responseMessage.getResult());
 					rf.setSuccess(null);

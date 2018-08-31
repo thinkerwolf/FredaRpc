@@ -7,7 +7,7 @@ package com.freda.remoting;
  */
 public interface RemotingHandler {
 
-	ResponseFuture send(Remoting remoting, Object msg);
+	RpcFuture send(Remoting remoting, Object msg);
 
     void received(Remoting remoting, Object msg);
 

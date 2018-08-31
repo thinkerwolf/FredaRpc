@@ -3,7 +3,7 @@ package com.freda.rpc;
 import com.freda.remoting.Remoting;
 import com.freda.remoting.RemotingHandler;
 import com.freda.remoting.RequestMessage;
-import com.freda.remoting.ResponseFuture;
+import com.freda.remoting.RpcFuture;
 import com.freda.remoting.ResponseMessage;
 
 import java.util.Map;
@@ -14,9 +14,8 @@ public class ServerRemotingHandler implements RemotingHandler {
 	private Map<String, Exporter<?>> exporters = new ConcurrentHashMap<>();
 
 	@Override
-	public ResponseFuture send(Remoting remoting, Object msg) {
-		remoting.channel().send(msg);
-		return null;
+	public RpcFuture send(Remoting remoting, Object msg) {
+		return remoting.channel().send(msg);
 	}
 
 	@Override

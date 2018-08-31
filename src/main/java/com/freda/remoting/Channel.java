@@ -2,7 +2,7 @@ package com.freda.remoting;
 
 public interface Channel {
 
-    void send(Object msg);
+    RpcFuture send(Object msg);
 
     void close();
 
