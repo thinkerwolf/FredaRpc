@@ -11,7 +11,7 @@ public class SpringComsumer {
         ApplicationContext context = new ClassPathXmlApplicationContext("spring-frade-consumer.xml");
         DemoService ds = (DemoService) context.getBean("demoService");
         
-        int i = 1000;
+        int i = 100000;
         long startTime = System.currentTimeMillis();
         while (i-- > 0) {
         	 System.out.println(ds.sayHello("liyulong-" + i));

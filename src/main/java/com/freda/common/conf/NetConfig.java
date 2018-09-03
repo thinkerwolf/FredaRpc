@@ -8,7 +8,9 @@ import java.net.URISyntaxException;
 public class NetConfig {
 
 	private static final int DEFAULT_THREAD_NUM = Math.max(1, Runtime.getRuntime().availableProcessors() * 2);
-
+	
+	private String id;
+	
 	private String ip;
 
 	private int port;
@@ -18,6 +20,14 @@ public class NetConfig {
 	private int bossThreads = Math.max(1, DEFAULT_THREAD_NUM / 2);
 
 	private int workerThreads = DEFAULT_THREAD_NUM;
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
 
 	public String getIp() {
 		return ip;

@@ -9,16 +9,18 @@
 	<bean id="demoService" class="com.freda.test.example.DemoServiceImpl" />
 
 	<!-- registry config -->
-	<freda:registry ip="127.0.0.1" port="2181" protocol="zookeeper" />
+	<freda:registry id="registry-zookeeper-1" ip="127.0.0.1"
+		port="2181" protocol="zookeeper" />
 
 	<!-- netty-server config 1 -->
 	<freda:net-server ip="127.0.0.1" port="8088" protocol="freda"
 		bossThreads="2" workerThreads="4" />
 
 	<!-- netty-server config 2 -->
-	<freda:net-server ip="127.0.0.1" port="8089" protocol="http"/>
+	<freda:net-server ip="127.0.0.1" port="8089" protocol="http" />
 
 	<freda:service interface="com.freda.test.example.DemoService"
-		ref="demoService" />
+		ref="demoService" registry="registry-zookeeper-1" />
+
 
 </beans>

@@ -1,54 +1,77 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-            xmlns="http://www.freda.com/schema/freda" targetNamespace="http://www.freda.com/schema/freda">
-    <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
-    <xsd:import namespace="http://www.springframework.org/schema/beans"/>
-    <xsd:import namespace="http://www.springframework.org/schema/tool"/>
-    <xsd:annotation>
-        <xsd:documentation>
-            <![CDATA[Namespace support for the dubbo services provided by dubbo framework.]]>
-        </xsd:documentation>
-    </xsd:annotation>
+	xmlns:tool="http://www.springframework.org/schema/tool" xmlns="http://www.freda.com/schema/freda"
+	targetNamespace="http://www.freda.com/schema/freda">
+	<xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+	<xsd:import namespace="http://www.springframework.org/schema/beans" />
+	<xsd:import namespace="http://www.springframework.org/schema/tool" />
+	<xsd:annotation>
+		<xsd:documentation>
+            <![CDATA[Namespace support for the freda services provided by freda framework.]]>
+		</xsd:documentation>
+	</xsd:annotation>
 
 
-    <xsd:complexType name="serviceType">
-        <xsd:attribute name="id" type="xsd:string"/>
-        <xsd:attribute name="interface" type="xsd:string"/>
-        <xsd:attribute name="ref" type="xsd:string"/>
-        <xsd:attribute name="contextpath" type="xsd:string"/>
-    </xsd:complexType>
-    <xsd:element name="service" type="serviceType">
-    </xsd:element>
+	<xsd:complexType name="abstractServiceType">
+		<xsd:attribute name="registry" />
+	</xsd:complexType>
+
+	<xsd:complexType name="serviceType">
+		<xsd:complexContent>
+			<xsd:extension base="abstractServiceType">
+				<xsd:attribute name="id" type="xsd:string" />
+				<xsd:attribute name="interface" type="xsd:string" use="required">
+					<xsd:annotation>
+						<xsd:documentation>
+                            <![CDATA[Defines the interface to advertise for this service in the service registry.]]>
+						</xsd:documentation>
+						<xsd:appinfo>
+							<tool:annotation>
+								<tool:expected-type type="java.lang.Class" />
+							</tool:annotation>
+						</xsd:appinfo>
+					</xsd:annotation>
+				</xsd:attribute>
+				<xsd:attribute name="ref" type="xsd:string" use="required" />
+				<xsd:attribute name="contextpath" type="xsd:string" />
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:element name="service" type="serviceType">
+	</xsd:element>
 
 
-    <xsd:complexType name="referenceType">
-        <xsd:attribute name="id" type="xsd:string"/>
-        <xsd:attribute name="interface" type="xsd:string"/>
-    </xsd:complexType>
-    <xsd:element name="reference" type="referenceType">
-    </xsd:element>
+	<xsd:complexType name="referenceType">
+		<xsd:attribute name="id" type="xsd:string" />
+		<xsd:attribute name="interface" type="xsd:string" use="required" />
+	</xsd:complexType>
+	<xsd:element name="reference" type="referenceType">
+	</xsd:element>
 
 
-    <xsd:complexType name="registryType">
-        <xsd:attribute name="protocol" type="xsd:string"/>
-        <xsd:attribute name="ip" type="xsd:string"/>
-        <xsd:attribute name="port" type="xsd:int"/>
-    </xsd:complexType>
-    <xsd:element name="registry" type="registryType">
-    </xsd:element>
-
-
-    <xsd:complexType name="netType">
-        <xsd:attribute name="ip" type="xsd:string"/>
-        <xsd:attribute name="port" type="xsd:int"/>
-        <xsd:attribute name="protocol" type="xsd:string"/>
-        <xsd:attribute name="bossThreads" type="xsd:int"/>
-        <xsd:attribute name="workerThreads" type="xsd:int"/>
-    </xsd:complexType>
-    <xsd:element name="net-client" type="netType">
-    </xsd:element>
-    <xsd:element name="net-server" type="netType">
-    </xsd:element>
+	<xsd:complexType name="registryType">
+		<xsd:attribute name="id" type="xsd:string"/>
+		<xsd:attribute name="protocol" type="xsd:string" />
+		<xsd:attribute name="ip" type="xsd:string" />
+		<xsd:attribute name="port" type="xsd:int" />
+	</xsd:complexType>
+	<xsd:element name="registry" type="registryType">
+	</xsd:element>
+	
+	
+	<xsd:complexType name="netType">
+		<xsd:attribute name="id" type="xsd:string"/>
+		<xsd:attribute name="ip" type="xsd:string" />
+		<xsd:attribute name="port" type="xsd:int" />
+		<xsd:attribute name="protocol" type="xsd:string" />
+		<xsd:attribute name="bossThreads" type="xsd:int" />
+		<xsd:attribute name="workerThreads" type="xsd:int" />
+	</xsd:complexType>
+	
+	<xsd:element name="net-client" type="netType">
+	</xsd:element>
+	<xsd:element name="net-server" type="netType">
+	</xsd:element>
 
 
 </xsd:schema>
