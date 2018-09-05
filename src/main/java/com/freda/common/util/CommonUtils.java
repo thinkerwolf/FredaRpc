@@ -1,5 +1,6 @@
 package com.freda.common.util;
 
+import java.util.List;
 import java.util.regex.Pattern;
 
 public class CommonUtils {
@@ -17,5 +18,9 @@ public class CommonUtils {
         result[3] = (byte) ((num >>> 0) & 0xff);
         return result;
     }
-
+    
+    public static boolean isEmptyList(List<?> list) {
+    	return list == null || list.size() == 0;
+    }
+    
 }

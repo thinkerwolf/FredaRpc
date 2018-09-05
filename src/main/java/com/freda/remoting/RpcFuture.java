@@ -8,12 +8,13 @@ import io.netty.util.concurrent.DefaultPromise;
  */
 public class RpcFuture {
     private static final Signal SUCCESS = Signal.valueOf(RpcFuture.class, "SUCCESS");
+    private static final Signal FAIL = Signal.valueOf(RpcFuture.class, "FAIL");
     private static final Signal UNCANCELLABLE = Signal.valueOf(RpcFuture.class, "UNCANCELLABLE");
     /**  */
     private Object result;
     private int waiters;
     private Object waitState;
-
+    
     public RpcFuture() {
         waitState = UNCANCELLABLE;
         this.waiters = 0;
@@ -47,18 +48,22 @@ public class RpcFuture {
     }
 
     public boolean isDone() {
-        return this.waitState == SUCCESS;
+        return this.waitState != UNCANCELLABLE;
     }
 
-    public void setSuccess(Object result) {
+    public void setSuccess(boolean result) {
         setSuccess0(result);
     }
 
-    private void setSuccess0(Object result) {
-        this.waitState = result == null ? SUCCESS : result;
+    private void setSuccess0(boolean result) {
+        this.waitState = result ? SUCCESS : FAIL;
         checkNotifyWaiters();
     }
-
+    
+    public boolean isSuccess() {
+    	return this.waitState == SUCCESS;
+    }
+    
     private synchronized void checkNotifyWaiters() {
         if (waiters > 0) {
             notifyAll();

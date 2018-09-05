@@ -8,10 +8,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-public class ProtocolFactory {
+public class ProtocolLoader {
 
 	private static Map<String, Protocol> protocolMap = new HashMap<>();
-
+	
 	static {
 		try {
 			Enumeration<URL> urls = Thread.currentThread().getContextClassLoader()
@@ -57,7 +57,7 @@ public class ProtocolFactory {
 	}
 
 	public static void main(String[] args) {
-		System.out.println(ProtocolFactory.getProtocolByName("freda"));
+		System.out.println(ProtocolLoader.getProtocolByName("freda"));
 	}
 
 }

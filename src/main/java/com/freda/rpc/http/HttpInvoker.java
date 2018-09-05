@@ -10,8 +10,11 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.freda.common.Constants;
 import com.freda.remoting.RequestMessage;
 import com.freda.rpc.AbstractInvoker;
+import com.freda.rpc.Result;
+import com.freda.rpc.ResultBuilder;
 import com.freda.rpc.RpcException;
 
 public class HttpInvoker<T> extends AbstractInvoker<T> {
@@ -25,11 +28,10 @@ public class HttpInvoker<T> extends AbstractInvoker<T> {
 	}
 
 	@Override
-	public Object invoke(RequestMessage inv) throws RpcException {
+	public Result invoke(RequestMessage inv) throws RpcException {
 		HttpURLConnection connection = null;
 		InputStream is = null;
 		OutputStream os = null;
-		Object result = null;
 		try {
 			URL url = null;
 			if (urls.length == 1) {
@@ -42,7 +44,7 @@ public class HttpInvoker<T> extends AbstractInvoker<T> {
 			// 设置连接请求方式
 			connection.setRequestMethod("POST");
 			// 设置连接主机服务器超时时间：15000毫秒
-			connection.setConnectTimeout(15000);
+			connection.setConnectTimeout(inv.getParameter(Constants.TIMEOUT, Constants.DEFAULT_TIMEOUT));
 			// 设置读取主机服务器返回数据超时时间：60000毫秒
 			connection.setReadTimeout(60000);
 			// 默认值为：false，当向远程服务器传送数据/写数据时，需要设置为true
@@ -68,13 +70,14 @@ public class HttpInvoker<T> extends AbstractInvoker<T> {
 				is = connection.getInputStream();
 				// 对输入流对象进行包装:charset根据工作项目组的要求来设置
 				ObjectInputStream ois = new ObjectInputStream(is);
-				result = ois.readObject();
+				Object result = ois.readObject();
 				ois.close();
+				return ResultBuilder.buildSuccessResult(result);
 			} else {
-				throw new RpcException("rpc http invoke error, errCode = [" + responseCode + "]");
+				return ResultBuilder.buildFailResult();
 			}
 		} catch (Exception e) {
-			throw new RpcException("rpc http invoke exception", e);
+			return ResultBuilder.buildFailResult();
 		} finally {
 			// 关闭资源
 			if (null != os) {
@@ -93,7 +96,6 @@ public class HttpInvoker<T> extends AbstractInvoker<T> {
 			}
 			connection.disconnect();
 		}
-		return result;
 	}
 
 }

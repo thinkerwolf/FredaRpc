@@ -6,6 +6,8 @@ import com.freda.remoting.RemotingClient;
 import com.freda.remoting.RequestMessage;
 import com.freda.remoting.RpcFuture;
 import com.freda.rpc.AbstractInvoker;
+import com.freda.rpc.Result;
+import com.freda.rpc.ResultBuilder;
 import com.freda.rpc.RpcException;
 
 public class FredaInvoker<T> extends AbstractInvoker<T> {
@@ -20,7 +22,7 @@ public class FredaInvoker<T> extends AbstractInvoker<T> {
 	}
 
 	@Override
-	public Object invoke(RequestMessage inv) throws RpcException {
+	public Result invoke(RequestMessage inv) throws RpcException {
 		RemotingClient client = null;
 		if (clients.length == 1) {
 			client = clients[0];
@@ -31,9 +33,13 @@ public class FredaInvoker<T> extends AbstractInvoker<T> {
 		try {
 			rf.sync();
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			throw new RpcException("Rpc future sync exception", e);
 		}
-		return rf.getResult();
+		if (rf.isSuccess()) {
+			return ResultBuilder.buildSuccessResult(rf.getResult());
+		} else {
+			return ResultBuilder.buildFailResult();
+		}
 	}
 
 }

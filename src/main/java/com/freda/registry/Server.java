@@ -15,7 +15,7 @@ public class Server {
 
     private int port;
 
-    private String protocal;
+    private String protocol;
 
     public Server() {
     }
@@ -24,7 +24,7 @@ public class Server {
         this.name = name;
         this.host = host;
         this.port = port;
-        this.protocal = protocal;
+        this.protocol = protocal;
     }
 
     public static void main(String[] args) {
@@ -62,12 +62,12 @@ public class Server {
         this.port = port;
     }
 
-    public String getProtocal() {
-        return protocal;
+    public String getProtocol() {
+        return protocol;
     }
 
-    public void setProtocal(String protocal) {
-        this.protocal = protocal;
+    public void setProtocol(String protocol) {
+        this.protocol = protocol;
     }
 
     public byte[] toJsonByte() {

@@ -71,7 +71,7 @@ public class ClientRemotingHandler implements RemotingHandler {
 				RpcFuture rf = waitResultMap.remove(new Integer(responseMessage.getId()));
 				if (rf != null) {
 					rf.setResult(responseMessage.getResult());
-					rf.setSuccess(null);
+					rf.setSuccess(responseMessage.isSuccess());
 				}
 			} catch (Exception e) {
 				e.printStackTrace();

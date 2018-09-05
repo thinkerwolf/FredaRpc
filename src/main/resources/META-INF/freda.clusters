@@ -1,0 +1,2 @@
+failover=com.freda.rpc.cluster.FailOverCluster
+failfast=com.freda.rpc.cluster.FailFastCluster

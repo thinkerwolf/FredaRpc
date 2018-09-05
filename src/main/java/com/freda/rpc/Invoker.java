@@ -9,7 +9,7 @@ public interface Invoker<T> {
 	 * @return
 	 * @throws RpcException
 	 */
-	Object invoke(RequestMessage inv) throws RpcException;
+	Result invoke(RequestMessage inv) throws RpcException;
 	/**
 	 * rpc interface
 	 * @return

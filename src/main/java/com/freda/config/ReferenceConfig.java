@@ -13,7 +13,8 @@ import com.freda.registry.Server;
 import com.freda.remoting.RequestMessage;
 import com.freda.rpc.Invoker;
 import com.freda.rpc.Protocol;
-import com.freda.rpc.ProtocolFactory;
+import com.freda.rpc.ProtocolLoader;
+import com.freda.rpc.cluster.ClusterLoader;
 
 /**
  * 调用者配置
@@ -28,7 +29,7 @@ public class ReferenceConfig<T> extends InterfaceConfig<T> {
 	private Invoker<T> invoker;
 
 	private List<Registry> registries;
-
+	
 	public NetConfig getNetConfig() {
 		return netConf;
 	}
@@ -46,39 +47,43 @@ public class ReferenceConfig<T> extends InterfaceConfig<T> {
 				throw new ReferenceConfigException(
 						"can't refer reference config of [" + getInterface() + "], please check the config file");
 			}
-			this.netConf = netConf.clone();
-			Server server = getRegistrisServer();
-			if (server == null) {
-				throw new ReferenceConfigException(
-						"can't refer reference config of [" + getInterface() + "], please check the config file");
+			Protocol protocol = ProtocolLoader.getProtocolByName(netConf.getProtocol());
+			List<Invoker<T>> invokers = new ArrayList<>();
+			for (Registry registry : registries) {
+				List<NetConfig> ncs = getNetConfs(registry);
+				if (ncs != null && ncs.size() > 0) {
+					invokers.add(protocol.refer(getId(), getInterfaceClass(), ncs));
+				}
 			}
-			netConf.setIp(server.getHost());
-			netConf.setPort(server.getPort());
+			// 集群选择 
+			this.invoker = ClusterLoader.getClusterByName("failover").combine(invokers);
+		} else {
+			Protocol protocol = ProtocolLoader.getProtocolByName(netConf.getProtocol());
+			List<NetConfig> ncs = new ArrayList<>(1);
+			ncs.add(netConf);
+			this.invoker = protocol.refer(getId(), getInterfaceClass(), ncs);
 		}
-		Protocol protocol = ProtocolFactory.getProtocolByName(netConf.getProtocol());
-		List<NetConfig> ncs = new ArrayList<>(1);
-		ncs.add(netConf);
-		this.invoker = protocol.refer(getId(), getInterfaceClass(), ncs);
+		
 	}
-
-	private Server getRegistrisServer() {
-		if (registries.size() == 0) {
+	
+	private List<NetConfig> getNetConfs(Registry registry) {
+		List<Server> servers = registry.getServersByProtocol(netConf.getProtocol());
+		if (servers == null || servers.size() == 0) {
 			return null;
 		}
-		for (Registry r : registries) {
-			try {
-				Server server = r.getRandomServer(netConf.getProtocol());
-				if (server != null) {
-					return server;
-				}
-			} catch (Exception e) {
-				// ignore
-				continue;
-			}
+		List<NetConfig> netConfs = new ArrayList<>(servers.size());
+		for (Server s : servers) {
+			NetConfig nc = new NetConfig();
+			nc.setIp(s.getHost());
+			nc.setPort(s.getPort());
+			nc.setProtocol(s.getProtocol());
+			nc.setBossThreads(netConf.getBossThreads());
+			nc.setWorkerThreads(netConf.getWorkerThreads());
+			netConfs.add(nc);
 		}
-		return null;
+		return netConfs;
 	}
-
+	
 	@Override
 	public void unexport() throws Exception {
 
@@ -109,7 +114,7 @@ public class ReferenceConfig<T> extends InterfaceConfig<T> {
 							r.setId(genId());
 							r.setClazzName(getId());
 							r.setParameterTypes(method.getParameterTypes());
-							return ReferenceConfig.this.getInvoker().invoke(r);
+							return ReferenceConfig.this.getInvoker().invoke(r).getValue();
 						}
 					});
 					ref = ((T) obj);

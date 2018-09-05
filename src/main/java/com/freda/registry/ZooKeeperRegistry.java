@@ -1,6 +1,7 @@
 package com.freda.registry;
 
 import com.freda.common.conf.RegistryConfig;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
@@ -15,6 +16,7 @@ import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -55,9 +57,9 @@ public class ZooKeeperRegistry extends AbstractRegistry implements Watcher {
 		if (null == server) {
 			throw new IllegalArgumentException("server can't be null");
 		}
-		String path = DEFAULT_ROOT_PATH + "/" + server.getProtocal() + "/" + server.getName();
+		String path = DEFAULT_ROOT_PATH + "/" + server.getProtocol() + "/" + server.getName();
 		recursiveSafeCreate(path, server.toJsonByte(), Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL, true);
-		fatchToServerMap(server.getProtocal(), server);
+		fatchToServerMap(server.getProtocol(), server);
 	}
 
 	private void fatchToServerMap(String protocol, Server server) {
@@ -104,6 +106,10 @@ public class ZooKeeperRegistry extends AbstractRegistry implements Watcher {
 		// safe delete
 		if (stat != null) {
 			zk.delete(path, -1);
+		}
+		Map<String, Server> map = serverMap.get(server.getProtocol());
+		if (map != null) {
+			map.remove(server.getName());
 		}
 	}
 
@@ -224,6 +230,15 @@ public class ZooKeeperRegistry extends AbstractRegistry implements Watcher {
 		default:
 			break;
 		}
+	}
+
+	@Override
+	public List<Server> getServersByProtocol(String protocol) {
+		Map<String, Server> map = serverMap.get(protocol);
+		if (map == null || map.size() == 0) {
+			return null;
+		}
+		return new ArrayList<Server>(map.values());
 	}
 
 }

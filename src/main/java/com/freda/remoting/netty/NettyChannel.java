@@ -19,12 +19,12 @@ public class NettyChannel implements com.freda.remoting.Channel {
         ChannelFuture cf =  channel.writeAndFlush(msg);
         final RpcFuture f = new RpcFuture();
         if (cf.isDone()) {
-        	f.setSuccess(null);
+        	f.setSuccess(true);
         } else {
         	cf.addListener(new ChannelFutureListener() {
     			@Override
     			public void operationComplete(ChannelFuture future) throws Exception {
-    				f.setSuccess(null);
+    				f.setSuccess(true);
     			}
     		});
         }
