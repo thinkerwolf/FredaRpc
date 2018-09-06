@@ -88,7 +88,4 @@ public class ServiceLoader<T> {
 		return (T) obj;
 	}
 
-	public static void main(String[] args) {
-		System.out.println(ServiceLoader.getService("failover", com.freda.rpc.cluster.Cluster.class));
-	}
 }
