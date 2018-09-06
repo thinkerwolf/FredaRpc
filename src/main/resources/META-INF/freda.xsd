@@ -58,6 +58,9 @@
 				</xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
+		<xsd:attribute name="balance" type="xsd:string">
+			
+		</xsd:attribute>
 	</xsd:complexType>
 	<xsd:element name="reference" type="referenceType">
 	</xsd:element>

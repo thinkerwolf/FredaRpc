@@ -11,13 +11,15 @@ public class RequestMessage implements Serializable {
 	 *
 	 */
 	private static final long serialVersionUID = -5906021628390669682L;
+	
 	String clazzName;
 	String methodName;
 	Object[] args;
 	Class<?>[] parameterTypes;
+	
 	private int id;
 	private Map<String, Object> parameters;
-
+	
 	public int getId() {
 		return id;
 	}
