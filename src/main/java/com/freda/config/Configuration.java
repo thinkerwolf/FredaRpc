@@ -1,10 +1,11 @@
 package com.freda.config;
 
+import com.freda.common.ServiceLoader;
 import com.freda.common.conf.NetConfig;
 import com.freda.common.conf.RegistryConfig;
 import com.freda.common.util.ReflectionUtils;
 import com.freda.registry.Registry;
-import com.freda.registry.ZooKeeperRegistry;
+import com.freda.registry.RegistryFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -367,8 +368,10 @@ public class Configuration {
 		for (RegistryConfig rc : set) {
 			Registry registry = registryMap.get(rc.key());
 			if (registry == null) {
+				RegistryFactory rf = ServiceLoader.getService(rc.getProtocol(), RegistryFactory.class);
 				try {
-					registry = new ZooKeeperRegistry(rc);
+					registry = rf.getRegistry(rc);
+					registry.start();
 				} catch (Exception e) {
 					e.printStackTrace();
 					continue;

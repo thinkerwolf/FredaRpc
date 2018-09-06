@@ -1,3 +1,2 @@
-# 可扩展协议
 freda=com.freda.rpc.freda.FredaProtocol
 http=com.freda.rpc.http.HttpProtocol

@@ -3,13 +3,12 @@ package com.freda.rpc.cluster;
 import java.util.List;
 
 import com.freda.common.Constants;
+import com.freda.common.ServiceLoader;
 import com.freda.remoting.RequestMessage;
 import com.freda.rpc.Invoker;
 import com.freda.rpc.Result;
 import com.freda.rpc.RpcException;
-import com.freda.rpc.cluster.balance.BalanceProcessor;
 import com.freda.rpc.cluster.balance.BalanceStrategy;
-import com.freda.rpc.cluster.balance.StrategyType;
 
 public abstract class AbstractClusterInvoker<T> implements Invoker<T> {
 
@@ -21,8 +20,8 @@ public abstract class AbstractClusterInvoker<T> implements Invoker<T> {
 
 	@Override
 	public Result invoke(RequestMessage inv) throws RpcException {
-		String balance = String.valueOf(inv.getParameter(Constants.BALANCE, StrategyType.RANDOM.getName()));
-		BalanceStrategy balanceStrategy = BalanceProcessor.getInstance().getBalanceStrategy(balance);
+		String balance = String.valueOf(inv.getParameter(Constants.BALANCE, Constants.DEFAULT_BALANCE_TYPE));
+		BalanceStrategy balanceStrategy = ServiceLoader.getService(balance, BalanceStrategy.class);
 		return doInvoker(invokers, inv, balanceStrategy);
 	}
 

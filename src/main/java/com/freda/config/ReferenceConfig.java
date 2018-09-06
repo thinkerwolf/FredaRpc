@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.freda.common.Constants;
+import com.freda.common.ServiceLoader;
 import com.freda.common.conf.NetConfig;
 import com.freda.common.proxy.ProxyHandler;
 import com.freda.common.util.ProxyUtils;
@@ -13,8 +15,7 @@ import com.freda.registry.Server;
 import com.freda.remoting.RequestMessage;
 import com.freda.rpc.Invoker;
 import com.freda.rpc.Protocol;
-import com.freda.rpc.ProtocolLoader;
-import com.freda.rpc.cluster.ClusterLoader;
+import com.freda.rpc.cluster.Cluster;
 
 /**
  * 调用者配置
@@ -30,12 +31,42 @@ public class ReferenceConfig<T> extends InterfaceConfig<T> {
 
 	private List<Registry> registries;
 	
+	private String cluster = "failfast";
+	
+	private int retries = Constants.DEFAULT_RETRY_TIMES;
+	
+	private String balance = "random";
+	
 	public NetConfig getNetConfig() {
 		return netConf;
 	}
 
 	public void setNetConf(NetConfig nettyConf) {
 		this.netConf = nettyConf;
+	}
+
+	public String getCluster() {
+		return cluster;
+	}
+
+	public void setCluster(String cluster) {
+		this.cluster = cluster;
+	}
+
+	public int getRetries() {
+		return retries;
+	}
+
+	public void setRetries(int retries) {
+		this.retries = retries;
+	}
+
+	public String getBalance() {
+		return balance;
+	}
+
+	public void setBalance(String balance) {
+		this.balance = balance;
 	}
 
 	@Override
@@ -47,7 +78,7 @@ public class ReferenceConfig<T> extends InterfaceConfig<T> {
 				throw new ReferenceConfigException(
 						"can't refer reference config of [" + getInterface() + "], please check the config file");
 			}
-			Protocol protocol = ProtocolLoader.getProtocolByName(netConf.getProtocol());
+			Protocol protocol = ServiceLoader.getService(netConf.getProtocol(), Protocol.class);
 			List<Invoker<T>> invokers = new ArrayList<>();
 			for (Registry registry : registries) {
 				List<NetConfig> ncs = getNetConfs(registry);
@@ -56,9 +87,9 @@ public class ReferenceConfig<T> extends InterfaceConfig<T> {
 				}
 			}
 			// 集群选择 
-			this.invoker = ClusterLoader.getClusterByName("failover").combine(invokers);
+			this.invoker = ServiceLoader.getService("failover", Cluster.class).combine(invokers);
 		} else {
-			Protocol protocol = ProtocolLoader.getProtocolByName(netConf.getProtocol());
+			Protocol protocol = ServiceLoader.getService(netConf.getProtocol(), Protocol.class);
 			List<NetConfig> ncs = new ArrayList<>(1);
 			ncs.add(netConf);
 			this.invoker = protocol.refer(getId(), getInterfaceClass(), ncs);
@@ -108,13 +139,16 @@ public class ReferenceConfig<T> extends InterfaceConfig<T> {
 					Object obj = ProxyUtils.newProxy(getInterfaceClass(), new ProxyHandler() {
 						@Override
 						public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+							final ReferenceConfig<T> rc = ReferenceConfig.this;
 							RequestMessage r = new RequestMessage();
 							r.setArgs(args);
 							r.setMethodName(method.getName());
 							r.setId(genId());
 							r.setClazzName(getId());
 							r.setParameterTypes(method.getParameterTypes());
-							return ReferenceConfig.this.getInvoker().invoke(r).getValue();
+							r.putParameter(Constants.RETRIES, rc.getRetries());
+							r.putParameter(Constants.BALANCE, rc.getBalance());
+							return rc.getInvoker().invoke(r).getValue();
 						}
 					});
 					ref = ((T) obj);

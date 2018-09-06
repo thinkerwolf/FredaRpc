@@ -1,6 +1,8 @@
-package com.freda.registry;
+package com.freda.registry.zookeeper;
 
 import com.freda.common.conf.RegistryConfig;
+import com.freda.registry.AbstractRegistry;
+import com.freda.registry.Server;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.zookeeper.CreateMode;
@@ -35,13 +37,13 @@ public class ZooKeeperRegistry extends AbstractRegistry implements Watcher {
 	private CountDownLatch latch;
 	/** 服务列表 <protocol, <serverName, server>> */
 	private Map<String, Map<String, Server>> serverMap = new ConcurrentHashMap<String, Map<String, Server>>();
-
-	public ZooKeeperRegistry(RegistryConfig conf) throws Exception {
+	
+	public ZooKeeperRegistry(RegistryConfig conf) {
 		super(conf);
-		init();
 	}
-
-	private void init() throws Exception {
+	
+	@Override
+	public void start() throws Exception {
 		latch = new CountDownLatch(1);
 		zk = new ZooKeeper(conf.getConnAddress(), conf.getTimeout(), this);
 		latch.await();
@@ -218,7 +220,7 @@ public class ZooKeeperRegistry extends AbstractRegistry implements Watcher {
 		case Expired:
 			// 过期了，重新连接，将已注册的serverMap重新注册
 			serverMap.clear();
-			init();
+			start();
 			break;
 		case Disconnected:
 			// 断开连接

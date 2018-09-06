@@ -34,6 +34,8 @@ public interface Registry {
     
     List<Server> getServersByProtocol(String protocol);
     
+    void start() throws Exception;
+    
     void close() throws Exception;
 
     boolean isConnected();

@@ -6,13 +6,9 @@ import com.freda.common.util.RandomUtil;
 import com.freda.remoting.RequestMessage;
 import com.freda.rpc.Invoker;
 import com.freda.rpc.cluster.balance.BalanceStrategy;
-import com.freda.rpc.cluster.balance.StrategyType;
 
-public class RandomBalanceStrategy extends BalanceStrategy {
+public class RandomBalanceStrategy implements BalanceStrategy {
 	
-	public RandomBalanceStrategy() {
-		super(StrategyType.RANDOM);
-	}
 
 	@Override
 	public <T> Invoker<T> balance(RequestMessage inv, List<Invoker<T>> invokers) {

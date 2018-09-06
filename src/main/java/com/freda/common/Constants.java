@@ -5,6 +5,8 @@ public interface Constants {
 	public static final int DEFAULT_RETRY_TIMES = 2;
 	/** default connnect timeout (ms) */
 	public static final int DEFAULT_TIMEOUT = 1000;
+	/** default balance algorithm */
+	public static final String DEFAULT_BALANCE_TYPE = "random";
 	
 	/** parameter key of retry times */
 	public static final String RETRIES = "retries";

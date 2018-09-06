@@ -44,6 +44,20 @@
 	<xsd:complexType name="referenceType">
 		<xsd:attribute name="id" type="xsd:string" />
 		<xsd:attribute name="interface" type="xsd:string" use="required" />
+		<xsd:attribute name="cluster" type="xsd:string">
+			<xsd:annotation>
+				<xsd:documentation>
+					 <![CDATA[Defines the cluster mode for this reference.]]>
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="retries" type="xsd:int">
+			<xsd:annotation>
+				<xsd:documentation>
+					 <![CDATA[Defines the retry num when this reference invoked fail.]]>
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
 	</xsd:complexType>
 	<xsd:element name="reference" type="referenceType">
 	</xsd:element>

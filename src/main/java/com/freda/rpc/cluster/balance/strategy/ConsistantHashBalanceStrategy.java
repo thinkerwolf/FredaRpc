@@ -7,7 +7,6 @@ import com.freda.registry.Server;
 import com.freda.remoting.RequestMessage;
 import com.freda.rpc.Invoker;
 import com.freda.rpc.cluster.balance.BalanceStrategy;
-import com.freda.rpc.cluster.balance.StrategyType;
 
 /**
  * 一致性Hash算法
@@ -15,13 +14,8 @@ import com.freda.rpc.cluster.balance.StrategyType;
  * @author wukai
  *
  */
-public class ConsistantHashBalanceStrategy extends BalanceStrategy {
+public class ConsistantHashBalanceStrategy implements BalanceStrategy {
 
-	public ConsistantHashBalanceStrategy() {
-		super(StrategyType.CONSISTANT_HASH);
-	}
-
-	
 
 	private static final class ConsistantHashSelector {
 

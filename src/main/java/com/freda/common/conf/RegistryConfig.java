@@ -15,7 +15,7 @@ public class RegistryConfig {
 
     private int timeout = 1000;
 
-    private String protocal;
+    private String protocol;
 
     public String getId() {
 		return id;
@@ -49,12 +49,12 @@ public class RegistryConfig {
         this.timeout = timeout;
     }
 
-    public String getProtocal() {
-        return protocal;
+    public String getProtocol() {
+        return protocol;
     }
 
-    public void setProtocal(String type) {
-        this.protocal = type;
+    public void setProtocol(String protocol) {
+        this.protocol = protocol;
     }
 
     public String getConnAddress() {
@@ -67,7 +67,7 @@ public class RegistryConfig {
         int result = 1;
         result = prime * result + ((ip == null) ? 0 : ip.hashCode());
         result = prime * result + port;
-        result = prime * result + ((protocal == null) ? 0 : protocal.hashCode());
+        result = prime * result + ((protocol == null) ? 0 : protocol.hashCode());
         return result;
     }
 
@@ -87,10 +87,10 @@ public class RegistryConfig {
             return false;
         if (port != other.port)
             return false;
-        if (protocal == null) {
-            if (other.protocal != null)
+        if (protocol == null) {
+            if (other.protocol != null)
                 return false;
-        } else if (!protocal.equals(other.protocal))
+        } else if (!protocol.equals(other.protocol))
             return false;
         return true;
     }

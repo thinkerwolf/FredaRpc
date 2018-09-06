@@ -1,12 +1,12 @@
 package com.freda.config;
 
+import com.freda.common.ServiceLoader;
 import com.freda.common.conf.NetConfig;
 import com.freda.registry.Registry;
 import com.freda.registry.Server;
 import com.freda.registry.ServerNameBuilder;
 import com.freda.rpc.Exporter;
 import com.freda.rpc.Protocol;
-import com.freda.rpc.ProtocolLoader;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -65,7 +65,7 @@ public class ServiceConfig<T> extends InterfaceConfig<T> {
 				for (Registry r : registries) {
 					r.register(new Server(serverName, nc.getIp(), nc.getPort(), nc.getProtocol()));
 				}
-				Protocol protocol = ProtocolLoader.getProtocolByName(nc.getProtocol());
+				Protocol protocol = ServiceLoader.getService(nc.getProtocol(), Protocol.class);
 				Exporter<T> e = protocol.export(getId(), interfaceClass, ref, nc);
 				exporters.add(e);
 			}
