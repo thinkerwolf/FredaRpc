@@ -1,6 +1,7 @@
 package com.freda.registry.zookeeper;
 
 import com.freda.common.conf.RegistryConfig;
+import com.freda.common.util.RandomUtil;
 import com.freda.registry.AbstractRegistry;
 import com.freda.registry.Server;
 
@@ -36,12 +37,12 @@ public class ZooKeeperRegistry extends AbstractRegistry implements Watcher {
 	private ZooKeeper zk;
 	private CountDownLatch latch;
 	/** 服务列表 <protocol, <serverName, server>> */
-	private Map<String, Map<String, Server>> serverMap = new ConcurrentHashMap<String, Map<String, Server>>();
-	
+	private Map<String, Server> serverMap = new ConcurrentHashMap<String, Server>();
+
 	public ZooKeeperRegistry(RegistryConfig conf) {
 		super(conf);
 	}
-	
+
 	@Override
 	public void start() throws Exception {
 		latch = new CountDownLatch(1);
@@ -59,18 +60,13 @@ public class ZooKeeperRegistry extends AbstractRegistry implements Watcher {
 		if (null == server) {
 			throw new IllegalArgumentException("server can't be null");
 		}
-		String path = DEFAULT_ROOT_PATH + "/" + server.getProtocol() + "/" + server.getName();
+		String path = DEFAULT_ROOT_PATH + "/" + server.getName();
 		recursiveSafeCreate(path, server.toJsonByte(), Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL, true);
-		fatchToServerMap(server.getProtocol(), server);
+		fatchToServerMap(server);
 	}
 
-	private void fatchToServerMap(String protocol, Server server) {
-		Map<String, Server> map = serverMap.get(protocol);
-		if (map == null) {
-			map = new ConcurrentHashMap<>();
-			serverMap.put(protocol, map);
-		}
-		map.put(server.getName(), server);
+	private void fatchToServerMap(Server server) {
+		serverMap.put(server.getName(), server);
 	}
 
 	private void recursiveSafeCreate(String path, byte[] date, List<ACL> acls, CreateMode mode, boolean exitDelete)
@@ -109,21 +105,22 @@ public class ZooKeeperRegistry extends AbstractRegistry implements Watcher {
 		if (stat != null) {
 			zk.delete(path, -1);
 		}
-		Map<String, Server> map = serverMap.get(server.getProtocol());
-		if (map != null) {
-			map.remove(server.getName());
-		}
+		serverMap.remove(server.getName());
 	}
 
 	@Override
 	public Server getRandomServer(String protocol) throws Exception {
-		Map<String, Server> map = serverMap.get(protocol);
-		if (map == null || map.size() == 0) {
+		List<Server> servers = getServersByProtocol(protocol);
+		int s = servers.size();
+		if (s == 0) {
 			return null;
+		} else if (s == 1) {
+			return servers.get(0);
+		} else {
+			return servers.get(RandomUtil.nextInt(s));
 		}
-		return map.values().iterator().next();
 	}
-	
+
 	public boolean isConnected() {
 		States state = zk.getState();
 		if (state == States.CLOSED || state == States.AUTH_FAILED) {
@@ -139,17 +136,11 @@ public class ZooKeeperRegistry extends AbstractRegistry implements Watcher {
 	 * @throws KeeperException
 	 */
 	private void fatchServer() throws KeeperException, InterruptedException {
-		List<String> protocols = zk.getChildren(DEFAULT_ROOT_PATH, false);
-		if (protocols == null || protocols.size() == 0) {
-			return;
-		}
-		for (String protocol : protocols) {
-			List<String> serverNames = zk.getChildren(DEFAULT_ROOT_PATH + "/" + protocol, false);
-			if (serverNames != null && serverNames.size() > 0) {
-				for (String serverName : serverNames) {
-					byte[] bytes = zk.getData(DEFAULT_ROOT_PATH + "/" + protocol + "/" + serverName, true, null);
-					fatchToServerMap(protocol, Server.jsonToServer(new String(bytes)));
-				}
+		List<String> serverNames = zk.getChildren(DEFAULT_ROOT_PATH, false);
+		if (serverNames != null && serverNames.size() > 0) {
+			for (String serverName : serverNames) {
+				byte[] bytes = zk.getData(DEFAULT_ROOT_PATH + "/" + serverName, true, null);
+				fatchToServerMap(Server.jsonToServer(new String(bytes)));
 			}
 		}
 	}
@@ -173,7 +164,7 @@ public class ZooKeeperRegistry extends AbstractRegistry implements Watcher {
 			if (StringUtils.isBlank(path)) {
 				return;
 			}
-			if (path.indexOf(DEFAULT_ROOT_PATH) < 0) {
+			if (path.indexOf(DEFAULT_ROOT_PATH + "/") < 0) {
 				return;
 			}
 			processNodeChange(event, path);
@@ -186,10 +177,14 @@ public class ZooKeeperRegistry extends AbstractRegistry implements Watcher {
 		switch (event.getType()) {
 		case NodeCreated: {
 			mySpecialLogger.info("NodeCreated");
+			byte[] bytes = zk.getData(path, true, null);
+			fatchToServerMap(Server.jsonToServer(new String(bytes)));
 			break;
 		}
 		case NodeDeleted: {
 			// Node被删除
+			String name = path.substring(path.lastIndexOf("/") + 1, path.length());
+			serverMap.remove(name);
 			mySpecialLogger.info("NodeDeleted " + path);
 			break;
 		}
@@ -236,11 +231,12 @@ public class ZooKeeperRegistry extends AbstractRegistry implements Watcher {
 
 	@Override
 	public List<Server> getServersByProtocol(String protocol) {
-		Map<String, Server> map = serverMap.get(protocol);
-		if (map == null || map.size() == 0) {
-			return null;
+		List<Server> list = new ArrayList<>();
+		for (Server server : serverMap.values()) {
+			if (protocol.equals(server.getProtocol()))
+				list.add(server);
 		}
-		return new ArrayList<Server>(map.values());
+		return list;
 	}
 
 }
