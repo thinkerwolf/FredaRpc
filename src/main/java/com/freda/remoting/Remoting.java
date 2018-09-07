@@ -7,8 +7,6 @@ import java.util.Collection;
 
 public interface Remoting {
 
-    void start();
-
     void stop();
 
     void addRegistry(Registry registry);
@@ -20,5 +18,7 @@ public interface Remoting {
     RemotingHandler handler();
 
     Channel channel();
-
+    
+    Channel start();
+    
 }

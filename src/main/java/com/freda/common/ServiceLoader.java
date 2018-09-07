@@ -30,7 +30,6 @@ public class ServiceLoader<T> {
 			ServiceLoader<T> sl = (ServiceLoader<T>) serviceLoaderMap.get(service);
 			if (sl == null) {
 				sl = new ServiceLoader<T>();
-				serviceLoaderMap.put(service, sl);
 			}
 			cl = cl == null ? ClassLoader.getSystemClassLoader() : cl;
 			for (; urls.hasMoreElements();) {
@@ -41,12 +40,10 @@ public class ServiceLoader<T> {
 				for (; keys.hasMoreElements();) {
 					String key = String.valueOf(keys.nextElement()).trim();
 					String serviceName = pros.getProperty(key).trim();
-					if (sl.serviceMap.get(key) != null) {
-						throw new RuntimeException("Duplicate service name [" + key + "]");
-					}
-					sl.serviceMap.put(key, loadService(service, serviceName, cl));
+					sl.serviceMap.putIfAbsent(key, loadService(service, serviceName, cl));
 				}
 			}
+			
 			return sl;
 		} catch (IOException e) {
 			throw new ServiceConfigurationError("load error", e);
@@ -74,10 +71,11 @@ public class ServiceLoader<T> {
 	public static <T> T getService(String name, Class<T> service) {
 		ServiceLoader<?> loader = serviceLoaderMap.get(service);
 		if (loader == null) {
-			synchronized (service) {
+			synchronized (serviceLoaderMap) {
 				if (loader == null) {
 					ClassLoader cl = Thread.currentThread().getContextClassLoader();
 					loader = load(service, cl);
+					serviceLoaderMap.putIfAbsent(service, loader);
 				}
 			}
 		}

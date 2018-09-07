@@ -15,7 +15,9 @@ public class ServerRemotingHandler implements RemotingHandler {
 
 	@Override
 	public RpcFuture send(Remoting remoting, Object msg) {
-		return remoting.channel().send(msg);
+		RpcFuture rf = new RpcFuture();
+		remoting.channel().send(msg);
+		return rf;
 	}
 
 	@Override

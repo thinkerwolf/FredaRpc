@@ -19,7 +19,7 @@ public class FredaProtocol extends AbstractProtocol {
 	public static FredaProtocol INSTANCE = new FredaProtocol();
 	protected Map<String, RemotingClient> remotingClientMap = new ConcurrentHashMap<>();
 	protected Map<String, RemotingServer> remotingServerMap = new ConcurrentHashMap<>();
-	
+
 	@Override
 	public String name() {
 		return NAME;
@@ -39,7 +39,6 @@ public class FredaProtocol extends AbstractProtocol {
 			RemotingClient remoting = remotingClientMap.get(nc.key());
 			if (remoting == null) {
 				remoting = RemotingFactory.getInstance().createRemotingClient(nc, null);
-				remoting.start();
 				remotingClientMap.put(nc.key(), remoting);
 			}
 			clients[0] = remoting;

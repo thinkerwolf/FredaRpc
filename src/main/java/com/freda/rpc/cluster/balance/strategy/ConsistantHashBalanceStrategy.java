@@ -31,7 +31,6 @@ public class ConsistantHashBalanceStrategy implements BalanceStrategy {
 	@Override
 	public <T> Invoker<T> balance(RequestMessage inv, List<Invoker<T>> invokers) {
 		String key = selectorKey(inv);
-		System.out.println("selectorKey : " + key);
 		ConsistantHashSelector<?> selector = selectors.get(key);
 		int indentityHashCode = System.identityHashCode(invokers);
 		int nodeNum = inv.getParameter(Constants.NODE_NUM, Constants.DEFAULT_NODE_NUM);

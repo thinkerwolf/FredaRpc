@@ -14,8 +14,6 @@ abstract class AbstractRemoting implements Remoting {
 
     protected Set<Registry> registrys = new HashSet<>();
 
-    protected volatile boolean started;
-
     protected RemotingHandler handler;
 
     protected Channel channel;
@@ -51,10 +49,6 @@ abstract class AbstractRemoting implements Remoting {
             }
         }
         return null;
-    }
-
-    public boolean isStarted() {
-        return started;
     }
 
     @Override

@@ -26,6 +26,13 @@ public abstract class RemotingServer extends AbstractRemoting {
 		}
 	}
 
+	protected abstract Channel doBind();
+	
+	@Override
+	public Channel start() {
+		return doBind();
+	}
+	
 	// @Override
 	// public ServerRemotingHandler handler() {
 	// return super.handler();

@@ -78,7 +78,7 @@ public class NetConfig {
 
 	@Override
 	public String toString() {
-		return "host#" + ip + ", port#" + port;
+		return "NetConfig [id=" + id + ", port=" + port + ", protocol=" + protocol + "]";
 	}
 
 	@Override
@@ -152,5 +152,5 @@ public class NetConfig {
 	public String key() {
 		return port > 0 ? ip + ":" + port : ip;
 	}
-
+	
 }
