@@ -12,7 +12,8 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 
 public class NettyClient extends RemotingClient {
 
-	//private static final Logger logger = LoggerFactory.getLogger(NettyClient.class);
+	// private static final Logger logger =
+	// LoggerFactory.getLogger(NettyClient.class);
 
 	private Bootstrap bootstrap;
 	private ChannelFuture startFuture;
@@ -42,19 +43,15 @@ public class NettyClient extends RemotingClient {
 
 	@Override
 	protected Channel doConnect() {
-		try {
-			startFuture = bootstrap.connect(conf.getIp(), conf.getPort()).sync();
-			boolean sent = startFuture.awaitUninterruptibly(3000);
-			if (sent && startFuture.isSuccess()) {
-				return NettyChannel.getOrAddChannel(startFuture.channel());
-			} else if (startFuture.cause() != null) {
-				throw new RemotingException("connect exception occor", startFuture.cause());
-			} else {
-				throw new RemotingException("connect timeout ");
-			}
-
-		} catch (InterruptedException e) {
-			throw new RemotingException("netty client start error", e);
+		startFuture = bootstrap.connect(conf.getIp(), conf.getPort());
+		this.channel = NettyChannel.getOrAddChannel(startFuture.channel());
+		boolean sent = startFuture.awaitUninterruptibly(3000);
+		if (sent && startFuture.isSuccess()) {
+			return channel;
+		} else if (startFuture.cause() != null) {
+			throw new RemotingException("connect exception occor", startFuture.cause());
+		} else {
+			throw new RemotingException("connect timeout ");
 		}
 	}
 
@@ -66,6 +63,9 @@ public class NettyClient extends RemotingClient {
 
 	@Override
 	public Channel channel() {
+		if (startFuture != null && !startFuture.isDone()) {
+			startFuture.awaitUninterruptibly(1000);
+		}
 		return super.channel();
 	}
 

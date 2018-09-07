@@ -21,7 +21,7 @@ public class NettyChannel implements com.freda.remoting.Channel {
     	NettyChannel nettyChannel = channelMap.get(channel);
     	if (nettyChannel == null) {
     		nettyChannel = new NettyChannel(channel);
-    		nettyChannel = channelMap.putIfAbsent(channel, nettyChannel);
+    		channelMap.putIfAbsent(channel, nettyChannel);
     	}
     	return nettyChannel;
     }

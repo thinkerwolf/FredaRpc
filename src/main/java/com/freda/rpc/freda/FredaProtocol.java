@@ -39,6 +39,7 @@ public class FredaProtocol extends AbstractProtocol {
 			RemotingClient remoting = remotingClientMap.get(nc.key());
 			if (remoting == null) {
 				remoting = RemotingFactory.getInstance().createRemotingClient(nc, null);
+				remoting.start();
 				remotingClientMap.put(nc.key(), remoting);
 			}
 			clients[0] = remoting;
