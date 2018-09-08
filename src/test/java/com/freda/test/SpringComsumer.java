@@ -15,7 +15,7 @@ public class SpringComsumer {
 		final DemoService ds = (DemoService) context.getBean("demoService");
 
 		ExecutorService es = Executors.newFixedThreadPool(20);
-		int i = 10;
+		int i = 1000;
 		// long startTime = System.currentTimeMillis();
 		while (i-- > 0) {
 			final int index = i;

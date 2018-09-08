@@ -55,7 +55,7 @@ class NettyChannelInitializer extends ChannelInitializer<Channel> {
 				return;
 			}
 			in.skipBytes(4);
-			byte[] b = new byte[in.readableBytes()];
+			byte[] b = new byte[dataLen];
 			in.readBytes(b);
 			ByteArrayInputStream bais = new ByteArrayInputStream(b);
 			ObjectInputStream ois = new ObjectInputStream(bais);

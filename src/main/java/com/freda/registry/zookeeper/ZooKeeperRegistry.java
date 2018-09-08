@@ -140,7 +140,9 @@ public class ZooKeeperRegistry extends AbstractRegistry implements Watcher {
 		if (serverNames != null && serverNames.size() > 0) {
 			for (String serverName : serverNames) {
 				byte[] bytes = zk.getData(DEFAULT_ROOT_PATH + "/" + serverName, true, null);
-				fatchToServerMap(Server.jsonToServer(new String(bytes)));
+				if (bytes != null && bytes.length > 0) {
+					fatchToServerMap(Server.jsonToServer(new String(bytes)));
+				}
 			}
 		}
 	}
