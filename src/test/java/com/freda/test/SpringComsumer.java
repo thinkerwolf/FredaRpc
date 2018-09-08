@@ -14,28 +14,18 @@ public class SpringComsumer {
 		ApplicationContext context = new ClassPathXmlApplicationContext("spring-frade-consumer.xml");
 		final DemoService ds = (DemoService) context.getBean("demoService");
 
-		ExecutorService es = Executors.newFixedThreadPool(20);
-		int i = 1000;
+		ExecutorService es = Executors.newFixedThreadPool(100);
+		int i = 100000;
 		// long startTime = System.currentTimeMillis();
+		final int t = i;
 		while (i-- > 0) {
 			final int index = i;
 			es.execute(new Runnable() {
 				@Override
 				public void run() {
-					System.out.println(ds.sayHello("liyulong-" + index));
+					System.out.println(ds.sayHello("liyulong-" + (t - index)));
 				}
 			});
 		}
-//        while (true) {
-//            if (es.isTerminated()) {
-//                System.out.println("结束了！");
-//                break;
-//            }
-//        }
-
-		
-		// System.out.println("total time -> " + (System.currentTimeMillis() -
-		// startTime));
-
 	}
 }

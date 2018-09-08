@@ -86,6 +86,10 @@ public class ReferenceConfig<T> extends InterfaceConfig<T> {
 					invokers.add(protocol.refer(getId(), getInterfaceClass(), ncs));
 				}
 			}
+			if (invokers.size() == 0) {
+				throw new ReferenceConfigException(
+						"can't refer obtain from registry, please check the registry");
+			}
 			// 集群选择 
 			this.invoker = ServiceLoader.getService("failover", Cluster.class).combine(invokers);
 		} else {

@@ -61,7 +61,7 @@ public class ZooKeeperRegistry extends AbstractRegistry implements Watcher {
 			throw new IllegalArgumentException("server can't be null");
 		}
 		String path = DEFAULT_ROOT_PATH + "/" + server.getName();
-		recursiveSafeCreate(path, server.toJsonByte(), Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL, true);
+		recursiveSafeCreate(path, server.toJsonByte(), Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL, false);
 		fatchToServerMap(server);
 	}
 
@@ -69,7 +69,7 @@ public class ZooKeeperRegistry extends AbstractRegistry implements Watcher {
 		serverMap.put(server.getName(), server);
 	}
 
-	private void recursiveSafeCreate(String path, byte[] date, List<ACL> acls, CreateMode mode, boolean exitDelete)
+	private void recursiveSafeCreate(String path, byte[] data, List<ACL> acls, CreateMode mode, boolean exitDelete)
 			throws Exception {
 		if (StringUtils.isEmpty(path)) {
 			return;
@@ -84,16 +84,13 @@ public class ZooKeeperRegistry extends AbstractRegistry implements Watcher {
 		}
 		recursiveSafeCreate(path.substring(0, index), null, acls, CreateMode.PERSISTENT, false);
 		Stat stat = zk.exists(path, this);
-		// safe delete
-		if (exitDelete) {
-			if (stat != null) {
-				zk.delete(path, -1);
-			}
-		}
 		if (stat == null) {
-			Stat s = zk.exists(path, this);
-			if (s == null)
-				zk.create(path, date, acls, mode);
+			zk.create(path, data, acls, mode);
+		} else {
+			if (exitDelete) {
+				zk.delete(path, -1);
+				zk.create(path, data, acls, mode);
+			}
 		}
 	}
 
@@ -185,9 +182,9 @@ public class ZooKeeperRegistry extends AbstractRegistry implements Watcher {
 		}
 		case NodeDeleted: {
 			// Node被删除
-			String name = path.substring(path.lastIndexOf("/") + 1, path.length());
-			serverMap.remove(name);
-			mySpecialLogger.info("NodeDeleted " + path);
+//			String name = path.substring(path.lastIndexOf("/") + 1, path.length());
+//			serverMap.remove(name);
+//			mySpecialLogger.info("NodeDeleted " + path);
 			break;
 		}
 		case NodeDataChanged: {

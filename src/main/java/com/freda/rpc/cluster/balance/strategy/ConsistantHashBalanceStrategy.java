@@ -24,7 +24,6 @@ public class ConsistantHashBalanceStrategy implements BalanceStrategy {
 
 	// private static final Logger logger =
 	// LoggerFactory.getLogger(ConsistantHashBalanceStrategy.class);
-	private static final Logger mySpecialLogger = LoggerFactory.getLogger("com.freda.myspecial");
 	private Map<String, ConsistantHashSelector<?>> selectors = new ConcurrentHashMap<String, ConsistantHashSelector<?>>();
 
 	@SuppressWarnings("unchecked")
@@ -59,7 +58,6 @@ public class ConsistantHashBalanceStrategy implements BalanceStrategy {
 					byte[] digest = digest(methodName + i);
 					for (int h = 0; h < 4; h++) {
 						long hash = hash(digest, h);
-						mySpecialLogger.info("ConsistantHashSelector hash:[ " + hash + " ]");
 						vitualInvokerMap.put(hash, invoker);
 					}
 					
