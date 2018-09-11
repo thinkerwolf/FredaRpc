@@ -24,6 +24,11 @@ public abstract class InterfaceConfig<T> {
 		this.id = id;
 	}
 
+	public void setInterfaceClass(Class<T> interfaceClass) {
+		this.interfaceClass = interfaceClass;
+		this.interfaceName = interfaceClass.getName();
+	}
+
 	public Class<T> getInterfaceClass() {
 		return interfaceClass;
 	}

@@ -1,5 +1,11 @@
 package com.freda.test.example;
 
+import org.springframework.stereotype.Component;
+
+import com.freda.config.annotation.Service;
+
+@Service(id = "demoService", interfaceClass = DemoService.class)
+@Component("demoService")
 public class DemoServiceImpl implements DemoService {
 
     private Double persent;

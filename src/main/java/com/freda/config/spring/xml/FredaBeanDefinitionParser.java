@@ -1,5 +1,5 @@
-package com.freda.config.spring.xml;
 
+package com.freda.config.spring.xml;
 import com.freda.config.spring.NetBean;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
