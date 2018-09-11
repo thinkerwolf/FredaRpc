@@ -9,6 +9,8 @@ public interface Constants {
 	public static final String DEFAULT_BALANCE_TYPE = "random";
 	/** default consistant hash balance node num */
 	public static final int DEFAULT_NODE_NUM = 160;
+	/** default cluster type */
+	public static final String DEFAULT_CLUSTER_TYPE = "fastover";
 	
 	
 	// =====================================

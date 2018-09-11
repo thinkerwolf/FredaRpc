@@ -1,9 +1,10 @@
 package com.freda.config.spring.annotation;
 
 import java.beans.PropertyDescriptor;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Member;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.LinkedList;
 import java.util.Map;
@@ -11,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.PropertyValues;
 import org.springframework.beans.factory.BeanCreationException;
@@ -20,10 +22,11 @@ import org.springframework.beans.factory.support.MergedBeanDefinitionPostProcess
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.core.BridgeMethodResolver;
 import org.springframework.core.Ordered;
 import org.springframework.core.PriorityOrdered;
-import org.springframework.core.annotation.AnnotatedElementUtils;
-import org.springframework.core.annotation.AnnotationAttributes;
+import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -38,7 +41,6 @@ public class ReferenceAnnotationBeanPostProcessor extends InstantiationAwareBean
 	private int order = Ordered.LOWEST_PRECEDENCE - 2;
 	private final Map<String, InjectionMetadata> injectionMetadataCache = new ConcurrentHashMap<String, InjectionMetadata>(256);
 	private final Map<String, ReferenceBean<?>> referenceBeanCache = new ConcurrentHashMap<>(256);
-	private Class<? extends Annotation> referenceAnnotationType = Reference.class;
 	
 	@Override
 	public int getOrder() {
@@ -81,7 +83,7 @@ public class ReferenceAnnotationBeanPostProcessor extends InstantiationAwareBean
 						metadata.clear(pvs);
 					}
 					try {
-						metadata = buildAutowiringMetadata(clazz);
+						metadata = buildReferenceMetadata(clazz);
 						this.injectionMetadataCache.put(cacheKey, metadata);
 					} catch (NoClassDefFoundError err) {
 						throw new IllegalStateException("Failed to introspect bean class [" + clazz.getName()
@@ -93,7 +95,7 @@ public class ReferenceAnnotationBeanPostProcessor extends InstantiationAwareBean
 		return metadata;
 	}
 
-	private InjectionMetadata buildAutowiringMetadata(Class<?> clazz) {
+	private InjectionMetadata buildReferenceMetadata(Class<?> clazz) {
 		LinkedList<InjectionMetadata.InjectedElement> elements = new LinkedList<InjectionMetadata.InjectedElement>();
 		Class<?> targetClass = clazz;
 		do {
@@ -102,28 +104,28 @@ public class ReferenceAnnotationBeanPostProcessor extends InstantiationAwareBean
 			ReflectionUtils.doWithLocalFields(targetClass, new ReflectionUtils.FieldCallback() {
 				@Override
 				public void doWith(Field field) throws IllegalArgumentException, IllegalAccessException {
-					AnnotationAttributes ann = findAutowiredAnnotation(field);
-					if (ann != null) {
+					Reference reference = AnnotationUtils.findAnnotation(field, Reference.class);
+					if (reference != null) {
 						if (Modifier.isStatic(field.getModifiers())) {
 							if (logger.isWarnEnabled()) {
 								logger.warn("Autowired annotation is not supported on static fields: " + field);
 							}
 							return;
 						}
-						currElements.add(new AutowiredFieldElement(field, ann, true));
+						currElements.add(new ReferenceFieldElement(field, reference));
 					}
 				}
 			});
 
-			/*ReflectionUtils.doWithLocalMethods(targetClass, new ReflectionUtils.MethodCallback() {
+			ReflectionUtils.doWithLocalMethods(targetClass, new ReflectionUtils.MethodCallback() {
 				@Override
 				public void doWith(Method method) throws IllegalArgumentException, IllegalAccessException {
 					Method bridgedMethod = BridgeMethodResolver.findBridgedMethod(method);
 					if (!BridgeMethodResolver.isVisibilityBridgeMethodPair(method, bridgedMethod)) {
 						return;
 					}
-					AnnotationAttributes ann = findAutowiredAnnotation(bridgedMethod);
-					if (ann != null && method.equals(ClassUtils.getMostSpecificMethod(method, clazz))) {
+					Reference reference = AnnotationUtils.findAnnotation(bridgedMethod, Reference.class);
+					if (reference != null && method.equals(ClassUtils.getMostSpecificMethod(method, clazz))) {
 						if (Modifier.isStatic(method.getModifiers())) {
 							if (logger.isWarnEnabled()) {
 								logger.warn("Autowired annotation is not supported on static methods: " + method);
@@ -137,10 +139,10 @@ public class ReferenceAnnotationBeanPostProcessor extends InstantiationAwareBean
 							}
 						}
 						PropertyDescriptor pd = BeanUtils.findPropertyForMethod(bridgedMethod, clazz);
-						currElements.add(new AutowiredMethodElement(method, true, pd));
+						currElements.add(new ReferenceMethodElement(method, reference, pd));
 					}
 				}
-			});*/
+			});
 
 			elements.addAll(0, currElements);
 			targetClass = targetClass.getSuperclass();
@@ -150,7 +152,7 @@ public class ReferenceAnnotationBeanPostProcessor extends InstantiationAwareBean
 		return new InjectionMetadata(clazz, elements);
 	}
 	
-	private AnnotationAttributes findAutowiredAnnotation(AccessibleObject ao) {
+	/*private AnnotationAttributes findAutowiredAnnotation(AccessibleObject ao) {
 		if (ao.getAnnotations().length > 0) {
 				AnnotationAttributes attributes = AnnotatedElementUtils.getMergedAnnotationAttributes(ao, referenceAnnotationType);
 				if (attributes != null) {
@@ -158,32 +160,22 @@ public class ReferenceAnnotationBeanPostProcessor extends InstantiationAwareBean
 				}
 		}
 		return null;
-	}
+	}*/
 	
 	/**
 	 * Class representing injection information about an annotated field.
 	 */
-	private class AutowiredFieldElement extends InjectionMetadata.InjectedElement {
-
-		private final boolean required;
-
-		private volatile boolean cached = false;
-
-		private volatile Object cachedFieldValue;
-		
-		private AnnotationAttributes ann;
-		
-		public AutowiredFieldElement(Field field, AnnotationAttributes ann, boolean required) {
+	private class ReferenceFieldElement extends InjectionMetadata.InjectedElement {
+		private Reference reference;
+		public ReferenceFieldElement(Field field, Reference reference) {
 			super(field, null);
-			this.required = required;
-			this.ann = ann;
+			this.reference = reference;
 		}
 		
 		@Override
 		protected void inject(Object bean, String beanName, PropertyValues pvs) throws Throwable {
 			Field field = (Field) this.member;
-			// 生成一个ReferenceBean
-			ReferenceBean<?> referenceBean = buildReferenceBean(ann);
+			ReferenceBean<?> referenceBean = buildReferenceBean(member, reference);
 			referenceBean.afterPropertiesSet();
 			Object value = referenceBean.getRef();
 			if (value != null) {
@@ -191,12 +183,14 @@ public class ReferenceAnnotationBeanPostProcessor extends InstantiationAwareBean
 				field.set(bean, value);
 			}
 		}
-		
 	}
 	
-	private ReferenceBean<?> buildReferenceBean(AnnotationAttributes ann) {
-		Class<?> interfaceClass = ann.getClass("interfaceClass");
-		String id = ann.getString("id");
+	private ReferenceBean<?> buildReferenceBean(Member member, Reference reference) {
+		Class<?> interfaceClass = reference.interfaceClass();
+		if (void.class.equals(interfaceClass)) {
+			interfaceClass = member.getDeclaringClass();
+		}
+		String id = reference.id();
 		if (!StringUtils.hasText(id)) {
 			id = interfaceClass.getName();
 		}
@@ -208,9 +202,14 @@ public class ReferenceAnnotationBeanPostProcessor extends InstantiationAwareBean
 					referenceBean.setId(id);
 					referenceBean.setInterface(interfaceClass.getName());
 					referenceBean.setApplicationContext(context);
-					referenceBean.setCluster(ann.getString("cluster"));
-					referenceBean.setBalance(ann.getString("balance"));
-					referenceBean.setRetries(ann.getNumber("retries"));
+					referenceBean.setCluster(reference.cluster());
+					referenceBean.setBalance(reference.balance());
+					referenceBean.setRetries(reference.retries());
+					try {
+						referenceBean.afterPropertiesSet();
+					} catch (Exception e) {
+						throw new BeanCreationException("reference bean afterPropertiesSet error", e);
+					}
 					referenceBeanCache.put(id, referenceBean);
 				}
 			}
@@ -226,18 +225,13 @@ public class ReferenceAnnotationBeanPostProcessor extends InstantiationAwareBean
 
 	/**
 	 * Class representing injection information about an annotated method.
-	 
-	private class AutowiredMethodElement extends InjectionMetadata.InjectedElement {
+	 */
+	private class ReferenceMethodElement extends InjectionMetadata.InjectedElement {
+		private Reference reference;
 
-		private final boolean required;
-
-		private volatile boolean cached = false;
-
-		private volatile Object[] cachedMethodArguments;
-
-		public AutowiredMethodElement(Method method, boolean required, PropertyDescriptor pd) {
+		public ReferenceMethodElement(Method method, Reference reference, PropertyDescriptor pd) {
 			super(method, pd);
-			this.required = required;
+			this.reference = reference;
 		}
 
 		@Override
@@ -246,83 +240,17 @@ public class ReferenceAnnotationBeanPostProcessor extends InstantiationAwareBean
 				return;
 			}
 			Method method = (Method) this.member;
-			Object[] arguments;
-			if (this.cached) {
-				// Shortcut for avoiding synchronization...
-				arguments = resolveCachedArguments(beanName);
-			}
-			else {
-				Class<?>[] paramTypes = method.getParameterTypes();
-				arguments = new Object[paramTypes.length];
-				DependencyDescriptor[] descriptors = new DependencyDescriptor[paramTypes.length];
-				Set<String> autowiredBeans = new LinkedHashSet<String>(paramTypes.length);
-				TypeConverter typeConverter = beanFactory.getTypeConverter();
-				for (int i = 0; i < arguments.length; i++) {
-					MethodParameter methodParam = new MethodParameter(method, i);
-					DependencyDescriptor currDesc = new DependencyDescriptor(methodParam, this.required);
-					currDesc.setContainingClass(bean.getClass());
-					descriptors[i] = currDesc;
-					try {
-						Object arg = beanFactory.resolveDependency(currDesc, beanName, autowiredBeans, typeConverter);
-						if (arg == null && !this.required) {
-							arguments = null;
-							break;
-						}
-						arguments[i] = arg;
-					}
-					catch (BeansException ex) {
-						throw new UnsatisfiedDependencyException(null, beanName, new InjectionPoint(methodParam), ex);
-					}
-				}
-				synchronized (this) {
-					if (!this.cached) {
-						if (arguments != null) {
-							this.cachedMethodArguments = new Object[paramTypes.length];
-							for (int i = 0; i < arguments.length; i++) {
-								this.cachedMethodArguments[i] = descriptors[i];
-							}
-							registerDependentBeans(beanName, autowiredBeans);
-							if (autowiredBeans.size() == paramTypes.length) {
-								Iterator<String> it = autowiredBeans.iterator();
-								for (int i = 0; i < paramTypes.length; i++) {
-									String autowiredBeanName = it.next();
-									if (beanFactory.containsBean(autowiredBeanName)) {
-										if (beanFactory.isTypeMatch(autowiredBeanName, paramTypes[i])) {
-											this.cachedMethodArguments[i] = new ShortcutDependencyDescriptor(
-													descriptors[i], autowiredBeanName, paramTypes[i]);
-										}
-									}
-								}
-							}
-						}
-						else {
-							this.cachedMethodArguments = null;
-						}
-						this.cached = true;
-					}
-				}
-			}
-			if (arguments != null) {
+			ReferenceBean<?> referenceBean = buildReferenceBean(member, reference);
+			Object value = referenceBean.getRef();
+			if (value != null) {
 				try {
 					ReflectionUtils.makeAccessible(method);
-					method.invoke(bean, arguments);
-				}
-				catch (InvocationTargetException ex){
+					method.invoke(bean, value);
+				} catch (InvocationTargetException ex) {
 					throw ex.getTargetException();
 				}
 			}
 		}
-
-		private Object[] resolveCachedArguments(String beanName) {
-			if (this.cachedMethodArguments == null) {
-				return null;
-			}
-			Object[] arguments = new Object[this.cachedMethodArguments.length];
-			for (int i = 0; i < arguments.length; i++) {
-				arguments[i] = resolvedCachedArgument(beanName, this.cachedMethodArguments[i]);
-			}
-			return arguments;
-		}
-	}*/
+	}
 	
 }

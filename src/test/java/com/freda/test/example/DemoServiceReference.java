@@ -13,5 +13,11 @@ public class DemoServiceReference {
 	public String hello() {
 		return ds.sayHello("annotation freda");
 	}
-
+	
+	@Reference(id = "demoService")
+	public void setDs(DemoService ds) {
+		this.ds = ds;
+		System.out.println("ds 注入完成");
+	}
+	
 }

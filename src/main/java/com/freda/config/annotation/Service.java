@@ -11,7 +11,7 @@ import java.lang.annotation.*;
 @Documented
 public @interface Service {
 	/** service id */
-	String id();
+	String id() default "";
 
 	/** interface full name */
 	Class<?> interfaceClass();

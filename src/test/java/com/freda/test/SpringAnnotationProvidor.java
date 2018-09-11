@@ -22,7 +22,6 @@ public class SpringAnnotationProvidor {
 	}
 	
 	@Configuration
-	@ComponentScan
 	@FredaComponentScan
 	public static class SpringConfiguration {
 
