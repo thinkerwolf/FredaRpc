@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:freda="http://www.freda.com/schema/freda" xmlns="http://www.springframework.org/schema/beans"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+       http://www.freda.com/schema/freda
+       http://www.freda.com/schema/freda/freda.xsd">
+
+	<!-- registry config -->
+	<freda:registry id="registry-zookeeper-1" host="127.0.0.1"
+		port="2181" protocol="zookeeper" />
+
+	<!-- netty-client config -->
+	<freda:client id="client-1" protocol="freda" />
+
+	<freda:reference id="demoService" clients="client-1"
+		interface="com.freda.example.bean.DemoService" balance="hash" />
+
+</beans>
