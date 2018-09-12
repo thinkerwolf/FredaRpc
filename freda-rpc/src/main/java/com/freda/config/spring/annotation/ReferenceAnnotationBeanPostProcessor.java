@@ -95,7 +95,7 @@ public class ReferenceAnnotationBeanPostProcessor extends InstantiationAwareBean
 		return metadata;
 	}
 
-	private InjectionMetadata buildReferenceMetadata(Class<?> clazz) {
+	private InjectionMetadata buildReferenceMetadata(final Class<?> clazz) {
 		LinkedList<InjectionMetadata.InjectedElement> elements = new LinkedList<InjectionMetadata.InjectedElement>();
 		Class<?> targetClass = clazz;
 		do {

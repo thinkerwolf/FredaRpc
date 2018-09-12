@@ -21,7 +21,7 @@ public class CglibProxy implements Proxy {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T newProxy(Class<T> clazz, ProxyHandler handler) {
+    public <T> T newProxy(Class<T> clazz, final ProxyHandler handler) {
         Enhancer enhancer = new Enhancer();
         enhancer.setSuperclass(clazz);
         enhancer.setCallback(new MethodInterceptor() {

@@ -36,7 +36,7 @@ public class ReferenceBean<T> extends ReferenceConfig<T>
 			this.setId(getInterface());
 		}
 
-		List<ClientConfig> clientBeans = new LinkedList<>(context.getBeansOfType(ClientBean.class).values());
+		List<ClientConfig> clientBeans = new LinkedList<ClientConfig>(context.getBeansOfType(ClientBean.class).values());
 		if (clientBeans.size() == 0) {
 			return;
 		}
