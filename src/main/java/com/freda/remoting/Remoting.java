@@ -1,6 +1,6 @@
 package com.freda.remoting;
 
-import com.freda.common.conf.NetConfig;
+import com.freda.common.Net;
 import com.freda.registry.Registry;
 
 import java.util.Collection;
@@ -13,7 +13,7 @@ public interface Remoting {
 
     void addRegistrys(Collection<Registry> rs);
 
-    NetConfig config();
+    Net config();
 
     RemotingHandler handler();
 

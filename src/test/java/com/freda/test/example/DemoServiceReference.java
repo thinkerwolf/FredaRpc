@@ -7,7 +7,7 @@ import com.freda.config.annotation.Reference;
 @Component("demoServiceReference")
 public class DemoServiceReference {
 	
-	@Reference(id = "demoService", interfaceClass = DemoService.class, balance = "hash", cluster = "fastover", registry = "registry-1", retries = 2)
+	@Reference(id = "demoService", interfaceClass = DemoService.class, clients = "client_1", balance = "hash", cluster = "failfast", registries = "registry-1", retries = 2)
 	private DemoService ds;
 
 	public String hello() {

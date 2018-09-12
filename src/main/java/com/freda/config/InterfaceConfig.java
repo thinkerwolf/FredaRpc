@@ -1,6 +1,5 @@
 package com.freda.config;
 
-import com.freda.common.conf.RegistryConfig;
 import com.freda.common.util.ReflectionUtils;
 
 import java.util.Collection;
@@ -15,7 +14,8 @@ public abstract class InterfaceConfig<T> {
 	protected Set<RegistryConfig> registryConfs = new HashSet<RegistryConfig>();
 	protected T ref;
 	protected Configuration conf;
-
+	protected String registries;
+	
 	public String getId() {
 		return id;
 	}
@@ -65,6 +65,14 @@ public abstract class InterfaceConfig<T> {
 
 	public void setConf(Configuration conf) {
 		this.conf = conf;
+	}
+
+	public String getRegistries() {
+		return registries;
+	}
+
+	public void setRegistries(String registries) {
+		this.registries = registries;
 	}
 
 	/**

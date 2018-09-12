@@ -1,6 +1,6 @@
 package com.freda.remoting.netty;
 
-import com.freda.common.conf.NetConfig;
+import com.freda.common.Net;
 import com.freda.registry.Server;
 import com.freda.registry.ServerNameBuilder;
 import com.freda.remoting.RemotingHandler;
@@ -27,7 +27,7 @@ public class NettyServer extends RemotingServer {
 	private EventLoopGroup workerGroup;
 	private Channel channel;
 	
-	public NettyServer(NetConfig conf, RemotingHandler handler) {
+	public NettyServer(Net conf, RemotingHandler handler) {
 		super(conf, handler);
 		this.serverBootstrap = new ServerBootstrap();
 		this.bossGroup = new NioEventLoopGroup(conf.getBossThreads());
@@ -44,7 +44,7 @@ public class NettyServer extends RemotingServer {
 		serverBootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class);
 		NettyChannelInitializer initializer = new NettyChannelInitializer(this);
 		serverBootstrap.childHandler(initializer);
-		final String host = conf.getIp();
+		final String host = conf.getHost();
 		final int port = conf.getPort();
 		final String serverName = ServerNameBuilder.getInstance().generateServerName(SERVER, host, port);
 		ChannelFuture cf = serverBootstrap.bind(new InetSocketAddress(host, port));

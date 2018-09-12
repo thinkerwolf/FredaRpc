@@ -1,9 +1,9 @@
 package com.freda.registry;
 
-import com.freda.common.conf.RegistryConfig;
+import com.freda.common.Net;
 
 public interface RegistryFactory {
 
-	Registry getRegistry(RegistryConfig registryConf);
+	Registry getRegistry(Net net);
 
 }

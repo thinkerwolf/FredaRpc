@@ -1,10 +1,10 @@
 package com.freda.remoting;
 
-import com.freda.common.conf.NetConfig;
+import com.freda.common.Net;
 
 public abstract class RemotingClient extends AbstractRemoting {
 
-	public RemotingClient(NetConfig conf, RemotingHandler handler) {
+	public RemotingClient(Net conf, RemotingHandler handler) {
 		super(conf, handler);
 		if (handler != null) {
 			doInit();

@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.freda.common.conf.NetConfig;
+import com.freda.common.Net;
 import com.freda.remoting.RemotingClient;
 import com.freda.remoting.RemotingServer;
 import com.freda.rpc.AbstractProtocol;
@@ -26,16 +26,16 @@ public class FredaProtocol extends AbstractProtocol {
 	}
 
 	@Override
-	public <T> Invoker<T> refer(String id, Class<T> type, List<NetConfig> ncs) {
+	public <T> Invoker<T> refer(String id, Class<T> type, List<Net> ncs) {
 		RemotingClient[] clients = getClients(ncs);
 		FredaInvoker<T> invoker = new FredaInvoker<>(id == null ? type.getName() : id, type, clients);
 		invokers.put(id == null ? type.getName() : id, invoker);
 		return invoker;
 	}
 
-	private <T> RemotingClient[] getClients(List<NetConfig> ncs) {
+	private <T> RemotingClient[] getClients(List<Net> ncs) {
 		RemotingClient[] clients = new RemotingClient[ncs.size()];
-		for (NetConfig nc : ncs) {
+		for (Net nc : ncs) {
 			RemotingClient remoting = remotingClientMap.get(nc.key());
 			if (remoting == null) {
 				remoting = RemotingFactory.getInstance().createRemotingClient(nc, null);
@@ -47,7 +47,7 @@ public class FredaProtocol extends AbstractProtocol {
 		return clients;
 	}
 
-	private RemotingServer getServer(NetConfig nc) {
+	private RemotingServer getServer(Net nc) {
 		RemotingServer server = remotingServerMap.get(nc.key());
 		if (server == null) {
 			server = RemotingFactory.getInstance().createRemotingServer(nc, null);
@@ -58,7 +58,7 @@ public class FredaProtocol extends AbstractProtocol {
 	}
 
 	@Override
-	public <T> Exporter<T> export(String id, Class<T> type, T ref, NetConfig nc) {
+	public <T> Exporter<T> export(String id, Class<T> type, T ref, Net nc) {
 		FredaExporter<T> e = new FredaExporter<T>(id, type, ref);
 		RemotingServer server = getServer(nc);
 		((ServerRemotingHandler) server.handler()).addExeporter(e);

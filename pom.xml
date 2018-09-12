@@ -76,4 +76,7 @@
         <artifactId>spring-boot-maven-plugin</artifactId> </plugin> </plugins> </build> -->
 
 
+    <scm>
+    	<developerConnection>wukai</developerConnection>
+    </scm>
 </project>

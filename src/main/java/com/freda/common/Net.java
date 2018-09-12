@@ -1,40 +1,47 @@
-package com.freda.common.conf;
+package com.freda.common;
 
 import org.apache.commons.lang3.StringUtils;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 
-public class NetConfig {
+public class Net {
 
-	private static final int DEFAULT_THREAD_NUM = Math.max(1, Runtime.getRuntime().availableProcessors() * 2);
-	
-	private String id;
-	
-	private String ip;
+	private String host;
 
-	private int port;
+	private int port = -1;
 
 	private String protocol = "freda";
+	
+	private int timeout;
+	
+	private int bossThreads = Math.max(1, Constants.DEFAULT_THREAD_NUM / 2);
 
-	private int bossThreads = Math.max(1, DEFAULT_THREAD_NUM / 2);
-
-	private int workerThreads = DEFAULT_THREAD_NUM;
-
-	public String getId() {
-		return id;
+	private int workerThreads = Constants.DEFAULT_THREAD_NUM;
+	
+	public Net() {
+		
+	}
+	
+	public Net(String host, int port, String protocol) {
+		this.host = host;
+		this.port = port;
+		this.protocol = protocol;
 	}
 
-	public void setId(String id) {
-		this.id = id;
+	public Net(String host, int port, String protocol, int timeout) {
+		this.host = host;
+		this.port = port;
+		this.protocol = protocol;
+		this.timeout = timeout;
 	}
 
-	public String getIp() {
-		return ip;
+	public String getHost() {
+		return host;
 	}
 
-	public void setIp(String ip) {
-		this.ip = ip;
+	public void setHost(String host) {
+		this.host = host;
 	}
 
 	public int getPort() {
@@ -69,8 +76,16 @@ public class NetConfig {
 		this.workerThreads = workerThreads;
 	}
 
+	public int getTimeout() {
+		return timeout;
+	}
+
+	public void setTimeout(int timeout) {
+		this.timeout = timeout;
+	}
+
 	public boolean isUseable() {
-		if (StringUtils.isNotEmpty(ip) && port > 0 && StringUtils.isNotEmpty(protocol)) {
+		if (StringUtils.isNotEmpty(host) && port > 0 && StringUtils.isNotEmpty(protocol)) {
 			return true;
 		}
 		return false;
@@ -78,14 +93,14 @@ public class NetConfig {
 
 	@Override
 	public String toString() {
-		return "NetConfig [id=" + id + ", port=" + port + ", protocol=" + protocol + "]";
+		return "Net [host=" + host + ", port=" + port + ", protocol=" + protocol + "]";
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((ip == null) ? 0 : ip.hashCode());
+		result = prime * result + ((host == null) ? 0 : host.hashCode());
 		result = prime * result + port;
 		result = prime * result + ((protocol == null) ? 0 : protocol.hashCode());
 		return result;
@@ -99,11 +114,11 @@ public class NetConfig {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		NetConfig other = (NetConfig) obj;
-		if (ip == null) {
-			if (other.ip != null)
+		Net other = (Net) obj;
+		if (host == null) {
+			if (other.host != null)
 				return false;
-		} else if (!ip.equals(other.ip))
+		} else if (!host.equals(other.host))
 			return false;
 		if (port != other.port)
 			return false;
@@ -116,9 +131,9 @@ public class NetConfig {
 	}
 
 	@Override
-	public NetConfig clone() {
-		NetConfig nettyConfig = new NetConfig();
-		nettyConfig.setIp(this.ip);
+	public Net clone() {
+		Net nettyConfig = new Net();
+		nettyConfig.setHost(this.host);
 		nettyConfig.setPort(this.port);
 		nettyConfig.setProtocol(this.protocol);
 		nettyConfig.setBossThreads(this.bossThreads);
@@ -131,7 +146,7 @@ public class NetConfig {
 		StringBuilder sb = new StringBuilder();
 		sb.append(protocol);
 		sb.append("://");
-		sb.append(ip);
+		sb.append(host);
 		sb.append(":" + port);
 		try {
 			return new URI(sb.toString());
@@ -144,13 +159,13 @@ public class NetConfig {
 		StringBuilder sb = new StringBuilder();
 		sb.append(protocol);
 		sb.append("://");
-		sb.append(ip);
+		sb.append(host);
 		sb.append(":" + port);
 		return sb.toString();
 	}
 
 	public String key() {
-		return port > 0 ? ip + ":" + port : ip;
+		return port > 0 ? host + ":" + port : host;
 	}
-	
+
 }

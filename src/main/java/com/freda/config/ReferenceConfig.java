@@ -2,12 +2,15 @@ package com.freda.config;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.freda.common.Constants;
+import com.freda.common.Net;
 import com.freda.common.ServiceLoader;
-import com.freda.common.conf.NetConfig;
 import com.freda.common.proxy.ProxyHandler;
 import com.freda.common.util.ProxyUtils;
 import com.freda.registry.Registry;
@@ -25,25 +28,18 @@ import com.freda.rpc.cluster.Cluster;
  */
 public class ReferenceConfig<T> extends InterfaceConfig<T> {
 
-	private NetConfig netConf;
-
 	private Invoker<T> invoker;
 
-	private List<Registry> registries;
-	
-	private String cluster = "failfast";
-	
-	private int retries = Constants.DEFAULT_RETRY_TIMES;
-	
-	private String balance = "random";
-	
-	public NetConfig getNetConfig() {
-		return netConf;
-	}
+	private List<ClientConfig> clientConfs;
 
-	public void setNetConf(NetConfig nettyConf) {
-		this.netConf = nettyConf;
-	}
+	protected String cluster = "failfast";
+
+	protected int retries = Constants.DEFAULT_RETRY_TIMES;
+
+	protected String balance = "random";
+
+	/** client ids {client1,client2} */
+	protected String clients;
 
 	public String getCluster() {
 		return cluster;
@@ -69,56 +65,73 @@ public class ReferenceConfig<T> extends InterfaceConfig<T> {
 		this.balance = balance;
 	}
 
+	public String getClients() {
+		return clients;
+	}
+
+	public void setClients(String clients) {
+		this.clients = clients;
+	}
+
+	public List<ClientConfig> getClientConfs() {
+		return clientConfs;
+	}
+
+	public void setClientConfs(List<ClientConfig> clientConfs) {
+		this.clientConfs = clientConfs;
+	}
+
 	@Override
 	public void export() throws Exception {
 		// 暴露
-		this.registries = conf.handleRegistries(this.registryConfs);
-		if (!this.netConf.isUseable()) {
-			if (registries.size() <= 0) {
-				throw new ReferenceConfigException(
-						"can't refer reference config of [" + getInterface() + "], please check the config file");
-			}
-			Protocol protocol = ServiceLoader.getService(netConf.getProtocol(), Protocol.class);
-			List<Invoker<T>> invokers = new ArrayList<>();
-			for (Registry registry : registries) {
-				List<NetConfig> ncs = getNetConfs(registry);
-				if (ncs != null && ncs.size() > 0) {
-					invokers.add(protocol.refer(getId(), getInterfaceClass(), ncs));
+		List<Registry> registries = conf.handleRegistries(this.registryConfs);
+		
+		/** mulitple clients */
+		if (clientConfs == null || clientConfs.size() == 0) {
+			throw new ReferenceConfigException("lack client config");
+		}
+
+		List<Invoker<T>> invokers = new LinkedList<>();
+		for (ClientConfig cc : clientConfs) {
+			if (cc.isUsable()) {
+				Protocol protocol = ServiceLoader.getService(cc.getProtocol(), Protocol.class);
+				List<Net> ncs = new ArrayList<>(1);
+				ncs.add(new Net(cc.getHost(), cc.getPort(), cc.getProtocol()));
+				invokers.add(protocol.refer(getId(), getInterfaceClass(), ncs));
+			} else {
+				Protocol protocol = ServiceLoader.getService(cc.getProtocol(), Protocol.class);
+				for (Registry registry : registries) {
+					List<Net> ncs = getNetConfs(registry, cc);
+					if (ncs != null && ncs.size() > 0) {
+						invokers.add(protocol.refer(getId(), getInterfaceClass(), ncs));
+					}
 				}
 			}
-			if (invokers.size() == 0) {
-				throw new ReferenceConfigException(
-						"can't refer obtain from registry, please check the registry");
-			}
-			// 集群选择 
-			this.invoker = ServiceLoader.getService("failover", Cluster.class).combine(invokers);
-		} else {
-			Protocol protocol = ServiceLoader.getService(netConf.getProtocol(), Protocol.class);
-			List<NetConfig> ncs = new ArrayList<>(1);
-			ncs.add(netConf);
-			this.invoker = protocol.refer(getId(), getInterfaceClass(), ncs);
 		}
-		
+
+		if (invokers.size() == 0) {
+			throw new ReferenceConfigException("can't refer obtain from registry, please check the registry");
+		}
+		this.cluster = StringUtils.isEmpty(this.cluster) ? Constants.DEFAULT_CLUSTER_TYPE : this.cluster;
+		this.invoker = ServiceLoader.getService(cluster, Cluster.class).combine(invokers);
 	}
-	
-	private List<NetConfig> getNetConfs(Registry registry) {
-		List<Server> servers = registry.getServersByProtocol(netConf.getProtocol());
+
+	private List<Net> getNetConfs(Registry registry, ClientConfig cc) {
+		List<Server> servers = registry.getServersByProtocol(cc.getProtocol());
 		if (servers == null || servers.size() == 0) {
 			return null;
 		}
-		List<NetConfig> netConfs = new ArrayList<>(servers.size());
+		List<Net> netConfs = new LinkedList<>();
 		for (Server s : servers) {
-			NetConfig nc = new NetConfig();
-			nc.setIp(s.getHost());
+			Net nc = new Net();
+			nc.setHost(s.getHost());
 			nc.setPort(s.getPort());
 			nc.setProtocol(s.getProtocol());
-			nc.setBossThreads(netConf.getBossThreads());
-			nc.setWorkerThreads(netConf.getWorkerThreads());
 			netConfs.add(nc);
 		}
 		return netConfs;
 	}
-	
+
 	@Override
 	public void unexport() throws Exception {
 

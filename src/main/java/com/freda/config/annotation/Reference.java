@@ -43,5 +43,9 @@ public @interface Reference {
 	String balance() default Constants.DEFAULT_BALANCE_TYPE;
 
 	/** registry center */
-	String registry() default "";
+	String registries() default "";
+	
+	/** reference clients */
+	String clients() default "";
+	
 }

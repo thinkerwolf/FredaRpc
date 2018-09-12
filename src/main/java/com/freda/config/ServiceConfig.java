@@ -1,18 +1,15 @@
 package com.freda.config;
 
+import com.freda.common.Net;
 import com.freda.common.ServiceLoader;
-import com.freda.common.conf.NetConfig;
 import com.freda.registry.Registry;
 import com.freda.registry.Server;
 import com.freda.registry.ServerNameBuilder;
 import com.freda.rpc.Exporter;
 import com.freda.rpc.Protocol;
 
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Service配置
@@ -21,22 +18,22 @@ import java.util.Set;
  */
 public class ServiceConfig<T> extends InterfaceConfig<T> {
 
-	private Set<NetConfig> nettyConfs = new HashSet<NetConfig>();
-
 	private List<Exporter<T>> exporters = new LinkedList<>();
 
-	private List<Registry> registries;
+	private List<ServerConfig> serverConfigs;
+	
+	protected String servers;
 
-	public Set<NetConfig> getNettyConfs() {
-		return nettyConfs;
+	public String getServers() {
+		return servers;
 	}
 
-	public void addNettyConfs(Collection<NetConfig> netties) {
-		this.nettyConfs.addAll(netties);
+	public void setServers(String servers) {
+		this.servers = servers;
 	}
 
-	public void addNettyConf(NetConfig netty) {
-		this.nettyConfs.add(netty);
+	public void setServerConfigs(List<ServerConfig> serverConfigs) {
+		this.serverConfigs = serverConfigs;
 	}
 
 	@Override
@@ -57,18 +54,15 @@ public class ServiceConfig<T> extends InterfaceConfig<T> {
 			}
 		}
 		checkRef();
-
-		this.registries = conf.handleRegistries(this.registryConfs);
-		for (NetConfig nc : nettyConfs) {
-			if (nc.isUseable()) {
-				String serverName = ServerNameBuilder.getInstance().generateServerName(null, nc.getIp(), nc.getPort());
-				for (Registry r : registries) {
-					r.register(new Server(serverName, nc.getIp(), nc.getPort(), nc.getProtocol()));
-				}
-				Protocol protocol = ServiceLoader.getService(nc.getProtocol(), Protocol.class);
-				Exporter<T> e = protocol.export(getId(), interfaceClass, ref, nc);
-				exporters.add(e);
+		List<Registry> registries = conf.handleRegistries(this.registryConfs);
+		for (ServerConfig sc : serverConfigs) {
+			String serverName = ServerNameBuilder.getInstance().generateServerName(null, sc.getHost(), sc.getPort());
+			for (Registry r : registries) {
+				r.register(new Server(serverName, sc.getHost(), sc.getPort(), sc.getProtocol()));
 			}
+			Protocol protocol = ServiceLoader.getService(sc.getProtocol(), Protocol.class);
+			Exporter<T> e = protocol.export(getId(), interfaceClass, ref, new Net(sc.getHost(), sc.getPort(), sc.getProtocol()));
+			exporters.add(e);
 		}
 	}
 
@@ -80,6 +74,6 @@ public class ServiceConfig<T> extends InterfaceConfig<T> {
 
 	@Override
 	public void unexport() {
-
+		
 	}
 }

@@ -2,7 +2,7 @@ package com.freda.registry;
 
 import java.util.List;
 
-import com.freda.common.conf.RegistryConfig;
+import com.freda.common.Net;
 
 /**
  * @author wukai
@@ -40,6 +40,6 @@ public interface Registry {
 
     boolean isConnected();
 
-    RegistryConfig getConf();
+    Net getNet();
 
 }

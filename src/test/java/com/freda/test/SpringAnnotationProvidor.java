@@ -3,11 +3,10 @@ package com.freda.test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
-import com.freda.config.spring.NetBean;
 import com.freda.config.spring.RegistryBean;
+import com.freda.config.spring.ServerBean;
 import com.freda.config.spring.annotation.FredaComponentScan;
 
 /**
@@ -25,30 +24,21 @@ public class SpringAnnotationProvidor {
 	@FredaComponentScan
 	public static class SpringConfiguration {
 
-		@Bean("comsumer-1")
-		NetBean consumer_1() {
-			NetBean netBean = new NetBean();
-			netBean.setProtocol("freda");
-			netBean.setServer(false);
-			return netBean;
-		}
+		
 
 		@Bean("provider-1")
-		NetBean provider_1() {
-			NetBean netBean = new NetBean();
+		ServerBean provider_1() {
+			ServerBean netBean = new ServerBean();
 			netBean.setProtocol("freda");
-			netBean.setIp("127.0.0.1");
+			netBean.setHost("127.0.0.1");
 			netBean.setPort(8088);
-			netBean.setBossThreads(2);
-			netBean.setWorkerThreads(4);
-			netBean.setServer(true);
 			return netBean;
 		}
 
 		@Bean("registry-1")
 		RegistryBean registry_1() {
 			RegistryBean rb = new RegistryBean();
-			rb.setIp("127.0.0.1");
+			rb.setHost("127.0.0.1");
 			rb.setPort(2181);
 			rb.setProtocol("zookeeper");
 			return rb;

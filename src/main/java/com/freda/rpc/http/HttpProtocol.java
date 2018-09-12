@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.freda.common.conf.NetConfig;
+import com.freda.common.Net;
 import com.freda.remoting.web.ServletConfig;
 import com.freda.remoting.web.WebServer;
 import com.freda.remoting.web.tomcat.TomcatWebServerFactory;
@@ -28,7 +28,7 @@ public class HttpProtocol extends AbstractProtocol {
 	}
 
 	@Override
-	public <T> Invoker<T> refer(String id, Class<T> type, List<NetConfig> ncs) {
+	public <T> Invoker<T> refer(String id, Class<T> type, List<Net> ncs) {
 		URL[] urls = new URL[ncs.size()];
 		for (int i = 0; i < ncs.size(); i++) {
 			try {
@@ -42,14 +42,14 @@ public class HttpProtocol extends AbstractProtocol {
 	}
 
 	@Override
-	public <T> Exporter<T> export(String id, Class<T> type, T ref, NetConfig nc) {
+	public <T> Exporter<T> export(String id, Class<T> type, T ref, Net nc) {
 		HttpExporter<T> exporter = new HttpExporter<T>(id, type, ref);
 		getWebServer(nc);
 		FrameworkServlet.getInstance().addExpoter(nc.getPort(), exporter);
 		return exporter;
 	}
 
-	private WebServer getWebServer(NetConfig nc) {
+	private WebServer getWebServer(Net nc) {
 		WebServer ws = serverMap.get(nc.getPort());
 		if (ws == null) {
 			TomcatWebServerFactory factory = new TomcatWebServerFactory();

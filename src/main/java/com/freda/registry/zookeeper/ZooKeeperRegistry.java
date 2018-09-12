@@ -1,6 +1,6 @@
 package com.freda.registry.zookeeper;
 
-import com.freda.common.conf.RegistryConfig;
+import com.freda.common.Net;
 import com.freda.common.util.RandomUtil;
 import com.freda.registry.AbstractRegistry;
 import com.freda.registry.Server;
@@ -39,19 +39,20 @@ public class ZooKeeperRegistry extends AbstractRegistry implements Watcher {
 	/** 服务列表 <protocol, <serverName, server>> */
 	private Map<String, Server> serverMap = new ConcurrentHashMap<String, Server>();
 
-	public ZooKeeperRegistry(RegistryConfig conf) {
-		super(conf);
+	public ZooKeeperRegistry(Net net) {
+		super(net);
 	}
 
 	@Override
 	public void start() throws Exception {
 		latch = new CountDownLatch(1);
-		zk = new ZooKeeper(conf.getConnAddress(), conf.getTimeout(), this);
+		String connectAddress = net.getHost() + ":" + net.getPort();
+		zk = new ZooKeeper(connectAddress, net.getTimeout(), this);
 		latch.await();
 		recursiveSafeCreate(DEFAULT_ROOT_PATH, null, Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT, false);
 		setConnected(true);
 		fatchServer();
-		logger.debug("ZooKeeper client listen on " + conf.getConnAddress() + " success!");
+		logger.debug("ZooKeeper client listen on " + connectAddress + " success!");
 		mySpecialLogger.info("myspecial zookeeper registry success");
 	}
 

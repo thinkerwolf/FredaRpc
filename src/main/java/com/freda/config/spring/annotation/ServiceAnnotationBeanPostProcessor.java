@@ -178,6 +178,8 @@ class ServiceAnnotationBeanPostProcessor
 		}
 		builder.addPropertyValue("id", id);
 		builder.addPropertyValue("interfaceClass", interfaceClass);
+		builder.addPropertyValue("servers", service.servers());
+		builder.addPropertyValue("registries", service.registries());
 		addPropertyReference(builder, "ref", annotatedServiceBeanName);
 		return beanDefinition;
 	}

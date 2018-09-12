@@ -205,6 +205,8 @@ public class ReferenceAnnotationBeanPostProcessor extends InstantiationAwareBean
 					referenceBean.setCluster(reference.cluster());
 					referenceBean.setBalance(reference.balance());
 					referenceBean.setRetries(reference.retries());
+					referenceBean.setClients(reference.clients());
+					referenceBean.setRegistries(reference.registries());
 					try {
 						referenceBean.afterPropertiesSet();
 					} catch (Exception e) {

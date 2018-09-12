@@ -1,16 +1,16 @@
 package com.freda.remoting;
 
-import com.freda.common.conf.NetConfig;
+import com.freda.common.Net;
 import com.freda.registry.Registry;
 import com.freda.registry.Server;
 
 public abstract class RemotingServer extends AbstractRemoting {
 
-	public RemotingServer(NetConfig conf) {
+	public RemotingServer(Net conf) {
 		super(conf);
 	}
 
-	public RemotingServer(NetConfig conf, RemotingHandler handler) {
+	public RemotingServer(Net conf, RemotingHandler handler) {
 		super(conf, handler);
 	}
 

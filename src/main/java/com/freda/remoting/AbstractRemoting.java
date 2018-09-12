@@ -1,6 +1,6 @@
 package com.freda.remoting;
 
-import com.freda.common.conf.NetConfig;
+import com.freda.common.Net;
 import com.freda.registry.Registry;
 
 import java.util.Collection;
@@ -10,7 +10,7 @@ import java.util.Set;
 
 abstract class AbstractRemoting implements Remoting {
 
-    protected NetConfig conf;
+    protected Net conf;
 
     protected Set<Registry> registrys = new HashSet<>();
 
@@ -18,11 +18,11 @@ abstract class AbstractRemoting implements Remoting {
 
     protected Channel channel;
 
-    public AbstractRemoting(NetConfig conf) {
+    public AbstractRemoting(Net conf) {
         this.conf = conf;
     }
 
-    public AbstractRemoting(NetConfig conf, RemotingHandler handler) {
+    public AbstractRemoting(Net conf, RemotingHandler handler) {
         this.conf = conf;
         this.handler = handler;
     }
@@ -52,7 +52,7 @@ abstract class AbstractRemoting implements Remoting {
     }
 
     @Override
-    public NetConfig config() {
+    public Net config() {
         return conf;
     }
 

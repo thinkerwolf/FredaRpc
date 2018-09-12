@@ -8,9 +8,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.freda.common.Constants;
 import com.freda.common.util.RandomUtil;
 import com.freda.remoting.RequestMessage;

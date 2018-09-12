@@ -33,7 +33,8 @@
 					</xsd:annotation>
 				</xsd:attribute>
 				<xsd:attribute name="ref" type="xsd:string" use="required" />
-				<xsd:attribute name="contextpath" type="xsd:string" />
+				<xsd:attribute name="servers" type="xsd:string"/>
+				<xsd:attribute name="registries" type="xsd:string"/>
 			</xsd:extension>
 		</xsd:complexContent>
 	</xsd:complexType>
@@ -61,6 +62,8 @@
 		<xsd:attribute name="balance" type="xsd:string">
 			
 		</xsd:attribute>
+		<xsd:attribute name="registries" type="xsd:string" />
+		<xsd:attribute name="clients" type="xsd:string" />
 	</xsd:complexType>
 	<xsd:element name="reference" type="referenceType">
 	</xsd:element>
@@ -69,25 +72,24 @@
 	<xsd:complexType name="registryType">
 		<xsd:attribute name="id" type="xsd:string"/>
 		<xsd:attribute name="protocol" type="xsd:string" />
-		<xsd:attribute name="ip" type="xsd:string" />
+		<xsd:attribute name="host" type="xsd:string" />
 		<xsd:attribute name="port" type="xsd:int" />
+		<xsd:attribute name="timeout" type="xsd:int"/>
 	</xsd:complexType>
 	<xsd:element name="registry" type="registryType">
 	</xsd:element>
 	
-	
 	<xsd:complexType name="netType">
 		<xsd:attribute name="id" type="xsd:string"/>
-		<xsd:attribute name="ip" type="xsd:string" />
+		<xsd:attribute name="host" type="xsd:string" />
 		<xsd:attribute name="port" type="xsd:int" />
 		<xsd:attribute name="protocol" type="xsd:string" />
-		<xsd:attribute name="bossThreads" type="xsd:int" />
-		<xsd:attribute name="workerThreads" type="xsd:int" />
+		<xsd:attribute name="timeout" type="xsd:int"/>
 	</xsd:complexType>
 	
-	<xsd:element name="net-client" type="netType">
+	<xsd:element name="client" type="netType">
 	</xsd:element>
-	<xsd:element name="net-server" type="netType">
+	<xsd:element name="server" type="netType">
 	</xsd:element>
 
 

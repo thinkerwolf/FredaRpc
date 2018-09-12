@@ -1,6 +1,5 @@
 
 package com.freda.config.spring.xml;
-import com.freda.config.spring.NetBean;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.RootBeanDefinition;
@@ -120,14 +119,14 @@ public class FredaBeanDefinitionParser implements BeanDefinitionParser {
             }
         }
 
-        if (beanClass.equals(NetBean.class)) {
-            String tag = element.getTagName();
-            if (tag.endsWith("net-server")) {
-                beanDefinition.getPropertyValues().addPropertyValue("server", true);
-            } else {
-                beanDefinition.getPropertyValues().addPropertyValue("server", false);
-            }
-        }
+//        if (beanClass.equals(NetBean.class)) {
+//            String tag = element.getTagName();
+//            if (tag.endsWith("net-server")) {
+//                beanDefinition.getPropertyValues().addPropertyValue("server", true);
+//            } else {
+//                beanDefinition.getPropertyValues().addPropertyValue("server", false);
+//            }
+//        }
 
         return beanDefinition;
     }

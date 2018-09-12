@@ -1,6 +1,6 @@
 package com.freda.test;
 
-import com.freda.common.conf.NetConfig;
+import com.freda.common.Net;
 import com.freda.config.Configuration;
 import com.freda.config.ServiceConfig;
 
@@ -34,8 +34,8 @@ public class FredaApp {
 			e.printStackTrace();
 		}
 
-		NetConfig nc = new NetConfig();
-		nc.setIp("127.0.0.1");
+		Net nc = new Net();
+		nc.setHost("127.0.0.1");
 		nc.setPort(9000);
 		System.out.println(nc.uri());
 	}

@@ -7,11 +7,13 @@
        http://www.freda.com/schema/freda/freda.xsd">
 
 	<!-- registry config -->
-	<freda:registry id="registry-zookeeper-1" ip="127.0.0.1" port="2181" protocol="zookeeper" />
-	
-	<!-- netty-client config -->
-	<freda:net-client id="net-client-http-1" protocol="freda" bossThreads="2" />
+	<freda:registry id="registry-zookeeper-1" host="127.0.0.1"
+		port="2181" protocol="zookeeper" />
 
-	<freda:reference id="demoService" interface="com.freda.test.example.DemoService" balance="hash"/>
+	<!-- netty-client config -->
+	<freda:client id="client-1" protocol="freda" />
+
+	<freda:reference id="demoService" clients="client-1"
+		interface="com.freda.test.example.DemoService" balance="hash" />
 
 </beans>

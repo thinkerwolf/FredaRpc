@@ -2,7 +2,7 @@ package com.freda.rpc;
 
 import java.util.List;
 
-import com.freda.common.conf.NetConfig;
+import com.freda.common.Net;
 
 /**
  * 协议
@@ -13,8 +13,8 @@ public interface Protocol {
 	
     String name();
 
-    <T> Invoker<T> refer(String id, Class<T> type, List<NetConfig> ncs);
+    <T> Invoker<T> refer(String id, Class<T> type, List<Net> ncs);
     
-    <T> Exporter<T> export(String id, Class<T> type, T ref, NetConfig nc);
+    <T> Exporter<T> export(String id, Class<T> type, T ref, Net nc);
     
 }

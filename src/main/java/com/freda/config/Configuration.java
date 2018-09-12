@@ -1,12 +1,12 @@
 package com.freda.config;
 
+import com.freda.common.Net;
 import com.freda.common.ServiceLoader;
-import com.freda.common.conf.NetConfig;
-import com.freda.common.conf.RegistryConfig;
 import com.freda.common.util.ReflectionUtils;
 import com.freda.registry.Registry;
 import com.freda.registry.RegistryFactory;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
@@ -30,13 +30,13 @@ public class Configuration {
 	private static final Logger logger = LoggerFactory.getLogger(Configuration.class);
 	private static Configuration INSTANCE;
 	/**
-	 * common netty server config list
+	 * common netty server config map
 	 */
-	private List<NetConfig> netServerConfigs;
+	Map<String, ServerConfig> serverConfigMap;
 	/**
-	 * common netty client config
+	 * common netty client config map
 	 */
-	private NetConfig netClientConfig;
+	Map<String, ClientConfig> clientConfigMap;
 	/**
 	 * common registry config list
 	 */
@@ -97,8 +97,8 @@ public class Configuration {
 		RegistryConfig registryConfig = new RegistryConfig();
 		Map<String, InterfaceConfig<?>> serviceMap = new HashMap<>();
 		Map<String, InterfaceConfig<?>> referenceMap = new HashMap<>();
-		List<NetConfig> nettyServerConfigs = new ArrayList<>();
-		NetConfig nettyClientConfig = new NetConfig();
+		Map<String, ServerConfig> serverConfigMap = new HashMap<>();
+		Map<String, ClientConfig> clientConfigMap = new HashMap<>();
 		if (is != null) {
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 			factory.setValidating(false);
@@ -106,23 +106,27 @@ public class Configuration {
 			DocumentBuilder builder = factory.newDocumentBuilder();
 			Document doc = builder.parse(is);
 
-			// 解析Netty-server 多个
-			NodeList nettyServerNodeList = doc.getElementsByTagName("net-server");
-			for (int i = 0; i < nettyServerNodeList.getLength(); i++) {
-				NetConfig nettyConfig = new NetConfig();
-				Element nettyElement = (Element) nettyServerNodeList.item(i);
+			// 解析server
+			NodeList serverNodeList = doc.getElementsByTagName("server");
+			for (int i = 0; i < serverNodeList.getLength(); i++) {
+				ServerConfig sc = new ServerConfig();
+				Element nettyElement = (Element) serverNodeList.item(i);
 				if (nettyElement != null) {
-					parsePropertyValue(nettyElement, "property", nettyConfig);
-					nettyServerConfigs.add(nettyConfig);
+					parsePropertyValue(nettyElement, "property", sc);
+					serverConfigMap.put(sc.getId(), sc);
 				}
 			}
 
-			// 解析Netty-client 一个
-			Element nettyClientElement = (Element) doc.getElementsByTagName("net-client").item(0);
-			if (nettyClientElement != null) {
-				parsePropertyValue(nettyClientElement, "property", nettyClientConfig);
+			// 解析 client
+			NodeList clientNodeList = doc.getElementsByTagName("client");
+			for (int i = 0; i < clientNodeList.getLength(); i++) {
+				ClientConfig cc = new ClientConfig();
+				Element nettyElement = (Element) serverNodeList.item(i);
+				if (nettyElement != null) {
+					parsePropertyValue(nettyElement, "property", cc);
+					clientConfigMap.put(cc.getId(), cc);
+				}
 			}
-			configuration.setNetClientConfig(nettyClientConfig);
 
 			// 解析Registry
 			Element registryElement = (Element) doc.getElementsByTagName("registry").item(0);
@@ -144,13 +148,27 @@ public class Configuration {
 
 			is.close();
 		}
-		configuration.setNetClientConfig(nettyClientConfig);
+		configuration.setServerConfigMap(serverConfigMap);
+		configuration.setClientConfigMap(clientConfigMap);
 		configuration.addRegistryConfig(registryConfig);
-		configuration.setNetServerConfigs(nettyServerConfigs);
-
+		
 		for (InterfaceConfig<?> ic : serviceMap.values()) {
 			ic.addRegistryConf(registryConfig);
-			((ServiceConfig<?>) ic).addNettyConfs(configuration.getNetServerConfigs());
+			ServiceConfig<?> sc = (ServiceConfig<?>) ic;
+			List<ServerConfig> confs = new LinkedList<>();
+			if (StringUtils.isNotEmpty(sc.getServers())) {
+				for (String cId : sc.getServers().split(",")) {
+					ServerConfig ss = serverConfigMap.get(cId);
+					if (sc != null) {
+						confs.add(ss);
+					}
+				}
+			} else {
+				for (ServerConfig ss : serverConfigMap.values()) {
+					confs.add(ss);
+				}
+			}
+			sc.setServerConfigs(confs);
 			ic.setConf(configuration);
 			ic.export();
 			configuration.addServiceConf((ServiceConfig<?>) ic);
@@ -158,7 +176,22 @@ public class Configuration {
 
 		for (InterfaceConfig<?> ic : referenceMap.values()) {
 			ic.addRegistryConf(registryConfig);
-			((ReferenceConfig<?>) ic).setNetConf(configuration.getNetClientConfig());
+			ReferenceConfig<?> rc = (ReferenceConfig<?>) ic;
+			List<ClientConfig> clientConfs = new LinkedList<>();
+			if (StringUtils.isNotEmpty(rc.getClients())) {
+				for (String cId : rc.getClients().split(",")) {
+					ClientConfig cc = clientConfigMap.get(cId);
+					if (cc != null) {
+						clientConfs.add(cc);
+					}
+				}
+			} else {
+				for (ClientConfig cc : clientConfigMap.values()) {
+					clientConfs.add(cc);
+				}
+			}
+			rc.setClientConfs(clientConfs);
+			
 			ic.setConf(configuration);
 			ic.export();
 			configuration.addReferenceConf((ReferenceConfig<?>) ic);
@@ -241,21 +274,21 @@ public class Configuration {
 			}
 		}
 	}
-
-	public NetConfig getNetClientConfig() {
-		return netClientConfig;
+	
+	public Map<String, ServerConfig> getServerConfigMap() {
+		return serverConfigMap;
 	}
 
-	public void setNetClientConfig(NetConfig nettyClientConfig) {
-		this.netClientConfig = nettyClientConfig;
+	public void setServerConfigMap(Map<String, ServerConfig> serverConfigMap) {
+		this.serverConfigMap = serverConfigMap;
 	}
 
-	public List<NetConfig> getNetServerConfigs() {
-		return netServerConfigs;
+	public Map<String, ClientConfig> getClientConfigMap() {
+		return clientConfigMap;
 	}
 
-	public void setNetServerConfigs(List<NetConfig> netServerConfigs) {
-		this.netServerConfigs = netServerConfigs;
+	public void setClientConfigMap(Map<String, ClientConfig> clientConfigMap) {
+		this.clientConfigMap = clientConfigMap;
 	}
 
 	public List<RegistryConfig> getRegistryConfigs() {
@@ -276,7 +309,7 @@ public class Configuration {
 	}
 
 	public void removeRegistry(Registry registry) {
-		registryMap.remove(registry.getConf());
+		registryMap.remove(registry.getNet().key());
 	}
 	
 	public void addReferenceConf(ReferenceConfig<?> rc) {
@@ -370,7 +403,7 @@ public class Configuration {
 			if (registry == null) {
 				RegistryFactory rf = ServiceLoader.getService(rc.getProtocol(), RegistryFactory.class);
 				try {
-					registry = rf.getRegistry(rc);
+					registry = rf.getRegistry(new Net(rc.getHost(), rc.getPort(), rc.getProtocol(), rc.getTimeout()));
 					registry.start();
 				} catch (Exception e) {
 					e.printStackTrace();

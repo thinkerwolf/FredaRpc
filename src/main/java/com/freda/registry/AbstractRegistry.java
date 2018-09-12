@@ -1,15 +1,15 @@
 package com.freda.registry;
 
-import com.freda.common.conf.RegistryConfig;
+import com.freda.common.Net;
 
 public abstract class AbstractRegistry implements Registry {
 
-    protected RegistryConfig conf;
+    protected Net net;
 
     private boolean connected;
 
-    public AbstractRegistry(RegistryConfig conf) {
-        this.conf = conf;
+    public AbstractRegistry(Net net) {
+        this.net = net;
     }
 
     @Override
@@ -22,8 +22,8 @@ public abstract class AbstractRegistry implements Registry {
     }
 
     @Override
-    public RegistryConfig getConf() {
-        return conf;
+    public Net getNet() {
+        return net;
     }
 
 }

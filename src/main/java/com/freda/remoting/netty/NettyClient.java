@@ -1,6 +1,6 @@
 package com.freda.remoting.netty;
 
-import com.freda.common.conf.NetConfig;
+import com.freda.common.Net;
 import com.freda.remoting.*;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -19,12 +19,12 @@ public class NettyClient extends RemotingClient {
 	private ChannelFuture startFuture;
 	private EventLoopGroup bossGroup;
 
-	public NettyClient(NetConfig conf, Channel channel) {
+	public NettyClient(Net conf, Channel channel) {
 		super(conf, null);
 		this.channel = channel;
 	}
 
-	public NettyClient(NetConfig conf, RemotingHandler handler) {
+	public NettyClient(Net conf, RemotingHandler handler) {
 		super(conf, handler);
 	}
 
@@ -43,7 +43,7 @@ public class NettyClient extends RemotingClient {
 
 	@Override
 	protected Channel doConnect() {
-		startFuture = bootstrap.connect(conf.getIp(), conf.getPort());
+		startFuture = bootstrap.connect(conf.getHost(), conf.getPort());
 		this.channel = NettyChannel.getOrAddChannel(startFuture.channel());
 		boolean sent = startFuture.awaitUninterruptibly(3000);
 		if (sent && startFuture.isSuccess()) {

@@ -1,8 +1,9 @@
 package com.freda.config.spring.xml;
 
-import com.freda.config.spring.NetBean;
+import com.freda.config.spring.ClientBean;
 import com.freda.config.spring.ReferenceBean;
 import com.freda.config.spring.RegistryBean;
+import com.freda.config.spring.ServerBean;
 import com.freda.config.spring.ServiceBean;
 import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
 
@@ -18,8 +19,8 @@ public class FredaNamespaceHandler extends NamespaceHandlerSupport {
         registerBeanDefinitionParser("service", new FredaBeanDefinitionParser(ServiceBean.class));
         registerBeanDefinitionParser("reference", new FredaBeanDefinitionParser(ReferenceBean.class));
         registerBeanDefinitionParser("registry", new FredaBeanDefinitionParser(RegistryBean.class));
-        registerBeanDefinitionParser("net-server", new FredaBeanDefinitionParser(NetBean.class));
-        registerBeanDefinitionParser("net-client", new FredaBeanDefinitionParser(NetBean.class));
+        registerBeanDefinitionParser("server", new FredaBeanDefinitionParser(ServerBean.class));
+        registerBeanDefinitionParser("client", new FredaBeanDefinitionParser(ClientBean.class));
     }
 
 }
