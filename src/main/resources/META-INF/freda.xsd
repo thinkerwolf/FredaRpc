@@ -34,7 +34,6 @@
 				</xsd:attribute>
 				<xsd:attribute name="ref" type="xsd:string" use="required" />
 				<xsd:attribute name="servers" type="xsd:string"/>
-				<xsd:attribute name="registries" type="xsd:string"/>
 			</xsd:extension>
 		</xsd:complexContent>
 	</xsd:complexType>
@@ -79,7 +78,16 @@
 	<xsd:element name="registry" type="registryType">
 	</xsd:element>
 	
-	<xsd:complexType name="netType">
+	<xsd:complexType name="serverType">
+		<xsd:attribute name="id" type="xsd:string"/>
+		<xsd:attribute name="host" type="xsd:string" />
+		<xsd:attribute name="port" type="xsd:int" />
+		<xsd:attribute name="protocol" type="xsd:string" />
+		<xsd:attribute name="timeout" type="xsd:int"/>
+		<xsd:attribute name="registries" type="xsd:string" />
+	</xsd:complexType>
+	
+	<xsd:complexType name="clientType">
 		<xsd:attribute name="id" type="xsd:string"/>
 		<xsd:attribute name="host" type="xsd:string" />
 		<xsd:attribute name="port" type="xsd:int" />
@@ -87,9 +95,9 @@
 		<xsd:attribute name="timeout" type="xsd:int"/>
 	</xsd:complexType>
 	
-	<xsd:element name="client" type="netType">
+	<xsd:element name="client" type="clientType">
 	</xsd:element>
-	<xsd:element name="server" type="netType">
+	<xsd:element name="server" type="serverType">
 	</xsd:element>
 
 

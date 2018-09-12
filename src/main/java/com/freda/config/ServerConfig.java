@@ -1,5 +1,7 @@
 package com.freda.config;
 
+import java.util.List;
+
 public class ServerConfig {
 
 	protected String id;
@@ -11,7 +13,11 @@ public class ServerConfig {
 	protected String host;
 
 	protected int port;
-
+	
+	protected String registries;
+	
+	private List<RegistryConfig> registryConfigs;
+	
 	public String getId() {
 		return id;
 	}
@@ -50,6 +56,22 @@ public class ServerConfig {
 
 	public void setPort(int port) {
 		this.port = port;
+	}
+
+	public String getRegistries() {
+		return registries;
+	}
+
+	public void setRegistries(String registries) {
+		this.registries = registries;
+	}
+
+	public List<RegistryConfig> getRegistryConfigs() {
+		return registryConfigs;
+	}
+
+	public void setRegistryConfigs(List<RegistryConfig> registryConfigs) {
+		this.registryConfigs = registryConfigs;
 	}
 
 }

@@ -54,9 +54,9 @@ public class ServiceConfig<T> extends InterfaceConfig<T> {
 			}
 		}
 		checkRef();
-		List<Registry> registries = conf.handleRegistries(this.registryConfs);
 		for (ServerConfig sc : serverConfigs) {
 			String serverName = ServerNameBuilder.getInstance().generateServerName(null, sc.getHost(), sc.getPort());
+			List<Registry> registries = conf.handleRegistries(sc.getRegistryConfigs());
 			for (Registry r : registries) {
 				r.register(new Server(serverName, sc.getHost(), sc.getPort(), sc.getProtocol()));
 			}

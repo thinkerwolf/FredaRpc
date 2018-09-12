@@ -16,9 +16,6 @@ public @interface Service {
 	/** interface full name */
 	Class<?> interfaceClass();
 	
-	/** registry center */
-	String registries() default "";
-	
 	/** reference servers */
 	String servers() default "";
 	

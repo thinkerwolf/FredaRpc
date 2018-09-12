@@ -396,7 +396,7 @@ public class Configuration {
 	}
 	*/
 
-	public List<Registry> handleRegistries(Set<RegistryConfig> set) {
+	public List<Registry> handleRegistries(Collection<RegistryConfig> set) {
 		List<Registry> registries = new ArrayList<>();
 		for (RegistryConfig rc : set) {
 			Registry registry = registryMap.get(rc.key());

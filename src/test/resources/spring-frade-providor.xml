@@ -12,14 +12,19 @@
 	<freda:registry id="registry-zookeeper-1" host="127.0.0.1"
 		port="2181" protocol="zookeeper" />
 
+	<freda:registry id="registry-zookeeper-2" host="127.0.0.1"
+		port="2181" protocol="zookeeper" />
+
 	<!-- netty-server config 1 -->
-	<freda:server id="server-1" host="127.0.0.1" port="8088" protocol="freda" timeout="1000" />
+	<freda:server id="server-1" host="127.0.0.1" port="8088"
+		protocol="freda" timeout="1000" registries="registry-zookeeper-1" />
 
 	<!-- netty-server config 2 -->
-	<freda:server id="server-2" host="127.0.0.1" port="8089" protocol="http" timeout="1000" />
+	<freda:server id="server-2" host="127.0.0.1" port="8089"
+		protocol="http" timeout="1000" registries="registry-zookeeper-2" />
 
 	<freda:service interface="com.freda.test.example.DemoService"
-		ref="demoService" registries="registry-zookeeper-1" servers="server-1,server-2"/>
+		ref="demoService" servers="server-1,server-2" />
 
 
 </beans>

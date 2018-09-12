@@ -3,6 +3,7 @@ package com.freda.config.spring;
 import com.freda.config.ClientConfig;
 import com.freda.config.Configuration;
 import com.freda.config.ReferenceConfig;
+import com.freda.config.RegistryConfig;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
@@ -14,7 +15,8 @@ import org.springframework.util.StringUtils;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+
+import static com.freda.config.ConfigUtil.*;
 
 /**
  * spring reference bean
@@ -24,54 +26,55 @@ import java.util.Map;
 public class ReferenceBean<T> extends ReferenceConfig<T>
 		implements FactoryBean<T>, ApplicationContextAware, InitializingBean, DisposableBean {
 	private ApplicationContext context;
-	
+
 	private static final String CONSUMER_SPLIT = ",";
-	
+
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		this.setConf(Configuration.getInstance());
 		if (!StringUtils.hasText(getId())) {
 			this.setId(getInterface());
 		}
-		Map<String, ClientBean> beanMap = context.getBeansOfType(ClientBean.class);
-		if (beanMap == null || beanMap.size() == 0) {
+
+		List<ClientConfig> clientBeans = new LinkedList<>(context.getBeansOfType(ClientBean.class).values());
+		if (clientBeans.size() == 0) {
 			return;
 		}
 		List<ClientConfig> clientConfs = new LinkedList<>();
 		if (StringUtils.hasText(clients)) {
 			for (String cId : clients.split(CONSUMER_SPLIT)) {
-				ClientConfig cc = getClientConfig(beanMap, cId);
+				ClientConfig cc = findClientConfig(clientBeans, cId);
 				if (cc != null) {
 					clientConfs.add(cc);
 				}
 			}
 		} else {
-			for (ClientBean cc : beanMap.values()) {
+			for (ClientConfig cc : clientBeans) {
 				clientConfs.add(cc);
 			}
 		}
 		this.setClientConfs(clientConfs);
-		
+
 		if (clientConfs.size() > 0) {
-			Map<String, RegistryBean> registryBeanMap = context.getBeansOfType(RegistryBean.class);
-			for (RegistryBean rb : registryBeanMap.values()) {
-				this.addRegistryConf(rb);
+			List<RegistryConfig> registryBeans = new LinkedList<RegistryConfig>(context.getBeansOfType(RegistryBean.class).values());
+			if (StringUtils.hasText(registries)) {
+				for (String id : registries.split(CONSUMER_SPLIT)) {
+					RegistryConfig registryConfig = findRegistryConfig(registryBeans, id);
+					if (registryConfig == null) {
+						throw new RuntimeException("can't find registry named [" + id + "]");
+					}
+					this.addRegistryConf(registryConfig);
+				}
+			} else {
+				for (RegistryConfig rb : registryBeans) {
+					this.addRegistryConf(rb);
+				}
 			}
 			export();
 			Configuration.getInstance().addReferenceConf(this);
 		}
 	}
-	
-	private ClientConfig getClientConfig(Map<String, ClientBean> beanMap, String id) {
-		for (ClientBean b : beanMap.values()) {
-			if (id.equals(b.getId())) {
-				return b;
-			}
-		}
-		return null;
-	}
-	
-	
+
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		this.context = applicationContext;

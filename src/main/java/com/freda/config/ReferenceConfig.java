@@ -40,6 +40,17 @@ public class ReferenceConfig<T> extends InterfaceConfig<T> {
 
 	/** client ids {client1,client2} */
 	protected String clients;
+	
+	/** registry centers */
+	protected String registries;
+
+	public String getRegistries() {
+		return registries;
+	}
+
+	public void setRegistries(String registries) {
+		this.registries = registries;
+	}
 
 	public String getCluster() {
 		return cluster;
@@ -85,7 +96,7 @@ public class ReferenceConfig<T> extends InterfaceConfig<T> {
 	public void export() throws Exception {
 		// 暴露
 		List<Registry> registries = conf.handleRegistries(this.registryConfs);
-		
+
 		/** mulitple clients */
 		if (clientConfs == null || clientConfs.size() == 0) {
 			throw new ReferenceConfigException("lack client config");

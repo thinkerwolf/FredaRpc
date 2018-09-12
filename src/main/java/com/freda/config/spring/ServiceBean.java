@@ -44,10 +44,10 @@ public class ServiceBean<T> extends ServiceConfig<T> implements InitializingBean
 		}
 		this.setServerConfigs(serverConfigs);
 		if (serverConfigs.size() > 0) {
-			Map<String, RegistryBean> registryBeanMap = context.getBeansOfType(RegistryBean.class);
-			for (RegistryBean rb : registryBeanMap.values()) {
-				this.addRegistryConf(rb);
-			}
+//			Map<String, RegistryBean> registryBeanMap = context.getBeansOfType(RegistryBean.class);
+//			for (RegistryBean rb : registryBeanMap.values()) {
+//				this.addRegistryConf(rb);
+//			}
 			export();
 			Configuration.getInstance().addServiceConf(this);
 		}
