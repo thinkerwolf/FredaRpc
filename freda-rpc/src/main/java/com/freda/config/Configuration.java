@@ -190,7 +190,7 @@ public class Configuration {
 					clientConfs.add(cc);
 				}
 			}
-			rc.setClientConfs(clientConfs);
+			rc.setClientConfigs(clientConfs);
 			
 			ic.setConf(configuration);
 			ic.export();

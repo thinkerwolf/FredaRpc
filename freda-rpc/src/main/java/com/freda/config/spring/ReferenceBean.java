@@ -25,6 +25,9 @@ import static com.freda.config.ConfigUtil.*;
  */
 public class ReferenceBean<T> extends ReferenceConfig<T>
 		implements FactoryBean<T>, ApplicationContextAware, InitializingBean, DisposableBean {
+	
+	private static final long serialVersionUID = -6731451098024965342L;
+
 	private ApplicationContext context;
 
 	private static final String CONSUMER_SPLIT = ",";
@@ -53,7 +56,7 @@ public class ReferenceBean<T> extends ReferenceConfig<T>
 				clientConfs.add(cc);
 			}
 		}
-		this.setClientConfs(clientConfs);
+		this.setClientConfigs(clientConfs);
 
 		if (clientConfs.size() > 0) {
 			List<RegistryConfig> registryBeans = new LinkedList<RegistryConfig>(context.getBeansOfType(RegistryBean.class).values());

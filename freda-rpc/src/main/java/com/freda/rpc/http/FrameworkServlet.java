@@ -83,5 +83,11 @@ public class FrameworkServlet extends HttpServlet {
 		}
 		return null;
 	}
-
+	
+	public synchronized void removeExpoter(Exporter<?> exporter) {
+		for (Map<String, Exporter<?>> exporterMap : exporters.values()) {
+			exporterMap.remove("/services/" + exporter.id());
+		}
+	}
+	
 }

@@ -43,8 +43,12 @@ public class ServerRemotingHandler implements RemotingHandler {
 		send(remoting, responseMessage);
 	}
 
-	public void addExeporter(Exporter<?> e) {
+	public void addExporter(Exporter<?> e) {
 		exporters.put(e.id(), e);
 	}
-
+	
+	public void removeExporter(Exporter<?> e) {
+		exporters.remove(e.id());
+	}
+	
 }

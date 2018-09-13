@@ -27,10 +27,11 @@ import com.freda.rpc.cluster.Cluster;
  * @author wukai
  */
 public class ReferenceConfig<T> extends InterfaceConfig<T> {
+	private static final long serialVersionUID = 1076932816528937347L;
 
 	private Invoker<T> invoker;
 
-	private List<ClientConfig> clientConfs;
+	private List<ClientConfig> clientConfigs;
 
 	protected String cluster = "failfast";
 
@@ -40,7 +41,7 @@ public class ReferenceConfig<T> extends InterfaceConfig<T> {
 
 	/** client ids {client1,client2} */
 	protected String clients;
-	
+
 	/** registry centers */
 	protected String registries;
 
@@ -84,26 +85,24 @@ public class ReferenceConfig<T> extends InterfaceConfig<T> {
 		this.clients = clients;
 	}
 
-	public List<ClientConfig> getClientConfs() {
-		return clientConfs;
-	}
-
-	public void setClientConfs(List<ClientConfig> clientConfs) {
-		this.clientConfs = clientConfs;
+	public void setClientConfigs(List<ClientConfig> clientConfigs) {
+		this.clientConfigs = clientConfigs;
 	}
 
 	@Override
-	public void export() throws Exception {
-		// 暴露
+	public synchronized void export() throws Exception {
+		if (initialized) {
+			return;
+		}
+		initialized = true;
 		List<Registry> registries = conf.handleRegistries(this.registryConfs);
-
 		/** mulitple clients */
-		if (clientConfs == null || clientConfs.size() == 0) {
+		if (clientConfigs == null || clientConfigs.size() == 0) {
 			throw new ReferenceConfigException("lack client config");
 		}
 
-		List<Invoker<T>> invokers = new LinkedList<>();
-		for (ClientConfig cc : clientConfs) {
+		List<Invoker<T>> invokers = new ArrayList<>();
+		for (ClientConfig cc : clientConfigs) {
 			if (cc.isUsable()) {
 				Protocol protocol = ServiceLoader.getService(cc.getProtocol(), Protocol.class);
 				List<Net> ncs = new ArrayList<>(1);
@@ -134,18 +133,22 @@ public class ReferenceConfig<T> extends InterfaceConfig<T> {
 		}
 		List<Net> netConfs = new LinkedList<>();
 		for (Server s : servers) {
-			Net nc = new Net();
-			nc.setHost(s.getHost());
-			nc.setPort(s.getPort());
-			nc.setProtocol(s.getProtocol());
+			Net nc = new Net(s.getHost(), s.getPort(), s.getProtocol());
 			netConfs.add(nc);
 		}
 		return netConfs;
 	}
 
 	@Override
-	public void unexport() throws Exception {
-
+	public synchronized void unexport() throws Exception {
+		// unexport reference config
+		if (destory) {
+			return;
+		}
+		destory = true;
+		if (this.invoker != null) {
+			this.invoker.destory();
+		}
 	}
 
 	public Invoker<T> getInvoker() {
@@ -160,7 +163,21 @@ public class ReferenceConfig<T> extends InterfaceConfig<T> {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public T getRef() {
+	public synchronized T getRef() {
+		if (destory) {
+			 throw new IllegalStateException("Reference destroyed!");
+		}
+		if (!initialized) {
+			synchronized (this) {
+				if (!initialized) {
+					try {
+						export();
+					} catch (Exception e) {
+						throw new ReferenceConfigException("Reference initial error", e);
+					}
+				}
+			}
+		}
 		if (ref == null) {
 			synchronized (this) {
 				if (ref == null) {

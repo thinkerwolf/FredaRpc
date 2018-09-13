@@ -10,7 +10,9 @@ public abstract class AbstractExporter<T> implements Exporter<T> {
 	protected Class<T> type;
 
 	protected T ref;
-
+	
+	protected volatile boolean destory;
+	
 	public AbstractExporter(String id, Class<T> type, T ref) {
 		this.id = id;
 		this.type = type;

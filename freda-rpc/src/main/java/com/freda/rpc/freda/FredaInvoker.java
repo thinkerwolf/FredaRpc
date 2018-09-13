@@ -13,7 +13,7 @@ import com.freda.rpc.RpcException;
 public class FredaInvoker<T> extends AbstractInvoker<T> {
 
 	private RemotingClient[] clients;
-
+	
 	private AtomicInteger round = new AtomicInteger(0);
 
 	public FredaInvoker(String id, Class<T> type, RemotingClient[] clients) {
@@ -39,6 +39,20 @@ public class FredaInvoker<T> extends AbstractInvoker<T> {
 			return ResultBuilder.buildSuccessResult(rf.getResult());
 		} else {
 			return ResultBuilder.buildFailResult();
+		}
+	}
+
+	@Override
+	public synchronized void destory() {
+		if (destory) {
+			return;
+		}
+		destory = true;
+		if (clients != null) {
+			for (int i = 0; i < clients.length; i++) {
+				clients[i] = null;
+			}
+			clients = null;
 		}
 	}
 

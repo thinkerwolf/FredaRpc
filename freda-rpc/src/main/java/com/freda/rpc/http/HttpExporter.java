@@ -9,4 +9,13 @@ public class HttpExporter<T> extends AbstractExporter<T> {
 		super(id, type, ref);
 	}
 
+	@Override
+	public synchronized void destory() {
+		if (destory) {
+			return;
+		}
+		destory = true;
+		FrameworkServlet.getInstance().removeExpoter(this);
+	}
+
 }

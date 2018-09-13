@@ -11,4 +11,7 @@ public interface Exporter<T> {
 
 	Object invoke(String methodName, Class<?>[] parameterTypes, Object[] parameterValues) throws NoSuchMethodException,
 			SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException;
+	
+	
+	void destory();
 }

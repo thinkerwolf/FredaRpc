@@ -59,9 +59,10 @@ public class FredaProtocol extends AbstractProtocol {
 
 	@Override
 	public <T> Exporter<T> export(String id, Class<T> type, T ref, Net nc) {
-		FredaExporter<T> e = new FredaExporter<T>(id, type, ref);
 		RemotingServer server = getServer(nc);
-		((ServerRemotingHandler) server.handler()).addExeporter(e);
+		ServerRemotingHandler handler = (ServerRemotingHandler) server.handler();
+		FredaExporter<T> e = new FredaExporter<T>(id, type, ref, handler);
+		handler.addExporter(e);
 		return e;
 	}
 

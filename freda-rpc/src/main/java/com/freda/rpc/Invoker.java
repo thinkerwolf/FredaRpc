@@ -20,4 +20,7 @@ public interface Invoker<T> {
 	 * @return
 	 */
 	String id();
+	
+	void destory();
+	
 }

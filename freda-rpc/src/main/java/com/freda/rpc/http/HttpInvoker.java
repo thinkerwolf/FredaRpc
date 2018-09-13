@@ -98,4 +98,18 @@ public class HttpInvoker<T> extends AbstractInvoker<T> {
 		}
 	}
 
+	@Override
+	public synchronized void destory() {
+		if (destory) {
+			return;
+		}
+		destory = true;
+		if (urls != null) {
+			for (int i = 0; i < urls.length; i++) {
+				urls[i] = null;
+			}
+			urls = null;
+		}
+	}
+
 }

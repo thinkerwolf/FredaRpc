@@ -6,23 +6,18 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-public abstract class InterfaceConfig<T> {
+public abstract class InterfaceConfig<T> extends AbstractConfig {
 
-	protected String id;
+	private static final long serialVersionUID = -8252027163488953256L;
 	protected Class<T> interfaceClass;
 	protected String interfaceName;
 	protected Set<RegistryConfig> registryConfs = new HashSet<RegistryConfig>();
-	protected T ref;
 	protected Configuration conf;
 	
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
-
+	protected transient T ref;
+	protected transient volatile boolean destory;
+	protected transient volatile boolean initialized;
+	
 	public void setInterfaceClass(Class<T> interfaceClass) {
 		this.interfaceClass = interfaceClass;
 		this.interfaceName = interfaceClass.getName();

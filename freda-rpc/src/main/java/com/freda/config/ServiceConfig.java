@@ -18,6 +18,8 @@ import java.util.List;
  */
 public class ServiceConfig<T> extends InterfaceConfig<T> {
 
+	private static final long serialVersionUID = 7810449405775349100L;
+
 	private List<Exporter<T>> exporters = new LinkedList<>();
 
 	private List<ServerConfig> serverConfigs;
@@ -45,7 +47,11 @@ public class ServiceConfig<T> extends InterfaceConfig<T> {
 	 * 暴漏接口
 	 */
 	@SuppressWarnings("unchecked")
-	public void export() throws Exception {
+	public synchronized void export() throws Exception {
+		if (initialized) {
+			return;
+		}
+		initialized = true;
 		if (interfaceClass == null) {
 			try {
 				interfaceClass = (Class<T>) Class.forName(interfaceName == null ? "" : interfaceName);
@@ -73,7 +79,15 @@ public class ServiceConfig<T> extends InterfaceConfig<T> {
 	}
 
 	@Override
-	public void unexport() {
-		
+	public synchronized void unexport() {
+		if (destory) {
+			return;
+		}
+		destory = true;
+		if (this.exporters != null) {
+			for (Exporter<T> exporter : exporters) {
+				exporter.destory();
+			}
+		}
 	}
 }

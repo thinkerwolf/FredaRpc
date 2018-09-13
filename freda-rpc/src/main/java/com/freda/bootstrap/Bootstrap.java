@@ -5,7 +5,7 @@ import com.freda.config.ReferenceConfig;
 import com.freda.remoting.RemotingClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+@Deprecated
 public class Bootstrap {
     private static final Logger logger = LoggerFactory.getLogger(Bootstrap.class);
     private Configuration conf;

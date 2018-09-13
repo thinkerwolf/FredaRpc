@@ -2,9 +2,9 @@ package com.freda.config;
 
 import java.util.List;
 
-public class ServerConfig {
+public class ServerConfig extends AbstractConfig {
 
-	protected String id;
+	private static final long serialVersionUID = 5587883607556110077L;
 
 	protected String netframe;
 
@@ -13,18 +13,10 @@ public class ServerConfig {
 	protected String host;
 
 	protected int port;
-	
-	protected String registries;
-	
-	private List<RegistryConfig> registryConfigs;
-	
-	public String getId() {
-		return id;
-	}
 
-	public void setId(String id) {
-		this.id = id;
-	}
+	protected String registries;
+
+	private List<RegistryConfig> registryConfigs;
 
 	public String getNetframe() {
 		return netframe;

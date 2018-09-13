@@ -15,6 +15,7 @@ import com.freda.config.ServerConfig;
 
 public class ServerBean extends ServerConfig implements InitializingBean, ApplicationContextAware {
 
+	private static final long serialVersionUID = 6239152627447353279L;
 	private ApplicationContext context;
 
 	@Override

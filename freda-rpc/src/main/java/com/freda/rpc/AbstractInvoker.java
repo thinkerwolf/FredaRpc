@@ -3,7 +3,7 @@ package com.freda.rpc;
 public abstract class AbstractInvoker<T> implements Invoker<T> {
 	private Class<T> type;
 	private String id;
-
+	protected volatile boolean destory;
 	public AbstractInvoker(String id, Class<T> type) {
 		this.id = id;
 		this.type = type;
@@ -17,5 +17,5 @@ public abstract class AbstractInvoker<T> implements Invoker<T> {
 	public String id() {
 		return id;
 	}
-
+	
 }

@@ -37,5 +37,12 @@ public abstract class AbstractClusterInvoker<T> implements Invoker<T> {
 	public String id() {
 		return String.valueOf(this.hashCode());
 	}
-
+	
+	
+	@Override
+	public void destory() {
+		for (Invoker<T> invoker : invokers) {
+			invoker.destory();
+		}
+	}
 }

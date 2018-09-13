@@ -20,6 +20,7 @@ import java.util.Map;
  */
 public class ServiceBean<T> extends ServiceConfig<T> implements InitializingBean, ApplicationContextAware {
 
+	private static final long serialVersionUID = 6976581859976697485L;
 	private ApplicationContext context;
 
 	@Override
