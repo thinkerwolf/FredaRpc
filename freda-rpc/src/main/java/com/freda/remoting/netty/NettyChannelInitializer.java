@@ -33,14 +33,19 @@ class NettyChannelInitializer extends ChannelInitializer<Channel> {
 	static class InnerEncoder extends MessageToByteEncoder<Object> {
 		@Override
 		protected void encode(ChannelHandlerContext ctx, Object msg, ByteBuf out) throws Exception {
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			ObjectOutputStream oos = new ObjectOutputStream(baos);
-			oos.writeObject(msg);
-			byte[] msgBytes = baos.toByteArray();
-			out.writeInt(msgBytes.length);
-			out.writeBytes(msgBytes);
-			oos.close();
-			baos.close();
+			try {
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				ObjectOutputStream oos = new ObjectOutputStream(baos);
+				oos.writeObject(msg);
+				byte[] msgBytes = baos.toByteArray();
+				out.writeInt(msgBytes.length);
+				out.writeBytes(msgBytes);
+				oos.close();
+				baos.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
 		}
 	}
 

@@ -61,6 +61,7 @@
 		<xsd:attribute name="balance" type="xsd:string">
 			
 		</xsd:attribute>
+		<xsd:attribute name="async" type="xsd:boolean"/>
 		<xsd:attribute name="registries" type="xsd:string" />
 		<xsd:attribute name="clients" type="xsd:string" />
 	</xsd:complexType>

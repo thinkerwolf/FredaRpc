@@ -8,24 +8,22 @@ import java.util.Map;
 public class RequestMessage implements Serializable {
 
 	/**
-	 *
+	 * 
 	 */
-	private static final long serialVersionUID = -5906021628390669682L;
-	
+	private static final long serialVersionUID = 75921896613832425L;
 	String clazzName;
 	String methodName;
 	Object[] args;
 	Class<?>[] parameterTypes;
-	
-	private int id;
+	private int requestId;
 	private Map<String, Object> parameters;
-	
-	public int getId() {
-		return id;
+
+	public int getRequestId() {
+		return requestId;
 	}
 
-	public void setId(int id) {
-		this.id = id;
+	public void setRequestId(int requestId) {
+		this.requestId = requestId;
 	}
 
 	public String getMethodName() {

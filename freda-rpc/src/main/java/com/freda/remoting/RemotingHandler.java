@@ -1,5 +1,7 @@
 package com.freda.remoting;
 
+import com.freda.rpc.RpcFuture;
+
 /**
  * 处理
  *

@@ -17,16 +17,21 @@ public abstract class AbstractClusterInvoker<T> implements Invoker<T> {
 	public AbstractClusterInvoker(List<Invoker<T>> invokers) {
 		this.invokers = invokers;
 	}
-
+	
 	@Override
 	public Result invoke(RequestMessage inv) throws RpcException {
-		String balance = String.valueOf(inv.getParameter(Constants.BALANCE, Constants.DEFAULT_BALANCE_TYPE));
-		BalanceStrategy balanceStrategy = ServiceLoader.getService(balance, BalanceStrategy.class);
-		return doInvoker(invokers, inv, balanceStrategy);
+		return invoke(inv, false);
 	}
 
+	@Override
+	public Result invoke(RequestMessage inv, boolean isAsync) throws RpcException {
+		String balance = String.valueOf(inv.getParameter(Constants.BALANCE, Constants.DEFAULT_BALANCE_TYPE));
+		BalanceStrategy balanceStrategy = ServiceLoader.getService(balance, BalanceStrategy.class);
+		return doInvoker(invokers, inv, balanceStrategy, isAsync);
+	}
+	
 	protected abstract Result doInvoker(List<Invoker<T>> invokers, RequestMessage inv,
-			BalanceStrategy balanceStrategy);
+			BalanceStrategy balanceStrategy, boolean isAsync);
 
 	@Override
 	public Class<T> getType() {

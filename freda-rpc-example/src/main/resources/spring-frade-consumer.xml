@@ -14,6 +14,6 @@
 	<freda:client id="client-1" protocol="freda" />
 
 	<freda:reference id="demoService" clients="client-1"
-		interface="com.freda.example.bean.DemoService" balance="hash" />
+		interface="com.freda.example.bean.DemoService" balance="hash" async="false"/>
 
 </beans>

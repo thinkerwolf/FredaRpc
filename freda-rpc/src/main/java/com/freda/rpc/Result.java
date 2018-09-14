@@ -1,9 +1,9 @@
 package com.freda.rpc;
 
 public class Result {
-
+	/** 网络请求成功 */
 	private boolean success;
-
+	/** 网络请求结果 */
 	private Object value;
 
 	public Result(boolean success, Object value) {

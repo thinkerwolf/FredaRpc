@@ -10,6 +10,16 @@ public interface Invoker<T> {
 	 * @throws RpcException
 	 */
 	Result invoke(RequestMessage inv) throws RpcException;
+	
+	/**
+	 * invoke async if callback is not null, otherwise sync
+	 * @param inv
+	 * @param callback
+	 * @return
+	 * @throws RpcException
+	 */
+	Result invoke(RequestMessage inv, boolean isAsync) throws RpcException;
+	
 	/**
 	 * rpc interface
 	 * @return

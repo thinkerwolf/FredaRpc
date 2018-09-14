@@ -3,7 +3,6 @@ package com.freda.rpc;
 import com.freda.remoting.Remoting;
 import com.freda.remoting.RemotingHandler;
 import com.freda.remoting.RequestMessage;
-import com.freda.remoting.RpcFuture;
 import com.freda.remoting.ResponseMessage;
 
 import java.util.Map;
@@ -35,7 +34,7 @@ public class ClientRemotingHandler implements RemotingHandler {
 	@Override
 	public RpcFuture send(Remoting remoting, Object msg) {
 		RpcFuture rf = new RpcFuture();
-		waitResultMap.put(((RequestMessage) msg).getId(), rf);
+		waitResultMap.put(((RequestMessage) msg).getRequestId(), rf);
 		remoting.channel().send(msg);
 		return rf;
 	}
@@ -67,14 +66,9 @@ public class ClientRemotingHandler implements RemotingHandler {
 
 		@Override
 		public void run() {
-			try {
-				RpcFuture rf = waitResultMap.remove(responseMessage.getId());
-				if (rf != null) {
-					rf.setResult(responseMessage.getResult());
-					rf.setSuccess(responseMessage.isSuccess());
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
+			RpcFuture rf = waitResultMap.remove(responseMessage.getId());
+			if (rf != null) {
+				rf.setSuccess(responseMessage.isSuccess(), responseMessage.getResult());
 			}
 		}
 	}

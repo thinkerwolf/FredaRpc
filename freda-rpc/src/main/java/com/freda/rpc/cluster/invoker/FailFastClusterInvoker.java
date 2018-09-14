@@ -15,9 +15,9 @@ public class FailFastClusterInvoker<T> extends AbstractClusterInvoker<T> {
 	}
 
 	@Override
-	protected Result doInvoker(List<Invoker<T>> invokers, RequestMessage inv, BalanceStrategy balanceStrategy) {
+	protected Result doInvoker(List<Invoker<T>> invokers, RequestMessage inv, BalanceStrategy balanceStrategy, boolean isAsync) {
 		Invoker<T> invoker = balanceStrategy.balance(inv, invokers);
-		return invoker.invoke(inv);
+		return invoker.invoke(inv, isAsync);
 	}
 
 }

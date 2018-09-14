@@ -4,11 +4,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.freda.remoting.RemotingClient;
 import com.freda.remoting.RequestMessage;
-import com.freda.remoting.RpcFuture;
 import com.freda.rpc.AbstractInvoker;
+import com.freda.rpc.Context;
 import com.freda.rpc.Result;
 import com.freda.rpc.ResultBuilder;
 import com.freda.rpc.RpcException;
+import com.freda.rpc.RpcFuture;
+import com.freda.rpc.RpcFutureListener;
 
 public class FredaInvoker<T> extends AbstractInvoker<T> {
 
@@ -23,6 +25,11 @@ public class FredaInvoker<T> extends AbstractInvoker<T> {
 
 	@Override
 	public Result invoke(RequestMessage inv) throws RpcException {
+		return invoke(inv, false);
+	}
+	
+	@Override
+	public Result invoke(RequestMessage inv, final boolean isAsync) throws RpcException {
 		RemotingClient client = null;
 		if (clients.length == 1) {
 			client = clients[0];
@@ -30,18 +37,34 @@ public class FredaInvoker<T> extends AbstractInvoker<T> {
 			client = clients[Math.abs(round.getAndIncrement() % clients.length)];
 		}
 		RpcFuture rf = client.handler().send(client, inv);
-		try {
-			rf.sync();
-		} catch (InterruptedException e) {
-			throw new RpcException("Rpc future sync exception", e);
-		}
-		if (rf.isSuccess()) {
-			return ResultBuilder.buildSuccessResult(rf.getResult());
+		
+		if (isAsync) {
+			Context context = Context.getContext();
+			rf.addListener(new RpcFutureListener() {
+				@Override
+				public void onSuccess(Object result) {
+					//callback.onCompletion(result);
+				}
+				@Override
+				public void onFailure() {
+					//callback.onError(new RpcException("Invoke fail"));
+				}
+			});
+			return ResultBuilder.buildSuccessResult(null);
 		} else {
-			return ResultBuilder.buildFailResult();
+			try {
+				rf.sync();
+			} catch (InterruptedException e) {
+				throw new RpcException("Rpc future sync exception", e);
+			}
+			if (rf.isSuccess()) {
+				return ResultBuilder.buildSuccessResult(rf.getResult());
+			} else {
+				return ResultBuilder.buildFailResult();
+			}
 		}
 	}
-
+	
 	@Override
 	public synchronized void destory() {
 		if (destory) {
@@ -55,5 +78,7 @@ public class FredaInvoker<T> extends AbstractInvoker<T> {
 			clients = null;
 		}
 	}
+
+	
 
 }

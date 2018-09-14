@@ -48,4 +48,6 @@ public @interface Reference {
 	/** reference clients */
 	String clients() default "";
 	
+	boolean async() default false;
+	
 }

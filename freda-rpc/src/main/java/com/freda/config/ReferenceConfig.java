@@ -18,6 +18,7 @@ import com.freda.registry.Server;
 import com.freda.remoting.RequestMessage;
 import com.freda.rpc.Invoker;
 import com.freda.rpc.Protocol;
+import com.freda.rpc.Result;
 import com.freda.rpc.cluster.Cluster;
 
 /**
@@ -44,6 +45,8 @@ public class ReferenceConfig<T> extends InterfaceConfig<T> {
 
 	/** registry centers */
 	protected String registries;
+	/** method invoke async */
+	protected boolean async;
 
 	public String getRegistries() {
 		return registries;
@@ -83,6 +86,14 @@ public class ReferenceConfig<T> extends InterfaceConfig<T> {
 
 	public void setClients(String clients) {
 		this.clients = clients;
+	}
+
+	public boolean isAsync() {
+		return async;
+	}
+
+	public void setAsync(boolean async) {
+		this.async = async;
 	}
 
 	public void setClientConfigs(List<ClientConfig> clientConfigs) {
@@ -165,7 +176,7 @@ public class ReferenceConfig<T> extends InterfaceConfig<T> {
 	@Override
 	public synchronized T getRef() {
 		if (destory) {
-			 throw new IllegalStateException("Reference destroyed!");
+			throw new IllegalStateException("Reference destroyed!");
 		}
 		if (!initialized) {
 			synchronized (this) {
@@ -188,12 +199,15 @@ public class ReferenceConfig<T> extends InterfaceConfig<T> {
 							RequestMessage r = new RequestMessage();
 							r.setArgs(args);
 							r.setMethodName(method.getName());
-							r.setId(genId());
+							r.setRequestId(genId());
 							r.setClazzName(getId());
 							r.setParameterTypes(method.getParameterTypes());
 							r.putParameter(Constants.RETRIES, rc.getRetries());
 							r.putParameter(Constants.BALANCE, rc.getBalance());
-							return rc.getInvoker().invoke(r).getValue();
+							
+							boolean isAsync = rc.isAsync();
+							Result result  = rc.getInvoker().invoke(r, isAsync);
+							return result == null ? null : result.getValue();
 						}
 					});
 					ref = ((T) obj);

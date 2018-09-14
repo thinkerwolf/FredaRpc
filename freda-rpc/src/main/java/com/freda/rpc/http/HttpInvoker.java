@@ -29,6 +29,11 @@ public class HttpInvoker<T> extends AbstractInvoker<T> {
 
 	@Override
 	public Result invoke(RequestMessage inv) throws RpcException {
+		return invoke(inv, false);
+	}
+
+	@Override
+	public Result invoke(RequestMessage inv, boolean isAsync) throws RpcException {
 		HttpURLConnection connection = null;
 		InputStream is = null;
 		OutputStream os = null;

@@ -24,11 +24,11 @@ public class FailOverClusterInvoker<T> extends AbstractClusterInvoker<T> {
 	}
 
 	@Override
-	protected Result doInvoker(List<Invoker<T>> invokers, RequestMessage inv, BalanceStrategy balanceStrategy) {
+	protected Result doInvoker(List<Invoker<T>> invokers, RequestMessage inv, BalanceStrategy balanceStrategy, boolean isAsync) {
 		int retries = (int) inv.getParameter(Constants.RETRIES, Constants.DEFAULT_RETRY_TIMES) + 1;
 		for (int i = 0; i < retries; i++) {
 			Invoker<T> invoker = balanceStrategy.balance(inv, invokers);
-			Result result = invoker.invoke(inv);
+			Result result = invoker.invoke(inv, isAsync);
 			if (result.isSuccess()) {
 				return result;
 			}

@@ -3,7 +3,6 @@ package com.freda.rpc;
 import com.freda.remoting.Remoting;
 import com.freda.remoting.RemotingHandler;
 import com.freda.remoting.RequestMessage;
-import com.freda.remoting.RpcFuture;
 import com.freda.remoting.ResponseMessage;
 
 import java.util.Map;
@@ -26,7 +25,7 @@ public class ServerRemotingHandler implements RemotingHandler {
 		ResponseMessage responseMessage = new ResponseMessage();
 		try {
 			Exporter<?> exporter = exporters.get(requestMessage.getClazzName());
-			responseMessage.setId(requestMessage.getId());
+			responseMessage.setId(requestMessage.getRequestId());
 			if (exporter != null) {
 				Object result = exporter.invoke(requestMessage.getMethodName(), requestMessage.getParameterTypes(),
 						requestMessage.getArgs());
