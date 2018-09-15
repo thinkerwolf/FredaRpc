@@ -6,9 +6,9 @@ import com.freda.registry.RegistryFactory;
 
 public class ZookeeperRegistryFactory implements RegistryFactory {
 
-	@Override
-	public Registry getRegistry(Net net) {
-		return new ZooKeeperRegistry(net);
-	}
+    @Override
+    public Registry getRegistry(Net net) {
+        return new ZooKeeperRegistry(net);
+    }
 
 }

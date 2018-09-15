@@ -8,66 +8,66 @@ import java.util.Set;
 
 public abstract class InterfaceConfig<T> extends AbstractConfig {
 
-	private static final long serialVersionUID = -8252027163488953256L;
-	protected Class<T> interfaceClass;
-	protected String interfaceName;
-	protected Set<RegistryConfig> registryConfs = new HashSet<RegistryConfig>();
-	protected Configuration conf;
-	
-	protected transient T ref;
-	protected transient volatile boolean destory;
-	protected transient volatile boolean initialized;
-	
-	public void setInterfaceClass(Class<T> interfaceClass) {
-		this.interfaceClass = interfaceClass;
-		this.interfaceName = interfaceClass.getName();
-	}
+    private static final long serialVersionUID = -8252027163488953256L;
+    protected Class<T> interfaceClass;
+    protected String interfaceName;
+    protected Set<RegistryConfig> registryConfs = new HashSet<RegistryConfig>();
+    protected Configuration conf;
 
-	public Class<T> getInterfaceClass() {
-		return interfaceClass;
-	}
+    protected transient T ref;
+    protected transient volatile boolean destory;
+    protected transient volatile boolean initialized;
 
-	public String getInterface() {
-		return interfaceName;
-	}
+    public Class<T> getInterfaceClass() {
+        return interfaceClass;
+    }
 
-	@SuppressWarnings("unchecked")
-	public void setInterface(String interfaceName) {
-		this.interfaceName = interfaceName;
-		this.interfaceClass = (Class<T>) ReflectionUtils.getClassByName(interfaceName);
-	}
+    public void setInterfaceClass(Class<T> interfaceClass) {
+        this.interfaceClass = interfaceClass;
+        this.interfaceName = interfaceClass.getName();
+    }
 
-	public Set<RegistryConfig> getRegistryConfs() {
-		return registryConfs;
-	}
+    public String getInterface() {
+        return interfaceName;
+    }
 
-	public void addRegistryConfs(Collection<RegistryConfig> registrys) {
-		this.registryConfs.addAll(registrys);
-	}
+    @SuppressWarnings("unchecked")
+    public void setInterface(String interfaceName) {
+        this.interfaceName = interfaceName;
+        this.interfaceClass = (Class<T>) ReflectionUtils.getClassByName(interfaceName);
+    }
 
-	public void addRegistryConf(RegistryConfig registry) {
-		this.registryConfs.add(registry);
-	}
+    public Set<RegistryConfig> getRegistryConfs() {
+        return registryConfs;
+    }
 
-	public T getRef() {
-		return ref;
-	}
+    public void addRegistryConfs(Collection<RegistryConfig> registrys) {
+        this.registryConfs.addAll(registrys);
+    }
 
-	public void setRef(T ref) {
-		this.ref = ref;
-	}
+    public void addRegistryConf(RegistryConfig registry) {
+        this.registryConfs.add(registry);
+    }
 
-	public void setConf(Configuration conf) {
-		this.conf = conf;
-	}
+    public T getRef() {
+        return ref;
+    }
 
-	/**
-	 * export
-	 */
-	public abstract void export() throws Exception;
+    public void setRef(T ref) {
+        this.ref = ref;
+    }
 
-	/**
-	 * unexport
-	 */
-	public abstract void unexport() throws Exception;
+    public void setConf(Configuration conf) {
+        this.conf = conf;
+    }
+
+    /**
+     * export
+     */
+    public abstract void export() throws Exception;
+
+    /**
+     * unexport
+     */
+    public abstract void unexport() throws Exception;
 }

@@ -4,66 +4,66 @@ import java.util.List;
 
 public class ServerConfig extends AbstractConfig {
 
-	private static final long serialVersionUID = 5587883607556110077L;
+    private static final long serialVersionUID = 5587883607556110077L;
 
-	protected String netframe;
+    protected String netframe;
 
-	protected String protocol;
+    protected String protocol;
 
-	protected String host;
+    protected String host;
 
-	protected int port;
+    protected int port;
 
-	protected String registries;
+    protected String registries;
 
-	private List<RegistryConfig> registryConfigs;
+    private List<RegistryConfig> registryConfigs;
 
-	public String getNetframe() {
-		return netframe;
-	}
+    public String getNetframe() {
+        return netframe;
+    }
 
-	public void setNetframe(String netframe) {
-		this.netframe = netframe;
-	}
+    public void setNetframe(String netframe) {
+        this.netframe = netframe;
+    }
 
-	public String getProtocol() {
-		return protocol;
-	}
+    public String getProtocol() {
+        return protocol;
+    }
 
-	public void setProtocol(String protocol) {
-		this.protocol = protocol;
-	}
+    public void setProtocol(String protocol) {
+        this.protocol = protocol;
+    }
 
-	public String getHost() {
-		return host;
-	}
+    public String getHost() {
+        return host;
+    }
 
-	public void setHost(String host) {
-		this.host = host;
-	}
+    public void setHost(String host) {
+        this.host = host;
+    }
 
-	public int getPort() {
-		return port;
-	}
+    public int getPort() {
+        return port;
+    }
 
-	public void setPort(int port) {
-		this.port = port;
-	}
+    public void setPort(int port) {
+        this.port = port;
+    }
 
-	public String getRegistries() {
-		return registries;
-	}
+    public String getRegistries() {
+        return registries;
+    }
 
-	public void setRegistries(String registries) {
-		this.registries = registries;
-	}
+    public void setRegistries(String registries) {
+        this.registries = registries;
+    }
 
-	public List<RegistryConfig> getRegistryConfigs() {
-		return registryConfigs;
-	}
+    public List<RegistryConfig> getRegistryConfigs() {
+        return registryConfigs;
+    }
 
-	public void setRegistryConfigs(List<RegistryConfig> registryConfigs) {
-		this.registryConfigs = registryConfigs;
-	}
+    public void setRegistryConfigs(List<RegistryConfig> registryConfigs) {
+        this.registryConfigs = registryConfigs;
+    }
 
 }

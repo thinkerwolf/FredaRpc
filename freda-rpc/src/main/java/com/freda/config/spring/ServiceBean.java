@@ -20,52 +20,52 @@ import java.util.Map;
  */
 public class ServiceBean<T> extends ServiceConfig<T> implements InitializingBean, ApplicationContextAware {
 
-	private static final long serialVersionUID = 6976581859976697485L;
-	private ApplicationContext context;
+    private static final long serialVersionUID = 6976581859976697485L;
+    private ApplicationContext context;
 
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		this.setConf(Configuration.getInstance());
-		Map<String, ServerBean> beanMap = context.getBeansOfType(ServerBean.class);
-		if (beanMap == null || beanMap.size() == 0) {
-			return;
-		}
-		List<ServerConfig> serverConfigs = new LinkedList<>();
-		if (StringUtils.hasText(servers)) {
-			for (String sId : servers.split(",")) {
-				ServerConfig sc = getServerConfig(beanMap, sId);
-				if (sc != null) {
-					serverConfigs.add(sc);
-				}
-			}
-		} else {
-			for (ServerBean sc : beanMap.values()) {
-				serverConfigs.add(sc);
-			}
-		}
-		this.setServerConfigs(serverConfigs);
-		if (serverConfigs.size() > 0) {
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        this.setConf(Configuration.getInstance());
+        Map<String, ServerBean> beanMap = context.getBeansOfType(ServerBean.class);
+        if (beanMap == null || beanMap.size() == 0) {
+            return;
+        }
+        List<ServerConfig> serverConfigs = new LinkedList<>();
+        if (StringUtils.hasText(servers)) {
+            for (String sId : servers.split(",")) {
+                ServerConfig sc = getServerConfig(beanMap, sId);
+                if (sc != null) {
+                    serverConfigs.add(sc);
+                }
+            }
+        } else {
+            for (ServerBean sc : beanMap.values()) {
+                serverConfigs.add(sc);
+            }
+        }
+        this.setServerConfigs(serverConfigs);
+        if (serverConfigs.size() > 0) {
 //			Map<String, RegistryBean> registryBeanMap = context.getBeansOfType(RegistryBean.class);
 //			for (RegistryBean rb : registryBeanMap.values()) {
 //				this.addRegistryConf(rb);
 //			}
-			export();
-			Configuration.getInstance().addServiceConf(this);
-		}
-	}
-	
-	private ServerConfig getServerConfig(Map<String, ServerBean> beanMap, String id) {
-		for (ServerBean b : beanMap.values()) {
-			if (id.equals(b.getId())) {
-				return b;
-			}
-		}
-		return null;
-	}
-	
-	@Override
-	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		this.context = applicationContext;
-	}
+            export();
+            Configuration.getInstance().addServiceConf(this);
+        }
+    }
+
+    private ServerConfig getServerConfig(Map<String, ServerBean> beanMap, String id) {
+        for (ServerBean b : beanMap.values()) {
+            if (id.equals(b.getId())) {
+                return b;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.context = applicationContext;
+    }
 
 }

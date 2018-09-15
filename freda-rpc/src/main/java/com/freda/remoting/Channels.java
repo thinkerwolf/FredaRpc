@@ -8,5 +8,5 @@ public class Channels {
         NettyChannel nettyChannel = new NettyChannel(ch);
         return nettyChannel;
     }
-    
+
 }

@@ -1,105 +1,105 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-	xmlns:tool="http://www.springframework.org/schema/tool" xmlns="http://www.freda.com/schema/freda"
-	targetNamespace="http://www.freda.com/schema/freda">
-	<xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
-	<xsd:import namespace="http://www.springframework.org/schema/beans" />
-	<xsd:import namespace="http://www.springframework.org/schema/tool" />
-	<xsd:annotation>
-		<xsd:documentation>
+            xmlns:tool="http://www.springframework.org/schema/tool" xmlns="http://www.freda.com/schema/freda"
+            targetNamespace="http://www.freda.com/schema/freda">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
+    <xsd:import namespace="http://www.springframework.org/schema/beans"/>
+    <xsd:import namespace="http://www.springframework.org/schema/tool"/>
+    <xsd:annotation>
+        <xsd:documentation>
             <![CDATA[Namespace support for the freda services provided by freda framework.]]>
-		</xsd:documentation>
-	</xsd:annotation>
+        </xsd:documentation>
+    </xsd:annotation>
 
 
-	<xsd:complexType name="abstractServiceType">
-		<xsd:attribute name="registry" />
-	</xsd:complexType>
+    <xsd:complexType name="abstractServiceType">
+        <xsd:attribute name="registry"/>
+    </xsd:complexType>
 
-	<xsd:complexType name="serviceType">
-		<xsd:complexContent>
-			<xsd:extension base="abstractServiceType">
-				<xsd:attribute name="id" type="xsd:string" />
-				<xsd:attribute name="interface" type="xsd:string" use="required">
-					<xsd:annotation>
-						<xsd:documentation>
+    <xsd:complexType name="serviceType">
+        <xsd:complexContent>
+            <xsd:extension base="abstractServiceType">
+                <xsd:attribute name="id" type="xsd:string"/>
+                <xsd:attribute name="interface" type="xsd:string" use="required">
+                    <xsd:annotation>
+                        <xsd:documentation>
                             <![CDATA[Defines the interface to advertise for this service in the service registry.]]>
-						</xsd:documentation>
-						<xsd:appinfo>
-							<tool:annotation>
-								<tool:expected-type type="java.lang.Class" />
-							</tool:annotation>
-						</xsd:appinfo>
-					</xsd:annotation>
-				</xsd:attribute>
-				<xsd:attribute name="ref" type="xsd:string" use="required" />
-				<xsd:attribute name="servers" type="xsd:string"/>
-			</xsd:extension>
-		</xsd:complexContent>
-	</xsd:complexType>
-	<xsd:element name="service" type="serviceType">
-	</xsd:element>
+                        </xsd:documentation>
+                        <xsd:appinfo>
+                            <tool:annotation>
+                                <tool:expected-type type="java.lang.Class"/>
+                            </tool:annotation>
+                        </xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="ref" type="xsd:string" use="required"/>
+                <xsd:attribute name="servers" type="xsd:string"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <xsd:element name="service" type="serviceType">
+    </xsd:element>
 
 
-	<xsd:complexType name="referenceType">
-		<xsd:attribute name="id" type="xsd:string" />
-		<xsd:attribute name="interface" type="xsd:string" use="required" />
-		<xsd:attribute name="cluster" type="xsd:string">
-			<xsd:annotation>
-				<xsd:documentation>
-					 <![CDATA[Defines the cluster mode for this reference.]]>
-				</xsd:documentation>
-			</xsd:annotation>
-		</xsd:attribute>
-		<xsd:attribute name="retries" type="xsd:int">
-			<xsd:annotation>
-				<xsd:documentation>
-					 <![CDATA[Defines the retry num when this reference invoked fail.]]>
-				</xsd:documentation>
-			</xsd:annotation>
-		</xsd:attribute>
-		<xsd:attribute name="balance" type="xsd:string">
-			
-		</xsd:attribute>
-		<xsd:attribute name="async" type="xsd:boolean"/>
-		<xsd:attribute name="registries" type="xsd:string" />
-		<xsd:attribute name="clients" type="xsd:string" />
-	</xsd:complexType>
-	<xsd:element name="reference" type="referenceType">
-	</xsd:element>
+    <xsd:complexType name="referenceType">
+        <xsd:attribute name="id" type="xsd:string"/>
+        <xsd:attribute name="interface" type="xsd:string" use="required"/>
+        <xsd:attribute name="cluster" type="xsd:string">
+            <xsd:annotation>
+                <xsd:documentation>
+                    <![CDATA[Defines the cluster mode for this reference.]]>
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="retries" type="xsd:int">
+            <xsd:annotation>
+                <xsd:documentation>
+                    <![CDATA[Defines the retry num when this reference invoked fail.]]>
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="balance" type="xsd:string">
+
+        </xsd:attribute>
+        <xsd:attribute name="async" type="xsd:boolean"/>
+        <xsd:attribute name="registries" type="xsd:string"/>
+        <xsd:attribute name="clients" type="xsd:string"/>
+    </xsd:complexType>
+    <xsd:element name="reference" type="referenceType">
+    </xsd:element>
 
 
-	<xsd:complexType name="registryType">
-		<xsd:attribute name="id" type="xsd:string"/>
-		<xsd:attribute name="protocol" type="xsd:string" />
-		<xsd:attribute name="host" type="xsd:string" />
-		<xsd:attribute name="port" type="xsd:int" />
-		<xsd:attribute name="timeout" type="xsd:int"/>
-	</xsd:complexType>
-	<xsd:element name="registry" type="registryType">
-	</xsd:element>
-	
-	<xsd:complexType name="serverType">
-		<xsd:attribute name="id" type="xsd:string" />
-		<xsd:attribute name="host" type="xsd:string" use="required" />
-		<xsd:attribute name="port" type="xsd:int" use="required" />
-		<xsd:attribute name="protocol" type="xsd:string" use="required" />
-		<xsd:attribute name="timeout" type="xsd:int"/>
-		<xsd:attribute name="registries" type="xsd:string" />
-	</xsd:complexType>
-	
-	<xsd:complexType name="clientType">
-		<xsd:attribute name="id" type="xsd:string"/>
-		<xsd:attribute name="host" type="xsd:string" />
-		<xsd:attribute name="port" type="xsd:int" />
-		<xsd:attribute name="protocol" type="xsd:string" use="required"/>
-		<xsd:attribute name="timeout" type="xsd:int"/>
-	</xsd:complexType>
-	
-	<xsd:element name="client" type="clientType">
-	</xsd:element>
-	<xsd:element name="server" type="serverType">
-	</xsd:element>
+    <xsd:complexType name="registryType">
+        <xsd:attribute name="id" type="xsd:string"/>
+        <xsd:attribute name="protocol" type="xsd:string"/>
+        <xsd:attribute name="host" type="xsd:string"/>
+        <xsd:attribute name="port" type="xsd:int"/>
+        <xsd:attribute name="timeout" type="xsd:int"/>
+    </xsd:complexType>
+    <xsd:element name="registry" type="registryType">
+    </xsd:element>
+
+    <xsd:complexType name="serverType">
+        <xsd:attribute name="id" type="xsd:string"/>
+        <xsd:attribute name="host" type="xsd:string" use="required"/>
+        <xsd:attribute name="port" type="xsd:int" use="required"/>
+        <xsd:attribute name="protocol" type="xsd:string" use="required"/>
+        <xsd:attribute name="timeout" type="xsd:int"/>
+        <xsd:attribute name="registries" type="xsd:string"/>
+    </xsd:complexType>
+
+    <xsd:complexType name="clientType">
+        <xsd:attribute name="id" type="xsd:string"/>
+        <xsd:attribute name="host" type="xsd:string"/>
+        <xsd:attribute name="port" type="xsd:int"/>
+        <xsd:attribute name="protocol" type="xsd:string" use="required"/>
+        <xsd:attribute name="timeout" type="xsd:int"/>
+    </xsd:complexType>
+
+    <xsd:element name="client" type="clientType">
+    </xsd:element>
+    <xsd:element name="server" type="serverType">
+    </xsd:element>
 
 
 </xsd:schema>

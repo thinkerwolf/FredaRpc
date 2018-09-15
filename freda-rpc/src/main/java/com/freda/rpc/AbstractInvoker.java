@@ -1,21 +1,22 @@
 package com.freda.rpc;
 
 public abstract class AbstractInvoker<T> implements Invoker<T> {
-	private Class<T> type;
-	private String id;
-	protected volatile boolean destory;
-	public AbstractInvoker(String id, Class<T> type) {
-		this.id = id;
-		this.type = type;
-	}
+    protected volatile boolean destory;
+    private Class<T> type;
+    private String id;
 
-	public Class<T> getType() {
-		return type;
-	}
+    public AbstractInvoker(String id, Class<T> type) {
+        this.id = id;
+        this.type = type;
+    }
 
-	@Override
-	public String id() {
-		return id;
-	}
-	
+    public Class<T> getType() {
+        return type;
+    }
+
+    @Override
+    public String id() {
+        return id;
+    }
+
 }

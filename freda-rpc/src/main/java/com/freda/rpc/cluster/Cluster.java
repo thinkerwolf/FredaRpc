@@ -1,11 +1,11 @@
 package com.freda.rpc.cluster;
 
-import java.util.List;
-
 import com.freda.rpc.Invoker;
+
+import java.util.List;
 
 public interface Cluster {
 
-	<T> Invoker<T> combine(List<Invoker<T>> invokers);
-	
+    <T> Invoker<T> combine(List<Invoker<T>> invokers);
+
 }

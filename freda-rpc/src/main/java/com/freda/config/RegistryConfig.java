@@ -7,58 +7,58 @@ package com.freda.config;
  */
 public class RegistryConfig {
 
-	private String id;
+    private String id;
 
-	private String host;
+    private String host;
 
-	private int port;
+    private int port;
 
-	private int timeout = 1000;
+    private int timeout = 1000;
 
-	private String protocol;
+    private String protocol;
 
-	public String getId() {
-		return id;
-	}
+    public String getId() {
+        return id;
+    }
 
-	public void setId(String id) {
-		this.id = id;
-	}
+    public void setId(String id) {
+        this.id = id;
+    }
 
-	public String getHost() {
-		return host;
-	}
+    public String getHost() {
+        return host;
+    }
 
-	public void setHost(String ip) {
-		this.host = ip;
-	}
+    public void setHost(String ip) {
+        this.host = ip;
+    }
 
-	public int getPort() {
-		return port;
-	}
+    public int getPort() {
+        return port;
+    }
 
-	public void setPort(int port) {
-		this.port = port;
-	}
+    public void setPort(int port) {
+        this.port = port;
+    }
 
-	public int getTimeout() {
-		return timeout;
-	}
+    public int getTimeout() {
+        return timeout;
+    }
 
-	public void setTimeout(int timeout) {
-		this.timeout = timeout;
-	}
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
+    }
 
-	public String getProtocol() {
-		return protocol;
-	}
+    public String getProtocol() {
+        return protocol;
+    }
 
-	public void setProtocol(String protocol) {
-		this.protocol = protocol;
-	}
+    public void setProtocol(String protocol) {
+        this.protocol = protocol;
+    }
 
-	public String key() {
-		return host + ":" + port;
-	}
+    public String key() {
+        return host + ":" + port;
+    }
 
 }

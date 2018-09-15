@@ -1,44 +1,42 @@
 package com.freda.rpc;
 
+import com.freda.common.concurrent.Future;
+import com.freda.remoting.RequestMessage;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.freda.remoting.RequestMessage;
-
 /**
- * 
  * @author wukai
- *
  */
 public final class Context {
 
-	private Context() {
-	}
+    private static final ThreadLocal<Context> LOCAL = ThreadLocal.withInitial(() -> new Context());
+    /**
+     * current request message
+     */
+    private RequestMessage current;
+    private Map<RequestMessage, Future<?>> futureMap = new ConcurrentHashMap<>(20);
 
-	private static final ThreadLocal<Context> LOCAL = new ThreadLocal<Context>() {
-		protected Context initialValue() {
-			return new Context();
-		}
-	};
+    private Context() {
+    }
 
-	public static Context getContext() {
-		return LOCAL.get();
-	}
+    public static Context getContext() {
+        return LOCAL.get();
+    }
 
-	/** current request message */
-	private RequestMessage current;
+    public Future<?> setCurrent(RequestMessage current, Future<?> future) {
+        this.current = current;
+        return futureMap.putIfAbsent(current, future);
+    }
 
-	private Map<RequestMessage, AsyncCallback<?>> callbacks = new ConcurrentHashMap<>(256);
-	
-	
-	public void setCurrent(RequestMessage current) {
-		this.current = current;
-		
-	}
-	
 
-	public AsyncCallback<?> addCallback(RequestMessage current, AsyncCallback<?> callback) {
-		this.current = current;
-		return callbacks.put(current, callback);
-	}
+    public Future<?> getFuture() {
+        return futureMap.get(current);
+    }
+
+    public Future<?> getFuture(RequestMessage inv) {
+        return futureMap.get(inv);
+    }
+
 }

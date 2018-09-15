@@ -1,5 +1,7 @@
 package com.freda.rpc;
 
+import com.freda.common.concurrent.DefaultPromise;
+import com.freda.common.concurrent.Future;
 import com.freda.remoting.Remoting;
 import com.freda.remoting.RemotingHandler;
 import com.freda.remoting.RequestMessage;
@@ -14,63 +16,67 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class ClientRemotingHandler implements RemotingHandler {
 
-	private static final AtomicInteger THREAD_NUM = new AtomicInteger();
-	// protected ConcurrentMap<String, Invoker<?>> invokers = new
-	// ConcurrentHashMap<>();
-	private Map<Integer, RpcFuture> waitResultMap = new ConcurrentHashMap<Integer, RpcFuture>();
-	private Executor responseExecutor;
+    private static final AtomicInteger THREAD_NUM = new AtomicInteger();
+    // protected ConcurrentMap<String, Invoker<?>> invokers = new
+    // ConcurrentHashMap<>();
+    private Map<Integer, DefaultPromise<?>> waitResultMap = new ConcurrentHashMap<Integer, DefaultPromise<?>>();
+    private Executor responseExecutor;
 
-	public ClientRemotingHandler() {
-		responseExecutor = Executors.newFixedThreadPool(2, new ThreadFactory() {
-			@Override
-			public Thread newThread(Runnable r) {
-				Thread t = new Thread(r);
-				t.setName("ResponseHandler-Thread-" + THREAD_NUM.incrementAndGet());
-				return t;
-			}
-		});
-	}
+    public ClientRemotingHandler() {
+        responseExecutor = Executors.newFixedThreadPool(2, new ThreadFactory() {
+            @Override
+            public Thread newThread(Runnable r) {
+                Thread t = new Thread(r);
+                t.setName("ResponseHandler-Thread-" + THREAD_NUM.incrementAndGet());
+                return t;
+            }
+        });
+    }
 
-	@Override
-	public RpcFuture send(Remoting remoting, Object msg) {
-		RpcFuture rf = new RpcFuture();
-		waitResultMap.put(((RequestMessage) msg).getRequestId(), rf);
-		remoting.channel().send(msg);
-		return rf;
-	}
+    @Override
+    public Future<?> send(Remoting remoting, Object msg) {
+        DefaultPromise<Object> rf = new DefaultPromise<Object>();
+        waitResultMap.put(((RequestMessage) msg).getRequestId(), rf);
+        remoting.channel().send(msg);
+        return rf;
+    }
 
-	@Override
-	public void received(Remoting remoting, Object msg) {
-		// 接收消息
-		responseExecutor.execute(new ResponseHandleTask((ResponseMessage) msg));
-	}
+    @Override
+    public void received(Remoting remoting, Object msg) {
+        // 接收消息
+        responseExecutor.execute(new ResponseHandleTask((ResponseMessage) msg));
+    }
 
-	// public Invoker<?> getInvoker(String id) {
-	// return invokers.get(id);
-	// }
-	//
-	// public void addInvoker(Invoker<?> invoker) {
-	// invokers.put(invoker.getType().getName(), invoker);
-	// }
+    // public Invoker<?> getInvoker(String id) {
+    // return invokers.get(id);
+    // }
+    //
+    // public void addInvoker(Invoker<?> invoker) {
+    // invokers.put(invoker.getType().getName(), invoker);
+    // }
 
-	// public void removeInvoker(Invoker<?> invoker) {
-	// invokers.remove(invoker.getType().getName());
-	// }
+    // public void removeInvoker(Invoker<?> invoker) {
+    // invokers.remove(invoker.getType().getName());
+    // }
 
-	private class ResponseHandleTask implements Runnable {
-		private ResponseMessage responseMessage;
+    private class ResponseHandleTask implements Runnable {
+        private ResponseMessage responseMessage;
 
-		public ResponseHandleTask(ResponseMessage responseMessage) {
-			this.responseMessage = responseMessage;
-		}
+        public ResponseHandleTask(ResponseMessage responseMessage) {
+            this.responseMessage = responseMessage;
+        }
 
-		@Override
-		public void run() {
-			RpcFuture rf = waitResultMap.remove(responseMessage.getId());
-			if (rf != null) {
-				rf.setSuccess(responseMessage.isSuccess(), responseMessage.getResult());
-			}
-		}
-	}
+        @Override
+        public void run() {
+            DefaultPromise rf = waitResultMap.remove(responseMessage.getId());
+            if (rf != null) {
+                if (responseMessage.isSuccess()) {
+                    rf.setSuccess(responseMessage.getResult());
+                } else {
+                    rf.setFailure(null);
+                }
+            }
+        }
+    }
 
 }

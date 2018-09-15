@@ -38,6 +38,10 @@ public class Server {
 
     }
 
+    public static Server jsonToServer(String json) {
+        return JsonUtils.json2Obj(json, Server.class);
+    }
+
     public String getName() {
         return name;
     }
@@ -73,9 +77,5 @@ public class Server {
     public byte[] toJsonByte() {
         return JsonUtils.obj2Json(this).getBytes();
     }
-    
-    public static Server jsonToServer(String json) {
-    	return JsonUtils.json2Obj(json, Server.class);
-    }
-    
+
 }

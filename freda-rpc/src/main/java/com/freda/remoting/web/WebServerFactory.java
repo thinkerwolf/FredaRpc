@@ -9,8 +9,8 @@ public interface WebServerFactory {
 
     void setPort(int port);
 
-	void addServlet(String contextPath, ServletConfig servlet);
-	
-	void setBaseDir(String baseDir);
-	
+    void addServlet(String contextPath, ServletConfig servlet);
+
+    void setBaseDir(String baseDir);
+
 }

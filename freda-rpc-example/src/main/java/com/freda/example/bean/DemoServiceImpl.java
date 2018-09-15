@@ -1,63 +1,62 @@
 package com.freda.example.bean;
 
-import org.springframework.stereotype.Component;
-
 import com.freda.config.annotation.Service;
 import com.freda.rpc.AsyncCallback;
+import org.springframework.stereotype.Component;
 
 @Service(id = "demoService", interfaceClass = DemoService.class)
 @Component("demoService")
 public class DemoServiceImpl implements DemoService {
 
-	private Double persent;
+    private Double persent;
 
-	private boolean server;
+    private boolean server;
 
-	private int num;
+    private int num;
 
-	private String hello;
+    private String hello;
 
-	public Double getPersent() {
-		return persent;
-	}
+    public Double getPersent() {
+        return persent;
+    }
 
-	public void setPersent(Double persent) {
-		this.persent = persent;
-	}
+    public void setPersent(Double persent) {
+        this.persent = persent;
+    }
 
-	public boolean isServer() {
-		return server;
-	}
+    public boolean isServer() {
+        return server;
+    }
 
-	public void setServer(boolean server) {
-		this.server = server;
-	}
+    public void setServer(boolean server) {
+        this.server = server;
+    }
 
-	public int getNum() {
-		return num;
-	}
+    public int getNum() {
+        return num;
+    }
 
-	public void setNum(int num) {
-		this.num = num;
-	}
+    public void setNum(int num) {
+        this.num = num;
+    }
 
-	public String getHello() {
-		return hello;
-	}
+    public String getHello() {
+        return hello;
+    }
 
-	public void setHello(String hello) {
-		this.hello = hello;
-	}
+    public void setHello(String hello) {
+        this.hello = hello;
+    }
 
-	@Override
-	public String sayHello(String str) {
-		System.out.println("Hello " + str);
-		return "Hello " + str;
-	}
+    @Override
+    public String sayHello(String str) {
+        System.out.println("Hello " + str);
+        return "Hello " + str;
+    }
 
-	@Override
-	public String sayHello(String name, AsyncCallback<String> callback) {
-		System.out.println("Hello " + name);
-		return "Hello " + name;
-	}
+    @Override
+    public String sayHello(String name, AsyncCallback<String> callback) {
+        System.out.println("Hello " + name);
+        return "Hello " + name;
+    }
 }

@@ -1,6 +1,6 @@
 package com.freda.remoting;
 
-import com.freda.rpc.RpcFuture;
+import com.freda.common.concurrent.Future;
 
 /**
  * 处理
@@ -9,7 +9,7 @@ import com.freda.rpc.RpcFuture;
  */
 public interface RemotingHandler {
 
-	RpcFuture send(Remoting remoting, Object msg);
+    Future<?> send(Remoting remoting, Object msg);
 
     void received(Remoting remoting, Object msg);
 

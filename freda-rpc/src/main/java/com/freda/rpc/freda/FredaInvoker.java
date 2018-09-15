@@ -1,84 +1,84 @@
 package com.freda.rpc.freda;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
+import com.freda.common.concurrent.DefaultPromise;
+import com.freda.common.concurrent.Future;
+import com.freda.common.concurrent.FutureListener;
 import com.freda.remoting.RemotingClient;
 import com.freda.remoting.RequestMessage;
-import com.freda.rpc.AbstractInvoker;
-import com.freda.rpc.Context;
-import com.freda.rpc.Result;
-import com.freda.rpc.ResultBuilder;
-import com.freda.rpc.RpcException;
-import com.freda.rpc.RpcFuture;
-import com.freda.rpc.RpcFutureListener;
+import com.freda.rpc.*;
+
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class FredaInvoker<T> extends AbstractInvoker<T> {
 
-	private RemotingClient[] clients;
-	
-	private AtomicInteger round = new AtomicInteger(0);
+    private RemotingClient[] clients;
 
-	public FredaInvoker(String id, Class<T> type, RemotingClient[] clients) {
-		super(id, type);
-		this.clients = clients;
-	}
+    private AtomicInteger round = new AtomicInteger(0);
 
-	@Override
-	public Result invoke(RequestMessage inv) throws RpcException {
-		return invoke(inv, false);
-	}
-	
-	@Override
-	public Result invoke(RequestMessage inv, final boolean isAsync) throws RpcException {
-		RemotingClient client = null;
-		if (clients.length == 1) {
-			client = clients[0];
-		} else {
-			client = clients[Math.abs(round.getAndIncrement() % clients.length)];
-		}
-		RpcFuture rf = client.handler().send(client, inv);
-		
-		if (isAsync) {
-			Context context = Context.getContext();
-			rf.addListener(new RpcFutureListener() {
-				@Override
-				public void onSuccess(Object result) {
-					//callback.onCompletion(result);
-				}
-				@Override
-				public void onFailure() {
-					//callback.onError(new RpcException("Invoke fail"));
-				}
-			});
-			return ResultBuilder.buildSuccessResult(null);
-		} else {
-			try {
-				rf.sync();
-			} catch (InterruptedException e) {
-				throw new RpcException("Rpc future sync exception", e);
-			}
-			if (rf.isSuccess()) {
-				return ResultBuilder.buildSuccessResult(rf.getResult());
-			} else {
-				return ResultBuilder.buildFailResult();
-			}
-		}
-	}
-	
-	@Override
-	public synchronized void destory() {
-		if (destory) {
-			return;
-		}
-		destory = true;
-		if (clients != null) {
-			for (int i = 0; i < clients.length; i++) {
-				clients[i] = null;
-			}
-			clients = null;
-		}
-	}
+    public FredaInvoker(String id, Class<T> type, RemotingClient[] clients) {
+        super(id, type);
+        this.clients = clients;
+    }
 
-	
+    @Override
+    public Result invoke(RequestMessage inv) throws RpcException {
+        return invoke(inv, false);
+    }
+
+    @Override
+    public Result invoke(final RequestMessage inv, final boolean isAsync) throws RpcException {
+        RemotingClient client = null;
+        if (clients.length == 1) {
+            client = clients[0];
+        } else {
+            client = clients[Math.abs(round.getAndIncrement() % clients.length)];
+        }
+        Future rf = client.handler().send(client, inv);
+
+        if (isAsync) {
+            Context context = Context.getContext();
+            final DefaultPromise<Object> promise = new DefaultPromise<>();
+            context.setCurrent(inv, promise);
+            rf.addListener(new FutureListener<Future<Object>>() {
+                @Override
+                public void operationComplete(Future<Object> future) throws Throwable {
+                    if (future.isSuccess()) {
+                        promise.setSuccess(future.get());
+                    } else {
+                        promise.setFailure(future.cause());
+                    }
+                }
+            });
+            return ResultBuilder.buildSuccessResult(null);
+        } else {
+            try {
+                rf.sync();
+                if (rf.isSuccess()) {
+                    return ResultBuilder.buildSuccessResult(rf.get());
+                } else {
+                    return ResultBuilder.buildFailResult();
+                }
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RpcException("Rpc future sync exception", e);
+            }
+
+        }
+    }
+
+    @Override
+    public synchronized void destory() {
+        if (destory) {
+            return;
+        }
+        destory = true;
+        if (clients != null) {
+            for (int i = 0; i < clients.length; i++) {
+                clients[i] = null;
+            }
+            clients = null;
+        }
+    }
+
 
 }

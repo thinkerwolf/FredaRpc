@@ -2,9 +2,9 @@ package com.freda.bootstrap;
 
 import com.freda.config.Configuration;
 import com.freda.config.ReferenceConfig;
-import com.freda.remoting.RemotingClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 @Deprecated
 public class Bootstrap {
     private static final Logger logger = LoggerFactory.getLogger(Bootstrap.class);
@@ -35,7 +35,7 @@ public class Bootstrap {
         this.confFilePath = confFilePath;
     }
 
-	public <T> T refer(Class<T> clazz) {
+    public <T> T refer(Class<T> clazz) {
         ReferenceConfig<T> rc = this.conf.getReferenceConf(clazz);
         return rc.getRef();
     }

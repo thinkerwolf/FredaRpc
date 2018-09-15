@@ -7,165 +7,165 @@ import java.net.URISyntaxException;
 
 public class Net {
 
-	private String host;
+    private String host;
 
-	private int port = -1;
+    private int port = -1;
 
-	private String protocol = "freda";
-	
-	private int timeout;
-	
-	private int bossThreads = Math.max(1, Constants.DEFAULT_THREAD_NUM / 2);
+    private String protocol = "freda";
 
-	private int workerThreads = Constants.DEFAULT_THREAD_NUM;
-	
-	public Net() {
-		
-	}
-	
-	public Net(String host, int port, String protocol) {
-		this.host = host;
-		this.port = port;
-		this.protocol = protocol;
-	}
+    private int timeout;
 
-	public Net(String host, int port, String protocol, int timeout) {
-		this.host = host;
-		this.port = port;
-		this.protocol = protocol;
-		this.timeout = timeout;
-	}
+    private int bossThreads = Math.max(1, Constants.DEFAULT_THREAD_NUM / 2);
 
-	public String getHost() {
-		return host;
-	}
+    private int workerThreads = Constants.DEFAULT_THREAD_NUM;
 
-	public void setHost(String host) {
-		this.host = host;
-	}
+    public Net() {
 
-	public int getPort() {
-		return port;
-	}
+    }
 
-	public void setPort(int port) {
-		this.port = port;
-	}
+    public Net(String host, int port, String protocol) {
+        this.host = host;
+        this.port = port;
+        this.protocol = protocol;
+    }
 
-	public String getProtocol() {
-		return protocol;
-	}
+    public Net(String host, int port, String protocol, int timeout) {
+        this.host = host;
+        this.port = port;
+        this.protocol = protocol;
+        this.timeout = timeout;
+    }
 
-	public void setProtocol(String protocol) {
-		this.protocol = protocol;
-	}
+    public String getHost() {
+        return host;
+    }
 
-	public int getBossThreads() {
-		return bossThreads;
-	}
+    public void setHost(String host) {
+        this.host = host;
+    }
 
-	public void setBossThreads(int bossThreads) {
-		this.bossThreads = bossThreads;
-	}
+    public int getPort() {
+        return port;
+    }
 
-	public int getWorkerThreads() {
-		return workerThreads;
-	}
+    public void setPort(int port) {
+        this.port = port;
+    }
 
-	public void setWorkerThreads(int workerThreads) {
-		this.workerThreads = workerThreads;
-	}
+    public String getProtocol() {
+        return protocol;
+    }
 
-	public int getTimeout() {
-		return timeout;
-	}
+    public void setProtocol(String protocol) {
+        this.protocol = protocol;
+    }
 
-	public void setTimeout(int timeout) {
-		this.timeout = timeout;
-	}
+    public int getBossThreads() {
+        return bossThreads;
+    }
 
-	public boolean isUseable() {
-		if (StringUtils.isNotEmpty(host) && port > 0 && StringUtils.isNotEmpty(protocol)) {
-			return true;
-		}
-		return false;
-	}
+    public void setBossThreads(int bossThreads) {
+        this.bossThreads = bossThreads;
+    }
 
-	@Override
-	public String toString() {
-		return "Net [host=" + host + ", port=" + port + ", protocol=" + protocol + "]";
-	}
+    public int getWorkerThreads() {
+        return workerThreads;
+    }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((host == null) ? 0 : host.hashCode());
-		result = prime * result + port;
-		result = prime * result + ((protocol == null) ? 0 : protocol.hashCode());
-		return result;
-	}
+    public void setWorkerThreads(int workerThreads) {
+        this.workerThreads = workerThreads;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Net other = (Net) obj;
-		if (host == null) {
-			if (other.host != null)
-				return false;
-		} else if (!host.equals(other.host))
-			return false;
-		if (port != other.port)
-			return false;
-		if (protocol == null) {
-			if (other.protocol != null)
-				return false;
-		} else if (!protocol.equals(other.protocol))
-			return false;
-		return true;
-	}
+    public int getTimeout() {
+        return timeout;
+    }
 
-	@Override
-	public Net clone() {
-		Net nettyConfig = new Net();
-		nettyConfig.setHost(this.host);
-		nettyConfig.setPort(this.port);
-		nettyConfig.setProtocol(this.protocol);
-		nettyConfig.setBossThreads(this.bossThreads);
-		nettyConfig.setWorkerThreads(this.workerThreads);
-		return nettyConfig;
-	}
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
+    }
 
-	public URI uri() {
-		// http://java.sun.com/j2se/1.3/
-		StringBuilder sb = new StringBuilder();
-		sb.append(protocol);
-		sb.append("://");
-		sb.append(host);
-		sb.append(":" + port);
-		try {
-			return new URI(sb.toString());
-		} catch (URISyntaxException e) {
-			throw new RuntimeException("netty parse to uri fail", e);
-		}
-	}
+    public boolean isUseable() {
+        if (StringUtils.isNotEmpty(host) && port > 0 && StringUtils.isNotEmpty(protocol)) {
+            return true;
+        }
+        return false;
+    }
 
-	public String getPath() {
-		StringBuilder sb = new StringBuilder();
-		sb.append(protocol);
-		sb.append("://");
-		sb.append(host);
-		sb.append(":" + port);
-		return sb.toString();
-	}
+    @Override
+    public String toString() {
+        return "Net [host=" + host + ", port=" + port + ", protocol=" + protocol + "]";
+    }
 
-	public String key() {
-		return port > 0 ? host + ":" + port : host;
-	}
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((host == null) ? 0 : host.hashCode());
+        result = prime * result + port;
+        result = prime * result + ((protocol == null) ? 0 : protocol.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Net other = (Net) obj;
+        if (host == null) {
+            if (other.host != null)
+                return false;
+        } else if (!host.equals(other.host))
+            return false;
+        if (port != other.port)
+            return false;
+        if (protocol == null) {
+            if (other.protocol != null)
+                return false;
+        } else if (!protocol.equals(other.protocol))
+            return false;
+        return true;
+    }
+
+    @Override
+    public Net clone() {
+        Net nettyConfig = new Net();
+        nettyConfig.setHost(this.host);
+        nettyConfig.setPort(this.port);
+        nettyConfig.setProtocol(this.protocol);
+        nettyConfig.setBossThreads(this.bossThreads);
+        nettyConfig.setWorkerThreads(this.workerThreads);
+        return nettyConfig;
+    }
+
+    public URI uri() {
+        // http://java.sun.com/j2se/1.3/
+        StringBuilder sb = new StringBuilder();
+        sb.append(protocol);
+        sb.append("://");
+        sb.append(host);
+        sb.append(":" + port);
+        try {
+            return new URI(sb.toString());
+        } catch (URISyntaxException e) {
+            throw new RuntimeException("netty parse to uri fail", e);
+        }
+    }
+
+    public String getPath() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(protocol);
+        sb.append("://");
+        sb.append(host);
+        sb.append(":" + port);
+        return sb.toString();
+    }
+
+    public String key() {
+        return port > 0 ? host + ":" + port : host;
+    }
 
 }

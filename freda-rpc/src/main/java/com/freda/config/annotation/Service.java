@@ -5,18 +5,24 @@ import java.lang.annotation.*;
 /**
  * @author wukai
  */
-@Target({ ElementType.TYPE })
+@Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented
 public @interface Service {
-	/** service id */
-	String id() default "";
+    /**
+     * service id
+     */
+    String id() default "";
 
-	/** interface full name */
-	Class<?> interfaceClass();
-	
-	/** reference servers */
-	String servers() default "";
-	
+    /**
+     * interface full name
+     */
+    Class<?> interfaceClass();
+
+    /**
+     * reference servers
+     */
+    String servers() default "";
+
 }

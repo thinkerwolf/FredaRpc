@@ -4,61 +4,60 @@ import org.apache.commons.lang3.StringUtils;
 
 /**
  * client config
- * 
- * @author wukai
  *
+ * @author wukai
  */
 public class ClientConfig extends AbstractConfig {
 
-	private static final long serialVersionUID = 6587596258102528034L;
+    private static final long serialVersionUID = 6587596258102528034L;
 
-	protected String netframe;
-	
-	protected String protocol;
-	
-	protected String host;
+    protected String netframe;
 
-	protected int port;
+    protected String protocol;
 
-	protected String registries;
+    protected String host;
 
-	public String getNetframe() {
-		return netframe;
-	}
+    protected int port;
 
-	public void setNetframe(String netframe) {
-		this.netframe = netframe;
-	}
+    protected String registries;
 
-	public String getProtocol() {
-		return protocol;
-	}
+    public String getNetframe() {
+        return netframe;
+    }
 
-	public void setProtocol(String protocol) {
-		this.protocol = protocol;
-	}
+    public void setNetframe(String netframe) {
+        this.netframe = netframe;
+    }
 
-	public String getHost() {
-		return host;
-	}
+    public String getProtocol() {
+        return protocol;
+    }
 
-	public void setHost(String host) {
-		this.host = host;
-	}
+    public void setProtocol(String protocol) {
+        this.protocol = protocol;
+    }
 
-	public int getPort() {
-		return port;
-	}
+    public String getHost() {
+        return host;
+    }
 
-	public void setPort(int port) {
-		this.port = port;
-	}
+    public void setHost(String host) {
+        this.host = host;
+    }
 
-	public boolean isUsable() {
-		if (StringUtils.isNotEmpty(host) && port > 0 && StringUtils.isNotEmpty(protocol)) {
-			return true;
-		}
-		return false;
-	}
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    public boolean isUsable() {
+        if (StringUtils.isNotEmpty(host) && port > 0 && StringUtils.isNotEmpty(protocol)) {
+            return true;
+        }
+        return false;
+    }
 
 }

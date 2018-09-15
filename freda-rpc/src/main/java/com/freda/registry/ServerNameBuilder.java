@@ -4,6 +4,7 @@ public class ServerNameBuilder {
 
     private static final ServerNameBuilder INSTANCE = new ServerNameBuilder();
     private static final String SERVER = "server";
+
     public static ServerNameBuilder getInstance() {
         return INSTANCE;
     }

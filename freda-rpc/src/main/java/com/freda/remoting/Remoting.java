@@ -18,7 +18,7 @@ public interface Remoting {
     RemotingHandler handler();
 
     Channel channel();
-    
+
     Channel start();
-    
+
 }

@@ -1,8 +1,8 @@
 package com.freda.registry;
 
-import java.util.List;
-
 import com.freda.common.Net;
+
+import java.util.List;
 
 /**
  * @author wukai
@@ -31,11 +31,11 @@ public interface Registry {
      * @throws Exception
      */
     Server getRandomServer(String protocol) throws Exception;
-    
+
     List<Server> getServersByProtocol(String protocol);
-    
+
     void start() throws Exception;
-    
+
     void close() throws Exception;
 
     boolean isConnected();

@@ -1,10 +1,6 @@
 package com.freda.config.spring.xml;
 
-import com.freda.config.spring.ClientBean;
-import com.freda.config.spring.ReferenceBean;
-import com.freda.config.spring.RegistryBean;
-import com.freda.config.spring.ServerBean;
-import com.freda.config.spring.ServiceBean;
+import com.freda.config.spring.*;
 import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
 
 /**
