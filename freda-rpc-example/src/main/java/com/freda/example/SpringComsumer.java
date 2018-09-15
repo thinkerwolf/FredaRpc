@@ -19,7 +19,7 @@ public class SpringComsumer {
         ApplicationContext context = new ClassPathXmlApplicationContext("spring-frade-consumer.xml");
         final DemoService ds = (DemoService) context.getBean("demoService");
 
-        ExecutorService es = Executors.newFixedThreadPool(100, new ThreadFactory() {
+        ExecutorService es = Executors.newFixedThreadPool(1000, new ThreadFactory() {
             private AtomicInteger id = new AtomicInteger(1);
 
             @Override
@@ -29,7 +29,7 @@ public class SpringComsumer {
                 return t;
             }
         });
-        int i = 100000;
+        int i = 1000;
         final long startTime = System.currentTimeMillis();
         while (i-- > 0) {
             final int index = i;

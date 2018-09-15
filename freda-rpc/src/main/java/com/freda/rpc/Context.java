@@ -11,32 +11,35 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class Context {
 
-    private static final ThreadLocal<Context> LOCAL = ThreadLocal.withInitial(() -> new Context());
-    /**
-     * current request message
-     */
-    private RequestMessage current;
-    private Map<RequestMessage, Future<?>> futureMap = new ConcurrentHashMap<>(20);
+	private static final ThreadLocal<Context> LOCAL = new ThreadLocal<Context>() {
+		protected Context initialValue() {
+			return new Context();
+		}
+	};
+	/**
+	 * current request message
+	 */
+	private RequestMessage current;
+	private Map<RequestMessage, Future<?>> futureMap = new ConcurrentHashMap<>(20);
 
-    private Context() {
-    }
+	private Context() {
+	}
 
-    public static Context getContext() {
-        return LOCAL.get();
-    }
+	public static Context getContext() {
+		return LOCAL.get();
+	}
 
-    public Future<?> setCurrent(RequestMessage current, Future<?> future) {
-        this.current = current;
-        return futureMap.putIfAbsent(current, future);
-    }
+	public Future<?> setCurrent(RequestMessage current, Future<?> future) {
+		this.current = current;
+		return futureMap.putIfAbsent(current, future);
+	}
 
+	public Future<?> getFuture() {
+		return futureMap.get(current);
+	}
 
-    public Future<?> getFuture() {
-        return futureMap.get(current);
-    }
-
-    public Future<?> getFuture(RequestMessage inv) {
-        return futureMap.get(inv);
-    }
+	public Future<?> getFuture(RequestMessage inv) {
+		return futureMap.get(inv);
+	}
 
 }

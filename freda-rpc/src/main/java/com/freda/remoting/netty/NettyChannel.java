@@ -30,13 +30,15 @@ public class NettyChannel implements com.freda.remoting.Channel {
         ChannelFuture cf = channel.writeAndFlush(msg);
         boolean success = true;
         int timeout = 1000;
+      //  long startM = System.currentTimeMillis();
         try {
             success = cf.await(timeout);
+           // System.out.println("netty send " + (System.currentTimeMillis() - startM));
         } catch (Throwable e) {
-            throw new RuntimeException("runtime", e);
+            throw new RuntimeException("send timeout", e);
         }
         if (!success) {
-            throw new RuntimeException("runtime");
+            throw new RuntimeException("send timeout");
         }
     }
 

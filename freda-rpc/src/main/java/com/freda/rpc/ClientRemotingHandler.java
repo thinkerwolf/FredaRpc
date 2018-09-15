@@ -66,7 +66,8 @@ public class ClientRemotingHandler implements RemotingHandler {
             this.responseMessage = responseMessage;
         }
 
-        @Override
+        @SuppressWarnings({ "rawtypes", "unchecked" })
+		@Override
         public void run() {
             DefaultPromise rf = waitResultMap.remove(responseMessage.getId());
             if (rf != null) {

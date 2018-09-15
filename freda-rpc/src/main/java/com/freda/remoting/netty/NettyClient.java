@@ -34,7 +34,7 @@ public class NettyClient extends RemotingClient {
     @Override
     protected void doInit() {
         this.bootstrap = new Bootstrap();
-        this.bossGroup = new NioEventLoopGroup(conf.getBossThreads());
+        this.bossGroup = new NioEventLoopGroup(10);
         bootstrap.group(bossGroup);
         bootstrap.channel(NioSocketChannel.class);
         bootstrap.option(ChannelOption.SO_KEEPALIVE, true).option(ChannelOption.TCP_NODELAY, true)
