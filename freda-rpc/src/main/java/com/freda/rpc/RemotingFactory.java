@@ -20,18 +20,12 @@ public class RemotingFactory {
     public RemotingClient createRemotingClient(Net nc, List<Registry> registries) {
         ClientRemotingHandler handler = new ClientRemotingHandler();
         RemotingClient remoting = new NettyClient(nc, handler);
-        if (registries != null) {
-            remoting.addRegistrys(registries);
-        }
         return remoting;
     }
 
     public RemotingServer createRemotingServer(Net nc, List<Registry> registries) {
         ServerRemotingHandler handler = new ServerRemotingHandler();
         RemotingServer remoting = new NettyServer(nc, handler);
-        if (registries != null) {
-            remoting.addRegistrys(registries);
-        }
         return remoting;
     }
 

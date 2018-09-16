@@ -1,8 +1,6 @@
 package com.freda.remoting.netty;
 
 import com.freda.common.Net;
-import com.freda.registry.Server;
-import com.freda.registry.ServerNameBuilder;
 import com.freda.remoting.RemotingHandler;
 import com.freda.remoting.RemotingServer;
 import io.netty.bootstrap.ServerBootstrap;
@@ -46,7 +44,7 @@ public class NettyServer extends RemotingServer {
         serverBootstrap.childHandler(initializer);
         final String host = conf.getHost();
         final int port = conf.getPort();
-        final String serverName = ServerNameBuilder.getInstance().generateServerName(SERVER, host, port);
+       // final String serverName = ServerNameBuilder.getInstance().generateServerName(SERVER, host, port);
         ChannelFuture cf = serverBootstrap.bind(new InetSocketAddress(host, port));
         cf.addListener(new ChannelFutureListener() {
             @Override
@@ -55,7 +53,7 @@ public class NettyServer extends RemotingServer {
                     if (logger.isDebugEnabled()) {
                         logger.info(getClass().getSimpleName() + " listen tcp on " + port + " success");
                     }
-                    registerSelf(new Server(serverName, host, port, conf.getProtocol()));
+                   // registerSelf(new Server(serverName, host, port, conf.getProtocol()));
                 }
             }
         });

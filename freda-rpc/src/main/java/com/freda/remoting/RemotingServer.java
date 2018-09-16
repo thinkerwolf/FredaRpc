@@ -14,7 +14,7 @@ public abstract class RemotingServer extends AbstractRemoting {
         super(conf, handler);
     }
 
-    protected void registerSelf(Server server) {
+    /*protected void registerSelf(Server server) {
         if (registrys != null) {
             for (Registry registry : registrys) {
                 try {
@@ -24,7 +24,7 @@ public abstract class RemotingServer extends AbstractRemoting {
                 }
             }
         }
-    }
+    }*/
 
     protected abstract Channel doBind();
 

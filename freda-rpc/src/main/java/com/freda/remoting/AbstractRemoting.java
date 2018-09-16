@@ -12,7 +12,7 @@ abstract class AbstractRemoting implements Remoting {
 
     protected Net conf;
 
-    protected Set<Registry> registrys = new HashSet<>();
+//    protected Set<Registry> registrys = new HashSet<>();
 
     protected RemotingHandler handler;
 
@@ -27,29 +27,29 @@ abstract class AbstractRemoting implements Remoting {
         this.handler = handler;
     }
 
-    public void addRegistry(Registry registry) {
-        registrys.add(registry);
-    }
+//    public void addRegistry(Registry registry) {
+//        registrys.add(registry);
+//    }
+//
+//    public void addRegistrys(Collection<Registry> rs) {
+//        registrys.addAll(rs);
+//    }
 
-    public void addRegistrys(Collection<Registry> rs) {
-        registrys.addAll(rs);
-    }
-
-    public Registry getRegistry() {
-        Iterator<Registry> iter = registrys.iterator();
-        while (iter.hasNext()) {
-            Registry registry = iter.next();
-            if (registry != null) {
-                if (registry.isConnected()) {
-                    return registry;
-                } else {
-                    iter.remove();
-
-                }
-            }
-        }
-        return null;
-    }
+//    public Registry getRegistry() {
+//        Iterator<Registry> iter = registrys.iterator();
+//        while (iter.hasNext()) {
+//            Registry registry = iter.next();
+//            if (registry != null) {
+//                if (registry.isConnected()) {
+//                    return registry;
+//                } else {
+//                    iter.remove();
+//
+//                }
+//            }
+//        }
+//        return null;
+//    }
 
     @Override
     public Net config() {

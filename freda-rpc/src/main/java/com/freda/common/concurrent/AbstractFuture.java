@@ -30,7 +30,7 @@ public abstract class AbstractFuture<V> implements Future<V> {
 	}
 
 	@Override
-	public Future<V> addListener(FutureListener<? extends Future<? super V>> listener) {
+	public Future<V> addListener(FutureListener listener) {
 		FutureListener[] listeners = this.listeners;
 		final int size = this.size;
 		if (size == listeners.length) {
@@ -38,21 +38,24 @@ public abstract class AbstractFuture<V> implements Future<V> {
 		}
 		listeners[size] = listener;
 		this.size = size + 1;
+		if (isDone()) {
+			notifyListener(listener);
+		}
 		return this;
 	}
 
 	@Override
-	public Future<V> addListeners(FutureListener<? extends Future<? super V>>... ls) {
+	public Future<V> addListeners(FutureListener ... ls) {
 		if (ls.length == 0 || ls == null) {
 			return this;
 		}
-		for (FutureListener<? extends Future<? super V>> l : ls) {
+		for (FutureListener l : ls) {
 			addListener(l);
 		}
 		return this;
 	}
 
-	protected void notifyListener(final FutureListener<Future<V>> l) {
+	protected void notifyListener(final FutureListener l) {
 		if (isDone()) {
 			try {
 				l.operationComplete(this);

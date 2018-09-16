@@ -1,15 +1,25 @@
 package com.freda.rpc.http;
 
 import com.freda.common.Constants;
+import com.freda.common.concurrent.DefaultPromise;
 import com.freda.remoting.RequestMessage;
-import com.freda.rpc.AbstractInvoker;
-import com.freda.rpc.Result;
-import com.freda.rpc.ResultBuilder;
-import com.freda.rpc.RpcException;
+import com.freda.rpc.*;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.InputStreamEntity;
+import org.apache.http.impl.client.HttpClients;
 
 import java.io.*;
 import java.net.HttpURLConnection;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class HttpInvoker<T> extends AbstractInvoker<T> {
@@ -17,9 +27,21 @@ public class HttpInvoker<T> extends AbstractInvoker<T> {
     private URL[] urls;
     private AtomicInteger round = new AtomicInteger(0);
 
+    private HttpClient httpClient = HttpClients.createDefault();
+    private HttpPost[] requests;
+
+
     public HttpInvoker(String id, Class<T> type, URL[] urls) {
         super(id, type);
         this.urls = urls;
+        requests = new HttpPost[urls.length];
+        for (int i = 0; i < urls.length; i++) {
+            try {
+                requests[i] = new HttpPost(urls[i].toURI());
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     @Override
@@ -28,8 +50,40 @@ public class HttpInvoker<T> extends AbstractInvoker<T> {
     }
 
     @Override
-    public Result invoke(RequestMessage inv, boolean isAsync) throws RpcException {
-        HttpURLConnection connection = null;
+    public Result invoke(final RequestMessage inv, final boolean isAsync) throws RpcException {
+
+        HttpPost post = null;
+        try {
+            if (requests.length == 1) {
+                post = requests[0];
+            } else {
+                post = requests[round.getAndIncrement() % requests.length];
+            }
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(baos);
+            oos.writeObject(inv);
+            HttpEntity entity = new ByteArrayEntity(baos.toByteArray());
+            post.setEntity(entity);
+            if (isAsync) {
+                final Context context = Context.getContext();
+                final DefaultPromise<Object> promise = new DefaultPromise<>();
+                context.setCurrent(inv, promise);
+                httpClient.execute(post, new ResponseHandler<Object>() {
+                    @Override
+                    public Object handleResponse(HttpResponse response) throws ClientProtocolException, IOException {
+                        return HttpInvoker.this.handleResponse(response, promise);
+                    }
+                });
+                return ResultBuilder.buildSuccessResult(null);
+            } else {
+                return handleResponse(httpClient.execute(post), null);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResultBuilder.buildFailResult();
+        }
+
+        /*HttpURLConnection connection = null;
         InputStream is = null;
         OutputStream os = null;
         try {
@@ -95,8 +149,30 @@ public class HttpInvoker<T> extends AbstractInvoker<T> {
                 }
             }
             connection.disconnect();
+        }*/
+    }
+
+
+    private Result handleResponse(HttpResponse response, DefaultPromise<Object> promise) {
+        try {
+            if (response.getStatusLine().getStatusCode() == 200) {
+                ObjectInputStream ois = new ObjectInputStream(response.getEntity().getContent());
+                Object result = ois.readObject();
+                ois.close();
+                if (promise != null) promise.setSuccess(result);
+                return ResultBuilder.buildSuccessResult(result);
+            } else {
+                if (promise != null) promise.setFailure(new RuntimeException("http response status code error"));
+
+                return ResultBuilder.buildFailResult();
+            }
+
+        } catch (Exception e) {
+            if (promise != null) promise.setFailure(e);
+            return ResultBuilder.buildFailResult();
         }
     }
+
 
     @Override
     public synchronized void destory() {
@@ -106,9 +182,11 @@ public class HttpInvoker<T> extends AbstractInvoker<T> {
         destory = true;
         if (urls != null) {
             for (int i = 0; i < urls.length; i++) {
+                requests[i] = null;
                 urls[i] = null;
             }
             urls = null;
+            requests = null;
         }
     }
 
