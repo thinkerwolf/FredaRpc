@@ -16,12 +16,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class SpringComsumer {
     @SuppressWarnings("resource")
     public static void main(String[] args) {
-        ApplicationContext context = new ClassPathXmlApplicationContext("spring-frade-consumer.xml");
+        ApplicationContext context = new ClassPathXmlApplicationContext("spring-freda-consumer.xml");
         final DemoService ds = (DemoService) context.getBean("demoService");
-
         ExecutorService es = Executors.newFixedThreadPool(1000, new ThreadFactory() {
             private AtomicInteger id = new AtomicInteger(1);
-
             @Override
             public Thread newThread(Runnable r) {
                 Thread t = new Thread(r);
@@ -38,23 +36,17 @@ public class SpringComsumer {
                 public void run() {
                     Thread th = Thread.currentThread();
                     Object r = ds.sayHello("[" + th.getName() + "] liyulong-" + index);
-
                     Future<?> future = Context.getContext().getFuture();
                     future.addListener(new AsyncFutureListener<Object>() {
                         @Override
                         public void operationComplete(Future<Object> future) throws Throwable {
-
                             if (future.isSuccess()) {
                                 System.out.println(future.get());
                             } else {
                                 System.out.println(future.cause());
                             }
-
                         }
                     });
-
-
-                    //System.out.println(r);
                 }
             });
         }

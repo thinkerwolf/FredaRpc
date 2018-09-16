@@ -1,6 +1,5 @@
 package com.freda.rpc.http;
 
-import com.freda.common.Constants;
 import com.freda.common.concurrent.DefaultPromise;
 import com.freda.remoting.RequestMessage;
 import com.freda.rpc.*;
@@ -10,16 +9,13 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.client.HttpClients;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class HttpInvoker<T> extends AbstractInvoker<T> {

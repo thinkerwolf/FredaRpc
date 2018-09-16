@@ -21,20 +21,16 @@ public class SpringAnnotationConsumer {
         DemoServiceReference dsr = (DemoServiceReference) context.getBean("demoServiceReference");
         System.out.println(dsr.hello());
     }
-
     @Configuration
     @ComponentScan
     public static class SpringConfiguration {
-
         @Bean
-        ClientBean clientFreda1() {
+        ClientBean client1() {
             ClientBean netBean = new ClientBean();
             netBean.setId("client_1");
             netBean.setProtocol("freda");
-            netBean.setNetframe("netty");
             return netBean;
         }
-
         @Bean
         RegistryBean registry1() {
             RegistryBean rb = new RegistryBean();
@@ -44,7 +40,5 @@ public class SpringAnnotationConsumer {
             rb.setProtocol("zookeeper");
             return rb;
         }
-
     }
-
 }
