@@ -5,7 +5,7 @@
 
 
 ## Introduction
-A fast, lightweight, simple RPC framework base on Spring and Netty, without too much dependency, and the configuration is simple.
+A fast, lightweight, simple RPC framework base on Spring and Netty, without too much dependency, and the configuration is simple. If you like this, please click [star](https://github.com/thinkerwolf/FredaRpc/stargazers).
 
 ## Features
 * Seamless integration with Spring. 
@@ -249,7 +249,5 @@ public class SpringAnnotationConsumer {
 ```
 The SpringAnnotationConsumer will print out `Hello annotation freda`.
 
-
-
-
-
+## Contact
+- Mail: wukai213@gmail.com
