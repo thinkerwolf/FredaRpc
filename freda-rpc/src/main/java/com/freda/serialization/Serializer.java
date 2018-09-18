@@ -1,6 +1,6 @@
 package com.freda.serialization;
 
-import java.io.IOException;
+import java.io.*;
 
 /**
  * 序列化
@@ -10,10 +10,8 @@ import java.io.IOException;
  */
 public interface Serializer {
 
-	byte[] serialize(Object obj) throws IOException;
+	ObjectOutput serialize(OutputStream os) throws IOException;
 
-	<T> T deserialize(byte[] bytes, Class<T> clazz) throws IOException, ClassNotFoundException;
-	
-	Object deserialize(byte[] bytes) throws IOException, ClassNotFoundException;
+	ObjectInput deserialize(InputStream is) throws IOException, ClassNotFoundException;
 	
 }

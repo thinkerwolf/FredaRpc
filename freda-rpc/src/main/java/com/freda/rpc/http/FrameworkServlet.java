@@ -2,16 +2,17 @@ package com.freda.rpc.http;
 
 import com.freda.rpc.Exporter;
 import com.freda.rpc.RequestMessage;
+import com.freda.serialization.Serializer;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -40,24 +41,26 @@ public class FrameworkServlet extends HttpServlet {
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Service not found");
                 return;
             }
-            ObjectInputStream ois = new ObjectInputStream(req.getInputStream());
-            ObjectOutputStream oos = new ObjectOutputStream(resp.getOutputStream());
-            try {
+            String serializtion = req.getParameter("serialization");
+            if (StringUtils.isEmpty(serializtion)) {
+                resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Serializtion not found");
+                return;
+            }
 
-                RequestMessage requestMessage = (RequestMessage) ois.readObject();
+            try {
+                Serializer serializer = com.freda.common.ServiceLoader.getService(serializtion, Serializer.class);
+
+                ObjectInput oi = serializer.deserialize(req.getInputStream());
+                RequestMessage requestMessage = (RequestMessage) oi.readObject();
                 Object result = exporter.invoke(requestMessage.getMethodName(), requestMessage.getParameterTypes(), requestMessage.getArgs());
 
-                // test
-                // Object result = exporter.invoke("sayHello", new Class<?>[] { String.class }, new Object[]{"freda http"});
+                ObjectOutput oo = serializer.serialize(resp.getOutputStream());
                 resp.setContentType("text/json");
-                oos.writeObject(result);
+                oo.writeObject(result);
 
             } catch (Exception e) {
                 e.printStackTrace();
                 resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "");
-            } finally {
-                ois.close();
-                oos.close();
             }
         } else {
             resp.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED, req.getMethod());

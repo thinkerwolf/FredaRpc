@@ -86,6 +86,7 @@
         <xsd:attribute name="protocol" type="xsd:string" use="required"/>
         <xsd:attribute name="timeout" type="xsd:int"/>
         <xsd:attribute name="registries" type="xsd:string"/>
+        <xsd:attribute name="serialization" type="xsd:string"/>
     </xsd:complexType>
 
     <xsd:complexType name="clientType">
@@ -94,6 +95,7 @@
         <xsd:attribute name="port" type="xsd:int"/>
         <xsd:attribute name="protocol" type="xsd:string" use="required"/>
         <xsd:attribute name="timeout" type="xsd:int"/>
+        <xsd:attribute name="serialization" type="xsd:string"/>
     </xsd:complexType>
 
     <xsd:element name="client" type="clientType">

@@ -1,7 +1,10 @@
 package com.freda.rpc.http;
 
+import com.freda.common.Net;
+import com.freda.common.ServiceLoader;
 import com.freda.common.concurrent.DefaultPromise;
 import com.freda.rpc.*;
+import com.freda.serialization.Serializer;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -12,27 +15,29 @@ import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.HttpClients;
 
 import java.io.*;
-import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class HttpInvoker<T> extends AbstractInvoker<T> {
 
-    private URL[] urls;
+    //private List<Net> ncs;
     private AtomicInteger round = new AtomicInteger(0);
 
     private HttpClient httpClient = HttpClients.createDefault();
     private HttpPost[] requests;
+    private Net[] nets;
 
-
-    public HttpInvoker(String id, Class<T> type, URL[] urls) {
+    public HttpInvoker(String id, Class<T> type, Net[] nets) {
         super(id, type);
-        this.urls = urls;
-        requests = new HttpPost[urls.length];
-        for (int i = 0; i < urls.length; i++) {
+        this.nets = nets;
+        requests = new HttpPost[nets.length];
+        for (int i = 0; i < nets.length; i++) {
             try {
-                requests[i] = new HttpPost(urls[i].toURI());
+                URI uri = new URI(nets[i].getPath() + HttpProtocol.CONTEXT_PATH + "/" + id + "?serialization=" + nets[i].getSerialization());
+                requests[i] = new HttpPost(uri);
             } catch (URISyntaxException e) {
                 throw new RuntimeException(e);
             }
@@ -47,15 +52,20 @@ public class HttpInvoker<T> extends AbstractInvoker<T> {
     @Override
     public Result invoke(final RequestMessage inv, final boolean isAsync) throws RpcException {
         HttpPost post = null;
+        Net net = null;
         try {
             if (requests.length == 1) {
                 post = requests[0];
+                net = nets[0];
             } else {
-                post = requests[round.getAndIncrement() % requests.length];
+                int r = round.getAndIncrement() % requests.length;
+                post = requests[r];
+                net = nets[r];
             }
+            Serializer serializer = ServiceLoader.getService(net.getSerialization(), Serializer.class);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(baos);
-            oos.writeObject(inv);
+            ObjectOutput oo = serializer.serialize(baos);
+            oo.writeObject(inv);
             HttpEntity entity = new ByteArrayEntity(baos.toByteArray());
             post.setEntity(entity);
             if (isAsync) {
@@ -174,12 +184,10 @@ public class HttpInvoker<T> extends AbstractInvoker<T> {
             return;
         }
         destory = true;
-        if (urls != null) {
-            for (int i = 0; i < urls.length; i++) {
+        if (requests != null) {
+            for (int i = 0; i < requests.length; i++) {
                 requests[i] = null;
-                urls[i] = null;
             }
-            urls = null;
             requests = null;
         }
     }

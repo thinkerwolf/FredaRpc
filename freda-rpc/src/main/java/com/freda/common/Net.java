@@ -13,6 +13,8 @@ public class Net {
 
     private String protocol = "freda";
 
+    private String serialization = "hessian2";
+
     private int timeout;
 
     private int bossThreads = Math.max(1, Constants.DEFAULT_THREAD_NUM / 2);
@@ -82,6 +84,14 @@ public class Net {
 
     public void setTimeout(int timeout) {
         this.timeout = timeout;
+    }
+
+    public String getSerialization() {
+        return serialization;
+    }
+
+    public void setSerialization(String serialization) {
+        this.serialization = serialization;
     }
 
     public boolean isUseable() {

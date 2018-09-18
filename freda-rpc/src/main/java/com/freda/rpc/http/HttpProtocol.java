@@ -29,15 +29,9 @@ public class HttpProtocol extends AbstractProtocol {
 
     @Override
     public <T> Invoker<T> refer(String id, Class<T> type, List<Net> ncs) {
-        URL[] urls = new URL[ncs.size()];
-        for (int i = 0; i < ncs.size(); i++) {
-            try {
-                urls[i] = new URL(ncs.get(i).getPath() + CONTEXT_PATH + "/" + id);
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            }
-        }
-        HttpInvoker<T> invoker = new HttpInvoker<>(id, type, urls);
+        Net[] nets = new Net[ncs.size()];
+        ncs.toArray(nets);
+        HttpInvoker<T> invoker = new HttpInvoker<>(id, type, nets);
         return invoker;
     }
 
