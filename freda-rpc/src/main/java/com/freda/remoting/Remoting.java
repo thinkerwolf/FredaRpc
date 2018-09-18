@@ -6,7 +6,6 @@ public interface Remoting {
 
     void stop();
 
-
     Net config();
 
     RemotingHandler handler();

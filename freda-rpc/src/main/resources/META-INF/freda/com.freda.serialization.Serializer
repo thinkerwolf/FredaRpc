@@ -1,0 +1,3 @@
+hessian=com.freda.serialization.hessian.HessianSerializer
+jdk=com.freda.serialization.jdk.JdkSerializer
+json=com.freda.serialization.json.JsonSerializer

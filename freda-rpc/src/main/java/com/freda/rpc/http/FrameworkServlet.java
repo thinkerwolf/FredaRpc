@@ -1,7 +1,7 @@
 package com.freda.rpc.http;
 
-import com.freda.remoting.RequestMessage;
 import com.freda.rpc.Exporter;
+import com.freda.rpc.RequestMessage;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;

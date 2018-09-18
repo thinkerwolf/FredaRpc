@@ -1,7 +1,6 @@
 package com.freda.rpc;
 
 import com.freda.common.concurrent.Future;
-import com.freda.remoting.RequestMessage;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

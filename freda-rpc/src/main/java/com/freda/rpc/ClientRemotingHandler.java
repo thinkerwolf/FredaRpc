@@ -4,8 +4,6 @@ import com.freda.common.concurrent.DefaultPromise;
 import com.freda.common.concurrent.Future;
 import com.freda.remoting.Remoting;
 import com.freda.remoting.RemotingHandler;
-import com.freda.remoting.RequestMessage;
-import com.freda.remoting.ResponseMessage;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,8 +33,9 @@ public class ClientRemotingHandler implements RemotingHandler {
 
     @Override
     public Future<?> send(Remoting remoting, Object msg) {
+    	RequestMessage rm = new RequestMessage();
         DefaultPromise<Object> rf = new DefaultPromise<Object>();
-        waitResultMap.put(((RequestMessage) msg).getRequestId(), rf);
+        waitResultMap.put(rm.getRequestId(), rf);
         remoting.channel().send(msg);
         return rf;
     }

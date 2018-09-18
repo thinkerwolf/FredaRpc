@@ -1,7 +1,6 @@
 package com.freda.rpc.http;
 
 import com.freda.common.concurrent.DefaultPromise;
-import com.freda.remoting.RequestMessage;
 import com.freda.rpc.*;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -47,7 +46,6 @@ public class HttpInvoker<T> extends AbstractInvoker<T> {
 
     @Override
     public Result invoke(final RequestMessage inv, final boolean isAsync) throws RpcException {
-
         HttpPost post = null;
         try {
             if (requests.length == 1) {

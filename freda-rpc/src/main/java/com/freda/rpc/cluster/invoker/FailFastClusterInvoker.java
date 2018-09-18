@@ -1,7 +1,7 @@
 package com.freda.rpc.cluster.invoker;
 
-import com.freda.remoting.RequestMessage;
 import com.freda.rpc.Invoker;
+import com.freda.rpc.RequestMessage;
 import com.freda.rpc.Result;
 import com.freda.rpc.cluster.AbstractClusterInvoker;
 import com.freda.rpc.cluster.balance.BalanceStrategy;

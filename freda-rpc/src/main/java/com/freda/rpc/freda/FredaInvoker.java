@@ -4,7 +4,6 @@ import com.freda.common.concurrent.DefaultPromise;
 import com.freda.common.concurrent.Future;
 import com.freda.common.concurrent.FutureListener;
 import com.freda.remoting.RemotingClient;
-import com.freda.remoting.RequestMessage;
 import com.freda.rpc.*;
 
 import java.util.concurrent.ExecutionException;
@@ -34,7 +33,7 @@ public class FredaInvoker<T> extends AbstractInvoker<T> {
         } else {
             client = clients[Math.abs(round.getAndIncrement() % clients.length)];
         }
-        Future rf = client.handler().send(client, inv);
+        Future<?> rf = client.handler().send(client, inv);
 
         if (isAsync) {
             Context context = Context.getContext();

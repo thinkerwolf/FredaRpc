@@ -16,5 +16,5 @@ public class JsonUtils {
     public static <T> T json2Obj(String json, Class<T> clazz) {
         return JSON.parseObject(json, clazz);
     }
-
+    
 }

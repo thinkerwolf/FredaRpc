@@ -4,8 +4,6 @@ import com.freda.common.concurrent.DefaultPromise;
 import com.freda.common.concurrent.Future;
 import com.freda.remoting.Remoting;
 import com.freda.remoting.RemotingHandler;
-import com.freda.remoting.RequestMessage;
-import com.freda.remoting.ResponseMessage;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

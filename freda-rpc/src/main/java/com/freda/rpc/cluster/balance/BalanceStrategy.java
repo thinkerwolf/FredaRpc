@@ -1,7 +1,7 @@
 package com.freda.rpc.cluster.balance;
 
-import com.freda.remoting.RequestMessage;
 import com.freda.rpc.Invoker;
+import com.freda.rpc.RequestMessage;
 
 import java.util.List;
 

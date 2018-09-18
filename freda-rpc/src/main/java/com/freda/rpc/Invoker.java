@@ -1,7 +1,5 @@
 package com.freda.rpc;
 
-import com.freda.remoting.RequestMessage;
-
 public interface Invoker<T> {
     /**
      * invoke sync

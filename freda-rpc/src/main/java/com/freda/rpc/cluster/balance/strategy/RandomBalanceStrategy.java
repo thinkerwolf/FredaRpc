@@ -1,8 +1,8 @@
 package com.freda.rpc.cluster.balance.strategy;
 
 import com.freda.common.util.RandomUtil;
-import com.freda.remoting.RequestMessage;
 import com.freda.rpc.Invoker;
+import com.freda.rpc.RequestMessage;
 import com.freda.rpc.cluster.balance.BalanceStrategy;
 
 import java.util.List;
