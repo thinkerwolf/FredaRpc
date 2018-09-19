@@ -19,8 +19,11 @@ public class ClientRemotingHandler implements RemotingHandler {
     // ConcurrentHashMap<>();
     private Map<Integer, DefaultPromise<?>> waitResultMap = new ConcurrentHashMap<Integer, DefaultPromise<?>>();
     private Executor responseExecutor;
-
-    public ClientRemotingHandler() {
+    
+    private Class<?> decodeClass;
+    
+    public ClientRemotingHandler(Class<?> decodeClass) {
+    	this.decodeClass = decodeClass;
         responseExecutor = Executors.newFixedThreadPool(2, new ThreadFactory() {
             @Override
             public Thread newThread(Runnable r) {
@@ -33,7 +36,7 @@ public class ClientRemotingHandler implements RemotingHandler {
 
     @Override
     public Future<?> send(Remoting remoting, Object msg) {
-    	RequestMessage rm = new RequestMessage();
+    	RequestMessage rm = (RequestMessage) msg;
         DefaultPromise<Object> rf = new DefaultPromise<Object>();
         waitResultMap.put(rm.getRequestId(), rf);
         remoting.channel().send(msg);
@@ -78,5 +81,10 @@ public class ClientRemotingHandler implements RemotingHandler {
             }
         }
     }
+
+	@Override
+	public Class<?> decodeClass() {
+		return decodeClass;
+	}
 
 }

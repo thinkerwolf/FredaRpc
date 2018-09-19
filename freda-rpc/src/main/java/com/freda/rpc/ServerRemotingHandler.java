@@ -11,8 +11,14 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ServerRemotingHandler implements RemotingHandler {
 
     private Map<String, Exporter<?>> exporters = new ConcurrentHashMap<>();
+    
+    private Class<?> decodeClass;
+    
+    public ServerRemotingHandler(Class<?> decodeClass) {
+		this.decodeClass = decodeClass;
+	}
 
-    @Override
+	@Override
     public Future<?> send(Remoting remoting, Object msg) {
         DefaultPromise<Object> rf = new DefaultPromise<Object>();
         remoting.channel().send(msg);
@@ -49,5 +55,10 @@ public class ServerRemotingHandler implements RemotingHandler {
     public void removeExporter(Exporter<?> e) {
         exporters.remove(e.id());
     }
+
+	@Override
+	public Class<?> decodeClass() {
+		return decodeClass;
+	}
 
 }

@@ -4,6 +4,8 @@ import com.freda.common.Net;
 import com.freda.common.ServiceLoader;
 import com.freda.common.concurrent.DefaultPromise;
 import com.freda.rpc.*;
+import com.freda.serialization.ObjectInput;
+import com.freda.serialization.ObjectOutput;
 import com.freda.serialization.Serializer;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -14,7 +16,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.HttpClients;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -92,10 +95,10 @@ public class HttpInvoker<T> extends AbstractInvoker<T> {
         try {
             if (response.getStatusLine().getStatusCode() == 200) {
             	ObjectInput oi = serializer.deserialize(response.getEntity().getContent());
-                Object result = oi.readObject();
+                ResponseMessage responseMessage = oi.readObject(ResponseMessage.class);
                 oi.close();
-                if (promise != null) promise.setSuccess(result);
-                return ResultBuilder.buildSuccessResult(result);
+                if (promise != null) promise.setSuccess(responseMessage.getResult());
+                return ResultBuilder.buildSuccessResult(responseMessage.getResult());
             } else {
                 if (promise != null) promise.setFailure(new RuntimeException("http response status code error"));
                 return ResultBuilder.buildFailResult();

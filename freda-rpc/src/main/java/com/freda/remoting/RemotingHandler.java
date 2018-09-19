@@ -12,5 +12,7 @@ public interface RemotingHandler {
     Future<?> send(Remoting remoting, Object msg);
 
     void received(Remoting remoting, Object msg);
-
+    
+    Class<?> decodeClass();
+     
 }

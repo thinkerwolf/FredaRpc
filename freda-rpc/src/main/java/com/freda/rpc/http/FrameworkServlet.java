@@ -3,6 +3,9 @@ package com.freda.rpc.http;
 import com.freda.common.ServiceLoader;
 import com.freda.rpc.Exporter;
 import com.freda.rpc.RequestMessage;
+import com.freda.rpc.ResponseMessage;
+import com.freda.serialization.ObjectInput;
+import com.freda.serialization.ObjectOutput;
 import com.freda.serialization.Serializer;
 import org.apache.commons.lang3.StringUtils;
 
@@ -10,7 +13,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -51,13 +55,18 @@ public class FrameworkServlet extends HttpServlet {
                 Serializer serializer = ServiceLoader.getService(serializtion, Serializer.class);
 
                 ObjectInput oi = serializer.deserialize(req.getInputStream());
-                RequestMessage requestMessage = (RequestMessage) oi.readObject();
+                RequestMessage requestMessage = oi.readObject(RequestMessage.class);
                 oi.close();
                 Object result = exporter.invoke(requestMessage.getMethodName(), requestMessage.getParameterTypes(), requestMessage.getArgs());
-
+                
+                ResponseMessage responseMessage = new ResponseMessage();
+                responseMessage.setSuccess(true);
+                responseMessage.setResult(result);
+                responseMessage.setId(requestMessage.getRequestId());
+                
                 ObjectOutput oo = serializer.serialize(resp.getOutputStream());
                 resp.setContentType("text/json");
-                oo.writeObject(result);
+                oo.writeObject(responseMessage);
                 oo.close();
             } catch (Exception e) {
                 e.printStackTrace();

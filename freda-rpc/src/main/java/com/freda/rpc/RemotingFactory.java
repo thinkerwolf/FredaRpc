@@ -18,13 +18,13 @@ public class RemotingFactory {
     }
 
     public RemotingClient createRemotingClient(Net nc, List<Registry> registries) {
-        ClientRemotingHandler handler = new ClientRemotingHandler();
+        ClientRemotingHandler handler = new ClientRemotingHandler(ResponseMessage.class);
         RemotingClient remoting = new NettyClient(nc, handler);
         return remoting;
     }
 
     public RemotingServer createRemotingServer(Net nc, List<Registry> registries) {
-        ServerRemotingHandler handler = new ServerRemotingHandler();
+        ServerRemotingHandler handler = new ServerRemotingHandler(RequestMessage.class);
         RemotingServer remoting = new NettyServer(nc, handler);
         return remoting;
     }

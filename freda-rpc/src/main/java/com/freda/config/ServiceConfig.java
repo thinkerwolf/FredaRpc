@@ -64,7 +64,7 @@ public class ServiceConfig<T> extends InterfaceConfig<T> {
                 r.register(new Server(serverName, sc.getHost(), sc.getPort(), sc.getProtocol()));
             }
             Protocol protocol = ServiceLoader.getService(sc.getProtocol(), Protocol.class);
-            Exporter<T> e = protocol.export(getId(), interfaceClass, ref, new Net(sc.getHost(), sc.getPort(), sc.getProtocol()));
+            Exporter<T> e = protocol.export(getId(), interfaceClass, ref, sc.getNet());
             exporters.add(e);
         }
     }
