@@ -9,9 +9,9 @@
     <!-- registry config zookeeper-->
     <freda:registry id="registry-zookeeper" host="127.0.0.1" port="2181" protocol="zookeeper"/>
     <!-- server config freda -->
-    <freda:server id="server-1" host="127.0.0.1" port="8088" protocol="freda" timeout="1000" registries="registry-zookeeper"/>
+    <freda:server id="server-1" host="127.0.0.1" port="8088" protocol="freda" timeout="1000" registries="registry-zookeeper" serialization="jdk"/>
     <!-- server http -->
-    <freda:server id="server-2" host="127.0.0.1" port="8089" protocol="http" timeout="1000" registries="registry-zookeeper"/>
+    <freda:server id="server-2" host="127.0.0.1" port="8089" protocol="http" timeout="1000" registries="registry-zookeeper" serialization="hessian2"/>
     <!-- export the service -->
     <freda:service interface="com.freda.example.bean.DemoService" ref="demoService" servers="server-1,server-2"/>
 </beans>

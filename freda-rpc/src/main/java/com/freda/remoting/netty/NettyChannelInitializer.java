@@ -45,6 +45,7 @@ class NettyChannelInitializer extends ChannelInitializer<Channel> {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ObjectOutput oo = serializer.serialize(baos);
             oo.writeObject(msg);
+            oo.close();
             byte[] msgBytes = baos.toByteArray();
             out.writeInt(msgBytes.length);
             out.writeBytes(msgBytes);
@@ -74,6 +75,7 @@ class NettyChannelInitializer extends ChannelInitializer<Channel> {
             Serializer serializer = ServiceLoader.getService(serialization, Serializer.class);
             ObjectInput oi = serializer.deserialize(bais);
             out.add(oi.readObject());
+            oi.close();
         }
     }
 

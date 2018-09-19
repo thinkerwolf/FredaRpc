@@ -8,8 +8,6 @@ import com.freda.rpc.AbstractProtocol;
 import com.freda.rpc.Exporter;
 import com.freda.rpc.Invoker;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

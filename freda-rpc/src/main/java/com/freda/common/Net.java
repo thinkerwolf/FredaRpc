@@ -14,7 +14,7 @@ public class Net {
     private String protocol = "freda";
 
     private String serialization = "hessian2";
-
+    
     private int timeout;
 
     private int bossThreads = Math.max(1, Constants.DEFAULT_THREAD_NUM / 2);
@@ -26,19 +26,22 @@ public class Net {
     }
 
     public Net(String host, int port, String protocol) {
-        this.host = host;
-        this.port = port;
-        this.protocol = protocol;
+        this(host, port, protocol, Constants.DEFAULT_TIMEOUT);
     }
 
     public Net(String host, int port, String protocol, int timeout) {
-        this.host = host;
-        this.port = port;
-        this.protocol = protocol;
-        this.timeout = timeout;
+        this(host, port, protocol, timeout, Constants.DEFAULT_SERIALIZATION);
     }
+    
+    public Net(String host, int port, String protocol, int timeout, String serialization) {
+		this.host = host;
+		this.port = port;
+		this.protocol = protocol;
+		this.serialization = serialization;
+		this.timeout = timeout;
+	}
 
-    public String getHost() {
+	public String getHost() {
         return host;
     }
 

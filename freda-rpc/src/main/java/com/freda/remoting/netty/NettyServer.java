@@ -18,7 +18,6 @@ import java.net.InetSocketAddress;
 public class NettyServer extends RemotingServer {
 
     private static final Logger logger = LoggerFactory.getLogger(NettyServer.class);
-    private static final String SERVER = "server";
 
     private ServerBootstrap serverBootstrap;
     private EventLoopGroup bossGroup;

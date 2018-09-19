@@ -1,12 +1,6 @@
 package com.freda.remoting;
 
 import com.freda.common.Net;
-import com.freda.registry.Registry;
-
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
 
 abstract class AbstractRemoting implements Remoting {
 

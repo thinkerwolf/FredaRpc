@@ -1,6 +1,7 @@
 package com.freda.rpc;
 
 import com.freda.common.Net;
+import com.freda.common.SLI;
 
 import java.util.List;
 
@@ -9,6 +10,7 @@ import java.util.List;
  *
  * @author wukai
  */
+@SLI("freda")
 public interface Protocol {
 
     String name();

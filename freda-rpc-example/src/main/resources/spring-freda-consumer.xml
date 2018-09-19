@@ -8,7 +8,7 @@
     <!-- registry config -->
     <freda:registry id="registry-zookeeper-1" host="127.0.0.1" port="2181" protocol="zookeeper"/>
     <!-- client config -->
-    <freda:client id="client-1" protocol="freda"/>
+    <freda:client id="client-1" protocol="http" serialization="hessian2"/>
     <!-- reference config -->
     <freda:reference id="demoService" clients="client-1" interface="com.freda.example.bean.DemoService" balance="hash" async="true"/>
 </beans>

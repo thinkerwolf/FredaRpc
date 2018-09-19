@@ -25,7 +25,9 @@ public interface Constants {
      * Defalut thread num
      */
     public static final int DEFAULT_THREAD_NUM = Math.max(1, Runtime.getRuntime().availableProcessors() * 2);
-
+    
+    public static final String DEFAULT_SERIALIZATION = "hessian2";
+    
     // =====================================
     /**
      * Parameter key of retry times

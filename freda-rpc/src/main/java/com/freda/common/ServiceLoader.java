@@ -85,5 +85,11 @@ public class ServiceLoader<T> {
         }
         return (T) obj;
     }
+    
+    public static <T> T getDefaultService(Class<T> service) {
+    	SLI sli = service.getAnnotation(SLI.class);
+    	return getService(sli.value(), service);
+    }
+    
 
 }

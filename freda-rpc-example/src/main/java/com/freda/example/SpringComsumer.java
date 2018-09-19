@@ -27,7 +27,7 @@ public class SpringComsumer {
                 return t;
             }
         });
-        int i = 1000;
+        int i = 1;
         final long startTime = System.currentTimeMillis();
         while (i-- > 0) {
             final int index = i;

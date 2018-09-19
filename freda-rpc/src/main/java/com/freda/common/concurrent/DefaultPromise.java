@@ -43,7 +43,8 @@ public class DefaultPromise<V> extends AbstractFuture<V> implements Promise<V> {
         return this.waitState != UNCANCELLABLE;
     }
 
-    @Override
+    @SuppressWarnings("unchecked")
+	@Override
     public V get() throws InterruptedException, ExecutionException {
         if (result == SUCCESS || result == FAIL) {
             return null;

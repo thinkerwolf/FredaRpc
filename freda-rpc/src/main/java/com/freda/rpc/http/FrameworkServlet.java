@@ -1,5 +1,6 @@
 package com.freda.rpc.http;
 
+import com.freda.common.ServiceLoader;
 import com.freda.rpc.Exporter;
 import com.freda.rpc.RequestMessage;
 import com.freda.serialization.Serializer;
@@ -12,7 +13,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -48,16 +48,17 @@ public class FrameworkServlet extends HttpServlet {
             }
 
             try {
-                Serializer serializer = com.freda.common.ServiceLoader.getService(serializtion, Serializer.class);
+                Serializer serializer = ServiceLoader.getService(serializtion, Serializer.class);
 
                 ObjectInput oi = serializer.deserialize(req.getInputStream());
                 RequestMessage requestMessage = (RequestMessage) oi.readObject();
+                oi.close();
                 Object result = exporter.invoke(requestMessage.getMethodName(), requestMessage.getParameterTypes(), requestMessage.getArgs());
 
                 ObjectOutput oo = serializer.serialize(resp.getOutputStream());
                 resp.setContentType("text/json");
                 oo.writeObject(result);
-
+                oo.close();
             } catch (Exception e) {
                 e.printStackTrace();
                 resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "");

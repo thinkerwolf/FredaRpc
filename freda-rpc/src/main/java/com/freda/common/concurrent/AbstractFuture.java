@@ -2,15 +2,9 @@ package com.freda.common.concurrent;
 
 import java.util.Arrays;
 
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public abstract class AbstractFuture<V> implements Future<V> {
 
-	// private static final Object SUCCESS = new Object();
-	// private static final Object FAIL = new Object();
-	// private static final Object UNCANCELLABLE = new Object();
-
-	// private Object waitState;
-
-	@SuppressWarnings("rawtypes")
 	private FutureListener[] listeners;
 	private int size;
 
@@ -45,7 +39,7 @@ public abstract class AbstractFuture<V> implements Future<V> {
 	}
 
 	@Override
-	public Future<V> addListeners(FutureListener ... ls) {
+	public Future<V> addListeners(FutureListener... ls) {
 		if (ls.length == 0 || ls == null) {
 			return this;
 		}

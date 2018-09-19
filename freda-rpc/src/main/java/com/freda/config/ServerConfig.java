@@ -2,68 +2,18 @@ package com.freda.config;
 
 import java.util.List;
 
-public class ServerConfig extends AbstractConfig {
+public class ServerConfig extends AbstractNetworkConfig {
 
-    private static final long serialVersionUID = 5587883607556110077L;
+	private static final long serialVersionUID = 5587883607556110077L;
 
-    protected String netframe;
+	private List<RegistryConfig> registryConfigs;
 
-    protected String protocol;
+	public List<RegistryConfig> getRegistryConfigs() {
+		return registryConfigs;
+	}
 
-    protected String host;
-
-    protected int port;
-
-    protected String registries;
-
-    private List<RegistryConfig> registryConfigs;
-
-    public String getNetframe() {
-        return netframe;
-    }
-
-    public void setNetframe(String netframe) {
-        this.netframe = netframe;
-    }
-
-    public String getProtocol() {
-        return protocol;
-    }
-
-    public void setProtocol(String protocol) {
-        this.protocol = protocol;
-    }
-
-    public String getHost() {
-        return host;
-    }
-
-    public void setHost(String host) {
-        this.host = host;
-    }
-
-    public int getPort() {
-        return port;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
-    }
-
-    public String getRegistries() {
-        return registries;
-    }
-
-    public void setRegistries(String registries) {
-        this.registries = registries;
-    }
-
-    public List<RegistryConfig> getRegistryConfigs() {
-        return registryConfigs;
-    }
-
-    public void setRegistryConfigs(List<RegistryConfig> registryConfigs) {
-        this.registryConfigs = registryConfigs;
-    }
+	public void setRegistryConfigs(List<RegistryConfig> registryConfigs) {
+		this.registryConfigs = registryConfigs;
+	}
 
 }
