@@ -1,7 +1,7 @@
-package com.freda.test;
+package com.freda;
 
 import com.freda.common.Net;
-import com.freda.config.Configuration;
+import com.freda.config.Application;
 import com.freda.config.ServiceConfig;
 import org.junit.Test;
 
@@ -10,12 +10,12 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
-public class FredaApp {
+public class FredaAppTest {
 
     public void configurationTest() {
         try {
-            URL url = Configuration.class.getClassLoader().getResource("freda.xml");
-            Configuration.newConfiguration(url.openConnection().getInputStream());
+            URL url = Application.class.getClassLoader().getResource("freda.xml");
+            Application.newConfiguration(url.openConnection().getInputStream());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -59,6 +59,7 @@ public class FredaApp {
         }
 
     }
-
+    
+    
 
 }

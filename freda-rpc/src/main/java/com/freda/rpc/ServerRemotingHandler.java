@@ -2,7 +2,7 @@ package com.freda.rpc;
 
 import com.freda.common.concurrent.DefaultPromise;
 import com.freda.common.concurrent.Future;
-import com.freda.remoting.Remoting;
+import com.freda.remoting.Channel;
 import com.freda.remoting.RemotingHandler;
 
 import java.util.Map;
@@ -19,14 +19,14 @@ public class ServerRemotingHandler implements RemotingHandler {
 	}
 
 	@Override
-    public Future<?> send(Remoting remoting, Object msg) {
+    public Future<?> send(Channel channel, Object msg) {
         DefaultPromise<Object> rf = new DefaultPromise<Object>();
-        remoting.channel().send(msg);
+        channel.send(msg);
         return rf;
     }
 
     @Override
-    public void received(Remoting remoting, Object msg) {
+    public void received(Channel channel, Object msg) {
         RequestMessage requestMessage = (RequestMessage) msg;
         ResponseMessage responseMessage = new ResponseMessage();
         try {
@@ -44,8 +44,7 @@ public class ServerRemotingHandler implements RemotingHandler {
             e.printStackTrace();
             responseMessage.setSuccess(false);
         }
-
-        send(remoting, responseMessage);
+        send(channel, responseMessage);
     }
 
     public void addExporter(Exporter<?> e) {

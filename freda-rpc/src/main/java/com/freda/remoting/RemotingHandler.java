@@ -9,9 +9,9 @@ import com.freda.common.concurrent.Future;
  */
 public interface RemotingHandler {
 
-    Future<?> send(Remoting remoting, Object msg);
+    Future<?> send(Channel channel, Object msg);
 
-    void received(Remoting remoting, Object msg);
+    void received(Channel channel, Object msg);
     
     Class<?> decodeClass();
      

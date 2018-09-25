@@ -1,4 +1,4 @@
-package com.freda.test;
+package com.freda;
 
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.startup.Tomcat;
@@ -17,7 +17,7 @@ import java.io.IOException;
  *
  * @author wukai
  */
-public class EmbedTomcatServer {
+public class EmbedTomcatServerTest {
 
     static final int port = 8080;
     static final String docBase = "c:/tmp/tomcat";

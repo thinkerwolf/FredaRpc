@@ -12,7 +12,7 @@ public abstract class InterfaceConfig<T> extends AbstractConfig {
     protected Class<T> interfaceClass;
     protected String interfaceName;
     protected Set<RegistryConfig> registryConfs = new HashSet<RegistryConfig>();
-    protected Configuration conf;
+    protected Application conf;
 
     protected transient T ref;
     protected transient volatile boolean destory;
@@ -57,7 +57,7 @@ public abstract class InterfaceConfig<T> extends AbstractConfig {
         this.ref = ref;
     }
 
-    public void setConf(Configuration conf) {
+    public void setConf(Application conf) {
         this.conf = conf;
     }
 

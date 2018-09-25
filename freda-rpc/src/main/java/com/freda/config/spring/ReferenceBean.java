@@ -1,7 +1,7 @@
 package com.freda.config.spring;
 
 import com.freda.config.ClientConfig;
-import com.freda.config.Configuration;
+import com.freda.config.Application;
 import com.freda.config.ReferenceConfig;
 import com.freda.config.RegistryConfig;
 import org.springframework.beans.BeansException;
@@ -32,7 +32,7 @@ public class ReferenceBean<T> extends ReferenceConfig<T>
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        this.setConf(Configuration.getInstance());
+        this.setConf(Application.getInstance());
         if (!StringUtils.hasText(getId())) {
             this.setId(getInterface());
         }
@@ -72,7 +72,7 @@ public class ReferenceBean<T> extends ReferenceConfig<T>
                 }
             }
             export();
-            Configuration.getInstance().addReferenceConf(this);
+            Application.getInstance().addReferenceConf(this);
         }
     }
 

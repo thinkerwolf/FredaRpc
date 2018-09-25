@@ -1,6 +1,6 @@
 package com.freda.bootstrap;
 
-import com.freda.config.Configuration;
+import com.freda.config.Application;
 import com.freda.config.ReferenceConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 @Deprecated
 public class Bootstrap {
     private static final Logger logger = LoggerFactory.getLogger(Bootstrap.class);
-    private Configuration conf;
+    private Application conf;
     private String confFilePath;
 
     public Bootstrap() {
@@ -18,16 +18,16 @@ public class Bootstrap {
     public void start() {
         try {
             if (confFilePath == null) {
-                this.conf = Configuration.newConfiguration();
+                this.conf = Application.newConfiguration();
             } else {
-                this.conf = Configuration.newConfiguration(confFilePath);
+                this.conf = Application.newConfiguration(confFilePath);
             }
         } catch (Exception e) {
             logger.error("FredaProvidor init error", e);
         }
     }
 
-    public Configuration getConf() {
+    public Application getConf() {
         return conf;
     }
 

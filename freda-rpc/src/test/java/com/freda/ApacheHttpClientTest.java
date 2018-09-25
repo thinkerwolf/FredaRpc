@@ -1,4 +1,4 @@
-package com.freda.test;
+package com.freda;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -11,7 +11,7 @@ import org.apache.http.impl.client.HttpClients;
 import java.io.IOException;
 import java.net.URI;
 
-public class ApacheHttpClient {
+public class ApacheHttpClientTest {
 
     public static void main(String[] args) throws Exception {
         URI uri = new URI("https://www.baidu.com");

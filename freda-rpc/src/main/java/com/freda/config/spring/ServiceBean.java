@@ -1,6 +1,6 @@
 package com.freda.config.spring;
 
-import com.freda.config.Configuration;
+import com.freda.config.Application;
 import com.freda.config.ServerConfig;
 import com.freda.config.ServiceConfig;
 import org.springframework.beans.BeansException;
@@ -25,7 +25,7 @@ public class ServiceBean<T> extends ServiceConfig<T> implements InitializingBean
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        this.setConf(Configuration.getInstance());
+        this.setConf(Application.getInstance());
         Map<String, ServerBean> beanMap = context.getBeansOfType(ServerBean.class);
         if (beanMap == null || beanMap.size() == 0) {
             return;
@@ -50,7 +50,7 @@ public class ServiceBean<T> extends ServiceConfig<T> implements InitializingBean
 //				this.addRegistryConf(rb);
 //			}
             export();
-            Configuration.getInstance().addServiceConf(this);
+            Application.getInstance().addServiceConf(this);
         }
     }
 

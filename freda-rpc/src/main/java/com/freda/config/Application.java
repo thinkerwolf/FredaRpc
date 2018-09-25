@@ -25,9 +25,9 @@ import java.util.concurrent.ConcurrentMap;
  * @author wukai
  */
 @SuppressWarnings("rawtypes")
-public class Configuration {
-    private static final Logger logger = LoggerFactory.getLogger(Configuration.class);
-    private static Configuration INSTANCE;
+public class Application {
+    private static final Logger logger = LoggerFactory.getLogger(Application.class);
+    private static Application INSTANCE;
     /**
      * common netty server config map
      */
@@ -62,15 +62,15 @@ public class Configuration {
     private ConcurrentMap<String, Registry> registryMap = new ConcurrentHashMap<>();
 
 
-    public static Configuration getInstance() {
+    public static Application getInstance() {
         if (INSTANCE == null) {
-            synchronized (Configuration.class) {
+            synchronized (Application.class) {
                 if (INSTANCE == null) {
                     try {
                         INSTANCE = newConfiguration();
                     } catch (Exception e) {
                         // e.printStackTrace();
-                        INSTANCE = new Configuration();
+                        INSTANCE = new Application();
                     }
                 }
             }
@@ -78,22 +78,22 @@ public class Configuration {
         return INSTANCE;
     }
 
-    public static Configuration newConfiguration() throws Exception {
-        InputStream is = Configuration.class.getClassLoader().getResourceAsStream("freda.xml");
+    public static Application newConfiguration() throws Exception {
+        InputStream is = Application.class.getClassLoader().getResourceAsStream("freda.xml");
         return newConfiguration(is);
     }
 
-    public static Configuration newConfiguration(String path) throws Exception {
+    public static Application newConfiguration(String path) throws Exception {
         if (path.startsWith("classpath:")) {
             return newConfiguration(
-                    Configuration.class.getClassLoader().getResourceAsStream(path.substring(10, path.length())));
+                    Application.class.getClassLoader().getResourceAsStream(path.substring(10, path.length())));
         } else {
             return newConfiguration(new FileInputStream(path));
         }
     }
 
-    public static Configuration newConfiguration(InputStream is) throws Exception {
-        Configuration configuration = new Configuration();
+    public static Application newConfiguration(InputStream is) throws Exception {
+        Application configuration = new Application();
         RegistryConfig registryConfig = new RegistryConfig();
         Map<String, InterfaceConfig<?>> serviceMap = new HashMap<>();
         Map<String, InterfaceConfig<?>> referenceMap = new HashMap<>();

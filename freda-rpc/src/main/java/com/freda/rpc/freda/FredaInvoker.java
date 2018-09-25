@@ -33,7 +33,7 @@ public class FredaInvoker<T> extends AbstractInvoker<T> {
         } else {
             client = clients[Math.abs(round.getAndIncrement() % clients.length)];
         }
-        Future<?> rf = client.handler().send(client, inv);
+        Future<?> rf = client.handler().send(client.channel(), inv);
 
         if (isAsync) {
             Context context = Context.getContext();

@@ -1,4 +1,4 @@
-package com.freda.test;
+package com.freda;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
@@ -21,7 +21,7 @@ import static io.netty.handler.codec.http.HttpHeaders.getHost;
 import static io.netty.handler.codec.http.HttpResponseStatus.*;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
-public class NettyHttpServer {
+public class NettyHttpServerTest {
     public static void main(String[] args) {
 
         NioEventLoopGroup boss = new NioEventLoopGroup(1);

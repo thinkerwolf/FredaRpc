@@ -2,6 +2,7 @@ package com.freda.rpc;
 
 import com.freda.common.concurrent.DefaultPromise;
 import com.freda.common.concurrent.Future;
+import com.freda.remoting.Channel;
 import com.freda.remoting.Remoting;
 import com.freda.remoting.RemotingHandler;
 
@@ -35,16 +36,16 @@ public class ClientRemotingHandler implements RemotingHandler {
     }
 
     @Override
-    public Future<?> send(Remoting remoting, Object msg) {
+    public Future<?> send(Channel channel, Object msg) {
     	RequestMessage rm = (RequestMessage) msg;
         DefaultPromise<Object> rf = new DefaultPromise<Object>();
         waitResultMap.put(rm.getRequestId(), rf);
-        remoting.channel().send(msg);
+        channel.send(msg);
         return rf;
     }
 
     @Override
-    public void received(Remoting remoting, Object msg) {
+    public void received(Channel channel, Object msg) {
         // 接收消息
         responseExecutor.execute(new ResponseHandleTask((ResponseMessage) msg));
     }

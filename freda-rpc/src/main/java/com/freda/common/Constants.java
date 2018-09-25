@@ -28,6 +28,10 @@ public interface Constants {
     
     public static final String DEFAULT_SERIALIZATION = "hessian2";
     
+    
+    public static final String CLASS_PATH= Thread.currentThread().getContextClassLoader().getResource("").getPath();
+    
+    
     // =====================================
     /**
      * Parameter key of retry times
