@@ -3,7 +3,6 @@ package com.freda.rpc;
 import com.freda.common.concurrent.DefaultPromise;
 import com.freda.common.concurrent.Future;
 import com.freda.remoting.Channel;
-import com.freda.remoting.Remoting;
 import com.freda.remoting.RemotingHandler;
 
 import java.util.Map;
@@ -72,7 +71,7 @@ public class ClientRemotingHandler implements RemotingHandler {
         @SuppressWarnings({ "rawtypes", "unchecked" })
 		@Override
         public void run() {
-            DefaultPromise rf = waitResultMap.remove(responseMessage.getId());
+            DefaultPromise rf = waitResultMap.remove(responseMessage.getRequestId());
             if (rf != null) {
                 if (responseMessage.isSuccess()) {
                     rf.setSuccess(responseMessage.getResult());

@@ -4,7 +4,7 @@ import com.freda.common.Net;
 
 abstract class AbstractRemoting implements Remoting {
 
-    protected Net conf;
+    protected Net net;
 
 //    protected Set<Registry> registrys = new HashSet<>();
 
@@ -12,12 +12,12 @@ abstract class AbstractRemoting implements Remoting {
 
     protected Channel channel;
 
-    public AbstractRemoting(Net conf) {
-        this.conf = conf;
+    public AbstractRemoting(Net net) {
+        this.net = net;
     }
 
-    public AbstractRemoting(Net conf, RemotingHandler handler) {
-        this.conf = conf;
+    public AbstractRemoting(Net net, RemotingHandler handler) {
+        this.net = net;
         this.handler = handler;
     }
 
@@ -47,7 +47,7 @@ abstract class AbstractRemoting implements Remoting {
 
     @Override
     public Net config() {
-        return conf;
+        return net;
     }
 
     @Override

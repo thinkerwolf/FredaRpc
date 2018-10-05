@@ -197,11 +197,11 @@ public class ReferenceConfig<T> extends InterfaceConfig<T> {
 							r.setArgs(args);
 							r.setMethodName(method.getName());
 							r.setRequestId(genId());
-							r.setClazzName(getId());
+							r.setId(getId());
 							r.setParameterTypes(method.getParameterTypes());
 							r.putParameter(Constants.RETRIES, rc.getRetries());
 							r.putParameter(Constants.BALANCE, rc.getBalance());
-
+							
 							boolean isAsync = rc.isAsync();
 							Result result = rc.getInvoker().invoke(r, isAsync);
 							return result == null ? null : result.getValue();

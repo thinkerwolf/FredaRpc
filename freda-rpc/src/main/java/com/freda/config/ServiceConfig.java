@@ -1,6 +1,5 @@
 package com.freda.config;
 
-import com.freda.common.Net;
 import com.freda.common.ServiceLoader;
 import com.freda.registry.Registry;
 import com.freda.registry.Server;

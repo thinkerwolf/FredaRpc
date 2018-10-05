@@ -11,7 +11,7 @@ public class RequestMessage implements Serializable {
 	 *
 	 */
 	private static final long serialVersionUID = 75921896613832425L;
-	private String clazzName;
+	private String id;
 	private String methodName;
 	private Object[] args;
 	private Class<?>[] parameterTypes;
@@ -50,12 +50,12 @@ public class RequestMessage implements Serializable {
 		this.parameterTypes = parameterTypes;
 	}
 
-	public String getClazzName() {
-		return clazzName;
+	public String getId() {
+		return id;
 	}
 
-	public void setClazzName(String clazzName) {
-		this.clazzName = clazzName;
+	public void setId(String id) {
+		this.id = id;
 	}
 
 	public void putParameter(String key, Object value) {
@@ -74,7 +74,7 @@ public class RequestMessage implements Serializable {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("clazzName#" + clazzName + " ,args#" + Arrays.toString(args));
+		sb.append("clazzName#" + id + " ,args#" + Arrays.toString(args));
 		sb.append(" ,method#" + methodName);
 		return sb.toString();
 	}

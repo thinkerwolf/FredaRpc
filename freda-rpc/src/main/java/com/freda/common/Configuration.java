@@ -20,6 +20,8 @@ public class Configuration {
 	public static final String NETTY_BOSS_THREADS = "netty.boss.threads";
 	/** Netty worker thread num */
 	public static final String NETTY_WORKER_THREADS = "netty.worker.threads";
+	/** Enable jmx monitor */
+	public static final String JMX_MONITOR_ENABLED = "jmx.monitor.enabled";
 
 	private static Map<String, String> props = new ConcurrentHashMap<>();
 
@@ -39,7 +41,7 @@ public class Configuration {
 					props.put(en.getKey().toString(), en.getValue().toString());
 				}
 			} catch (Exception e) {
-				//
+				// Ignore
 			}
 		}
 
@@ -59,6 +61,19 @@ public class Configuration {
 
 	public static String getStringProperty(String name) {
 		return props.get(name);
+	}
+
+	public static boolean getBooleanProperty(String name, boolean defaultValue) {
+		String s = props.get(name);
+		if (StringUtils.isNotEmpty(s)) {
+			try {
+				return Boolean.parseBoolean(s);
+			} catch (Exception e) {
+
+			}
+		}
+		return defaultValue;
+
 	}
 
 }

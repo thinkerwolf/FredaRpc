@@ -30,7 +30,7 @@ public class ServerRemotingHandler implements RemotingHandler {
         RequestMessage requestMessage = (RequestMessage) msg;
         ResponseMessage responseMessage = new ResponseMessage();
         try {
-            Exporter<?> exporter = exporters.get(requestMessage.getClazzName());
+            Exporter<?> exporter = exporters.get(requestMessage.getId());
             responseMessage.setId(requestMessage.getRequestId());
             if (exporter != null) {
                 Object result = exporter.invoke(requestMessage.getMethodName(), requestMessage.getParameterTypes(),

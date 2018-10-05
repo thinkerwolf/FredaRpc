@@ -19,7 +19,7 @@ public class AbstractNetworkConfig extends AbstractConfig {
 
 	protected String serialization = Constants.DEFAULT_SERIALIZATION;
 
-	protected int timeout;
+	protected int timeout = Constants.DEFAULT_TIMEOUT;
 
 	public String getNetframe() {
 		return netframe;

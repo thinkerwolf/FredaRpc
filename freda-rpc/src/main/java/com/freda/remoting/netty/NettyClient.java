@@ -21,7 +21,8 @@ public class NettyClient extends RemotingClient {
     private Bootstrap bootstrap;
     private ChannelFuture startFuture;
     private EventLoopGroup bossGroup;
-
+    private io.netty.channel.Channel ch;
+    
     public NettyClient(Net conf, Channel channel) {
         super(conf, null);
         this.channel = channel;
@@ -46,9 +47,10 @@ public class NettyClient extends RemotingClient {
 
     @Override
     protected Channel doConnect() {
-        startFuture = bootstrap.connect(conf.getHost(), conf.getPort());
-        this.channel = NettyChannel.getOrAddChannel(startFuture.channel());
-        boolean sent = startFuture.awaitUninterruptibly(3000);
+        startFuture = bootstrap.connect(net.getHost(), net.getPort());
+        this.ch = startFuture.channel();
+        this.channel = NettyChannel.getOrAddChannel(ch);
+        boolean sent = startFuture.awaitUninterruptibly(net.getTimeout());
         if (sent && startFuture.isSuccess()) {
             return channel;
         } else if (startFuture.cause() != null) {
@@ -62,6 +64,7 @@ public class NettyClient extends RemotingClient {
     public void stop() {
         channel.close();
         bossGroup.shutdownGracefully();
+        NettyChannel.removeChannelIfNecessary(ch);
     }
 
     @Override

@@ -29,7 +29,7 @@ public class NettyServer extends RemotingServer {
 	private ServerBootstrap serverBootstrap;
 	private EventLoopGroup bossGroup;
 	private EventLoopGroup workerGroup;
-	private Channel channel;
+	private Channel ch;
 
 	public NettyServer(Net conf, RemotingHandler handler) {
         super(conf, handler);
@@ -41,6 +41,9 @@ public class NettyServer extends RemotingServer {
 	@Override
 	public void stop() {
 		channel.close();
+		bossGroup.shutdownGracefully();
+		workerGroup.shutdownGracefully();
+		NettyChannel.removeChannelIfNecessary(ch);
 	}
 
 	@Override
@@ -48,8 +51,8 @@ public class NettyServer extends RemotingServer {
 		serverBootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class);
 		NettyChannelInitializer initializer = new NettyChannelInitializer(this);
 		serverBootstrap.childHandler(initializer);
-		final String host = conf.getHost();
-		final int port = conf.getPort();
+		final String host = net.getHost();
+		final int port = net.getPort();
 		// final String serverName =
 		// ServerNameBuilder.getInstance().generateServerName(SERVER, host,
 		// port);
@@ -66,8 +69,9 @@ public class NettyServer extends RemotingServer {
 				}
 			}
 		});
-		channel = cf.channel();
-		ChannelFuture closeFuture = channel.closeFuture();
+		this.ch = cf.channel(); 
+		this.channel = NettyChannel.getOrAddChannel(ch);
+		ChannelFuture closeFuture = ch.closeFuture();
 		closeFuture.addListener(new ChannelFutureListener() {
 			@Override
 			public void operationComplete(ChannelFuture future) throws Exception {
@@ -75,7 +79,7 @@ public class NettyServer extends RemotingServer {
 				workerGroup.shutdownGracefully();
 			}
 		});
-		return NettyChannel.getOrAddChannel(channel);
+		return channel;
 	}
 
 }
