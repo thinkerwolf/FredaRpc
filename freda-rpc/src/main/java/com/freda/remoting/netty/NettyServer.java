@@ -70,7 +70,7 @@ public class NettyServer extends RemotingServer {
 			}
 		});
 		this.ch = cf.channel(); 
-		this.channel = NettyChannel.getOrAddChannel(ch);
+		this.channel = NettyChannel.getOrAddChannel(ch, this);
 		ChannelFuture closeFuture = ch.closeFuture();
 		closeFuture.addListener(new ChannelFutureListener() {
 			@Override

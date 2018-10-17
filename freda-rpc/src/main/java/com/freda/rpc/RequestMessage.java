@@ -11,6 +11,9 @@ public class RequestMessage implements Serializable {
 	 *
 	 */
 	private static final long serialVersionUID = 75921896613832425L;
+	private static final Object[] EMPTY_ARGS = new Object[]{};
+	private static final Class<?>[] EMPTY_PARAMATER_TYPES = new Class<?>[]{};
+	
 	private String id;
 	private String methodName;
 	private Object[] args;
@@ -35,7 +38,7 @@ public class RequestMessage implements Serializable {
 	}
 
 	public Object[] getArgs() {
-		return args == null ? new Object[] {} : args;
+		return args == null ? EMPTY_ARGS : args;
 	}
 
 	public void setArgs(Object[] args) {
@@ -43,7 +46,7 @@ public class RequestMessage implements Serializable {
 	}
 
 	public Class<?>[] getParameterTypes() {
-		return parameterTypes == null ? new Class<?>[] {} : parameterTypes;
+		return parameterTypes == null ? EMPTY_PARAMATER_TYPES : parameterTypes;
 	}
 
 	public void setParameterTypes(Class<?>[] parameterTypes) {

@@ -49,7 +49,7 @@ public class NettyClient extends RemotingClient {
     protected Channel doConnect() {
         startFuture = bootstrap.connect(net.getHost(), net.getPort());
         this.ch = startFuture.channel();
-        this.channel = NettyChannel.getOrAddChannel(ch);
+        this.channel = NettyChannel.getOrAddChannel(ch, this);
         boolean sent = startFuture.awaitUninterruptibly(net.getTimeout());
         if (sent && startFuture.isSuccess()) {
             return channel;

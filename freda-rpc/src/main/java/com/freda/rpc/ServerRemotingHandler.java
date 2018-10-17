@@ -8,8 +8,13 @@ import com.freda.remoting.RemotingHandler;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ServerRemotingHandler implements RemotingHandler {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+public class ServerRemotingHandler implements RemotingHandler {
+	
+	private static final Logger logger = LoggerFactory.getLogger(ServerRemotingHandler.class);
+	
     private Map<String, Exporter<?>> exporters = new ConcurrentHashMap<>();
     
     private Class<?> decodeClass;
@@ -33,7 +38,7 @@ public class ServerRemotingHandler implements RemotingHandler {
             Exporter<?> exporter = exporters.get(requestMessage.getId());
             responseMessage.setId(requestMessage.getRequestId());
             if (exporter != null) {
-                Object result = exporter.invoke(requestMessage.getMethodName(), requestMessage.getParameterTypes(),
+                Object result = exporter.invoke(channel.net(), requestMessage.getMethodName(), requestMessage.getParameterTypes(),
                         requestMessage.getArgs());
                 responseMessage.setSuccess(true);
                 responseMessage.setResult(result);
@@ -41,7 +46,7 @@ public class ServerRemotingHandler implements RemotingHandler {
                 responseMessage.setSuccess(false);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+        	logger.error("server export", e);
             responseMessage.setSuccess(false);
         }
         send(channel, responseMessage);

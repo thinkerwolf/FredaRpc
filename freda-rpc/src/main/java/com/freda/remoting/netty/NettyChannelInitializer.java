@@ -25,8 +25,9 @@ class NettyChannelInitializer extends ChannelInitializer<Channel> {
 	@Override
 	protected void initChannel(Channel ch) throws Exception {
 		ChannelPipeline p = ch.pipeline();
-		p.addLast("encoder", new InnerEncoder(remoting.config().getSerialization()));
-		p.addLast("decoder", new InnerDecoder(remoting.config().getSerialization(), remoting.handler().decodeClass()));
+		String seialization = remoting.config().getSerialization();
+		p.addLast("encoder", new InnerEncoder(seialization));
+		p.addLast("decoder", new InnerDecoder(seialization, remoting.handler().decodeClass()));
 		p.addLast("handler", new InnerHandler());
 	}
 
@@ -82,7 +83,8 @@ class NettyChannelInitializer extends ChannelInitializer<Channel> {
 	class InnerHandler extends SimpleChannelInboundHandler<Object> {
 		@Override
 		protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
-			remoting.handler().received(NettyChannel.getOrAddChannel(ctx.channel()), msg);
+			Channel ch = ctx.channel();
+			remoting.handler().received(NettyChannel.getOrAddChannel(ch, remoting), msg);
 		}
 	}
 

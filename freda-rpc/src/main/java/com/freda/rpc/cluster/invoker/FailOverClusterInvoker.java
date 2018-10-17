@@ -32,7 +32,7 @@ public class FailOverClusterInvoker<T> extends AbstractClusterInvoker<T> {
                 return result;
             }
         }
-        throw new RpcException("............ cluster invoker fail ");
+        throw new RpcException("Cluster invoker fail ");
     }
 
 }

@@ -1,5 +1,6 @@
 package com.freda.rpc.http;
 
+import com.freda.common.Net;
 import com.freda.common.ServiceLoader;
 import com.freda.rpc.Exporter;
 import com.freda.rpc.RequestMessage;
@@ -50,14 +51,13 @@ public class FrameworkServlet extends HttpServlet {
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Serializtion not found");
                 return;
             }
-
             try {
                 Serializer serializer = ServiceLoader.getService(serializtion, Serializer.class);
 
                 ObjectInput oi = serializer.deserialize(req.getInputStream());
                 RequestMessage requestMessage = oi.readObject(RequestMessage.class);
                 oi.close();
-                Object result = exporter.invoke(requestMessage.getMethodName(), requestMessage.getParameterTypes(), requestMessage.getArgs());
+                Object result = exporter.invoke(getRemoteNet(req), requestMessage.getMethodName(), requestMessage.getParameterTypes(), requestMessage.getArgs());
                 
                 ResponseMessage responseMessage = new ResponseMessage();
                 responseMessage.setSuccess(true);
@@ -76,7 +76,13 @@ public class FrameworkServlet extends HttpServlet {
             resp.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED, req.getMethod());
         }
     }
-
+    
+    private static Net getRemoteNet(HttpServletRequest req) {
+    	String serializtion = req.getParameter("serialization");
+    	Net net = new Net(req.getRemoteHost(), req.getRemotePort(), "http", 0, serializtion);
+    	return net;
+    }
+    
     public synchronized void addExpoter(Integer port, Exporter<?> exporter) {
         Map<String, Exporter<?>> exporterMap = exporters.get(port);
         if (exporterMap == null) {

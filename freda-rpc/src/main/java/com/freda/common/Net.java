@@ -4,6 +4,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Net {
 
@@ -16,6 +18,8 @@ public class Net {
 	private String serialization = "hessian2";
 
 	private int timeout;
+
+	private Map<String, Object> parameters;
 
 	public Net() {
 
@@ -159,6 +163,31 @@ public class Net {
 
 	public String key() {
 		return port > 0 ? host + ":" + port : host;
+	}
+
+	public Map<String, Object> getParameters() {
+		if (parameters == null) {
+			synchronized (this) {
+				if (parameters == null) {
+					parameters = new ConcurrentHashMap<>();
+				}
+			}
+		}
+		return parameters;
+	}
+
+	public void putParameter(String key, Object value) {
+		Map<String, Object> parameters = getParameters();
+		parameters.put(key, value);
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T> T getParameter(String key, T defaultValue) {
+		Object value = getParameters().get(key);
+		if (value == null) {
+			getParameters().put(key, defaultValue);
+		}
+		return value == null ? defaultValue : (T) value;
 	}
 
 }

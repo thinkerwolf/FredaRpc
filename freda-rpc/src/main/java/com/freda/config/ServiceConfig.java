@@ -1,10 +1,12 @@
 package com.freda.config;
 
+import com.freda.common.Net;
 import com.freda.common.ServiceLoader;
 import com.freda.registry.Registry;
 import com.freda.registry.Server;
 import com.freda.registry.ServerNameBuilder;
 import com.freda.rpc.Exporter;
+import com.freda.rpc.ExporterInvokeListener;
 import com.freda.rpc.Protocol;
 
 import java.util.LinkedList;
@@ -64,6 +66,13 @@ public class ServiceConfig<T> extends InterfaceConfig<T> {
             }
             Protocol protocol = ServiceLoader.getService(sc.getProtocol(), Protocol.class);
             Exporter<T> e = protocol.export(getId(), interfaceClass, ref, sc.getNet());
+            e.addListener(new ExporterInvokeListener() {
+				@Override
+				public void invocation(Net net, String methodName, Class<?>[] parameterTypes, Object[] parameterValues) {
+					//TODO 进行调用统计
+					
+				}
+			});
             exporters.add(e);
         }
     }

@@ -3,22 +3,32 @@ package com.freda.remoting.netty;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 
+import java.net.InetSocketAddress;
+//import java.net.InetSocketAddress;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
+import com.freda.common.Net;
+import com.freda.remoting.Remoting;
 
 public class NettyChannel implements com.freda.remoting.Channel {
 
 	private static final ConcurrentMap<Channel, NettyChannel> channelMap = new ConcurrentHashMap<>();
 	private Channel channel;
+	private Net net;
 
-	public NettyChannel(Channel channel) {
+	NettyChannel(Channel channel, Net net) {
 		this.channel = channel;
+		this.net = net;
 	}
 
-	static NettyChannel getOrAddChannel(Channel channel) {
+	static NettyChannel getOrAddChannel(Channel channel, Remoting remoting) {
 		NettyChannel nettyChannel = channelMap.get(channel);
 		if (nettyChannel == null) {
-			nettyChannel = new NettyChannel(channel);
+			InetSocketAddress address = (InetSocketAddress) channel.remoteAddress();
+			Net remotingNet = remoting.config();
+			Net net = new Net(address.getHostName(), address.getPort(), remotingNet.getProtocol(), remotingNet.getTimeout(), remotingNet.getSerialization());
+			nettyChannel = new NettyChannel(channel, net);
 			channelMap.putIfAbsent(channel, nettyChannel);
 		}
 		return nettyChannel;
@@ -51,6 +61,11 @@ public class NettyChannel implements com.freda.remoting.Channel {
 	@Override
 	public void close() {
 		channel.close();
+	}
+
+	@Override
+	public Net net() {
+		return net;
 	}
 
 }
