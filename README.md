@@ -19,7 +19,7 @@ A fast, lightweight, simple RPC framework base on Spring and Netty, without too 
 ### Config services and reference by XML
 #### Define service interface
 ``` java
-package com.freda.example.bean;
+package com.thinkerwolf.freda.example.bean;
 public interface DemoService {
     String sayHello(String name);
 }
@@ -27,7 +27,7 @@ public interface DemoService {
 
 #### Implement service interface
 ``` java
-package com.freda.example.bean;
+package com.thinkerwolf.freda.example.bean;
 public class DemoServiceImpl implements DemoService {
     @Override
     public String sayHello(String str) {
@@ -47,7 +47,7 @@ spring-freda-providor.xml
        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
        http://www.freda.com/schema/freda
        http://www.freda.com/schema/freda/freda.xsd">
-    <bean id="demoService" class="com.freda.example.bean.DemoServiceImpl"/>
+    <bean id="demoService" class="com.thinkerwolf.freda.example.bean.DemoServiceImpl"/>
     <!-- registry config zookeeper-->
     <freda:registry id="registry-zookeeper" host="127.0.0.1" port="2181" protocol="zookeeper"/>
     <!-- server config freda -->
@@ -55,12 +55,12 @@ spring-freda-providor.xml
     <!-- server http -->
     <freda:server id="server-2" host="127.0.0.1" port="8089" protocol="http" timeout="1000" registries="registry-zookeeper"/>
     <!-- export the service -->
-    <freda:service interface="com.freda.example.bean.DemoService" ref="demoService" servers="server-1,server-2"/>
+    <freda:service interface="com.thinkerwolf.freda.example.bean.DemoService" ref="demoService" servers="server-1,server-2"/>
 </beans>
 ```
 #### Start provider 
 ```java
-package com.freda.example;
+package com.thinkerwolf.freda.example;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -87,17 +87,17 @@ spring-freda-consumer.xml
     <!-- client config -->
     <freda:client id="client-1" protocol="freda"/>
     <!-- reference config -->
-    <freda:reference id="demoService" clients="client-1" interface="com.freda.example.bean.DemoService" balance="hash" async="true"/>
+    <freda:reference id="demoService" clients="client-1" interface="com.thinkerwolf.freda.example.bean.DemoService" balance="hash" async="true"/>
 </beans>
 ```
 #### Start Consumer
 ``` java
-package com.freda.example;
+package com.thinkerwolf.freda.example;
 
-import com.freda.common.concurrent.Future;
-import com.freda.example.bean.DemoService;
-import com.freda.rpc.AsyncFutureListener;
-import com.freda.rpc.Context;
+import com.thinkerwolf.freda.common.concurrent.Future;
+import com.thinkerwolf.freda.example.bean.DemoService;
+import com.thinkerwolf.freda.rpc.AsyncFutureListener;
+import com.thinkerwolf.freda.rpc.Context;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -129,8 +129,8 @@ We still use `DemoService` as the service interface.
 
 #### Implement service interface with `Service` annotation
 ``` java
-package com.freda.example.bean;
-import com.freda.config.annotation.Service;
+package com.thinkerwolf.freda.example.bean;
+import com.thinkerwolf.freda.config.annotation.Service;
 import org.springframework.stereotype.Component;
 @Service(id = "demoService", interfaceClass = DemoService.class)
 @Component("demoService")
@@ -146,10 +146,10 @@ public class DemoServiceImpl implements DemoService {
 #### Start annotation provider
 The registry and server is configured in `SpringConfiguration`.
 ``` java
-package com.freda.example;
-import com.freda.config.spring.RegistryBean;
-import com.freda.config.spring.ServerBean;
-import com.freda.config.spring.annotation.FredaComponentScan;
+package com.thinkerwolf.freda.example;
+import com.thinkerwolf.freda.config.spring.RegistryBean;
+import com.thinkerwolf.freda.config.spring.ServerBean;
+import com.thinkerwolf.freda.config.spring.annotation.FredaComponentScan;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -188,8 +188,8 @@ For now, The provoder configuration finish.
 #### Start annotation consumer
 First,use `Reference` annotation to inject the value to field
 ``` java
-package com.freda.example.bean;
-import com.freda.config.annotation.Reference;
+package com.thinkerwolf.freda.example.bean;
+import com.thinkerwolf.freda.config.annotation.Reference;
 import org.springframework.stereotype.Component;
 @Component("demoServiceReference")
 public class DemoServiceReference {
@@ -207,11 +207,11 @@ public class DemoServiceReference {
 Now, Let's start the consumer. The registry and server is configured in `SpringConfiguration`.
 
 ``` java
-package com.freda.example;
+package com.thinkerwolf.freda.example;
 
-import com.freda.config.spring.ClientBean;
-import com.freda.config.spring.RegistryBean;
-import com.freda.example.bean.DemoServiceReference;
+import com.thinkerwolf.freda.config.spring.ClientBean;
+import com.thinkerwolf.freda.config.spring.RegistryBean;
+import com.thinkerwolf.freda.example.bean.DemoServiceReference;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
