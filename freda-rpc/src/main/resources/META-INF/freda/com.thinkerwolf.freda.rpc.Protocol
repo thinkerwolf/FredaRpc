@@ -1,0 +1,2 @@
+freda=com.thinkerwolf.freda.rpc.freda.FredaProtocol
+http=com.thinkerwolf.freda.rpc.http.HttpProtocol

@@ -5,7 +5,7 @@
        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
        http://www.freda.com/schema/freda
        http://www.freda.com/schema/freda/freda.xsd">
-    <bean id="demoService" class="com.freda.example.bean.DemoServiceImpl"/>
+    <bean id="demoService" class="com.thinkerwolf.freda.example.bean.DemoServiceImpl"/>
     <!-- registry config zookeeper-->
     <freda:registry id="registry-zookeeper" host="127.0.0.1" port="2181" protocol="zookeeper"/>
     <!-- server config freda -->
@@ -13,5 +13,5 @@
     <!-- server http -->
     <freda:server id="server-2" host="127.0.0.1" port="8089" protocol="http" timeout="1000" registries="registry-zookeeper" serialization="kryo"/>
     <!-- export the service -->
-    <freda:service interface="com.freda.example.bean.DemoService" ref="demoService" servers="server-1,server-2"/>
+    <freda:service interface="com.thinkerwolf.freda.example.bean.DemoService" ref="demoService" servers="server-1,server-2"/>
 </beans>

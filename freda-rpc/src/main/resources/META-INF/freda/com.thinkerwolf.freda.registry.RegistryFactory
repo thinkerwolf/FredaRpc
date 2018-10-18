@@ -1,0 +1,1 @@
+zookeeper=com.thinkerwolf.freda.registry.zookeeper.ZookeeperRegistryFactory

@@ -1,2 +1,0 @@
-random=com.freda.rpc.cluster.balance.strategy.RandomBalanceStrategy
-hash=com.freda.rpc.cluster.balance.strategy.ConsistantHashBalanceStrategy

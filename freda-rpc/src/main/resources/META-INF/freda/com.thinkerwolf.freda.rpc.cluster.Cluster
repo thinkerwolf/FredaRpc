@@ -1,0 +1,2 @@
+failover=com.thinkerwolf.freda.rpc.cluster.FailOverCluster
+failfast=com.thinkerwolf.freda.rpc.cluster.FailFastCluster

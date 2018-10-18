@@ -10,5 +10,5 @@
     <!-- client config -->
     <freda:client id="client-1" protocol="freda" serialization="kryo"/>
     <!-- reference config -->
-    <freda:reference id="demoService" clients="client-1" interface="com.freda.example.bean.DemoService" balance="hash" async="true"/>
+    <freda:reference id="demoService" clients="client-1" interface="com.thinkerwolf.freda.example.bean.DemoService" balance="hash" async="true"/>
 </beans>

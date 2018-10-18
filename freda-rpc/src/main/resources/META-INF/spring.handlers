@@ -1,1 +1,1 @@
-http\://www.freda.com/schema/freda=com.freda.config.spring.xml.FredaNamespaceHandler
+http\://www.freda.com/schema/freda=com.thinkerwolf.freda.config.spring.xml.FredaNamespaceHandler

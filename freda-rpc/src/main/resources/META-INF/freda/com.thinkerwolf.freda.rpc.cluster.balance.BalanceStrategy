@@ -1,0 +1,2 @@
+random=com.thinkerwolf.freda.rpc.cluster.balance.strategy.RandomBalanceStrategy
+hash=com.thinkerwolf.freda.rpc.cluster.balance.strategy.ConsistantHashBalanceStrategy
