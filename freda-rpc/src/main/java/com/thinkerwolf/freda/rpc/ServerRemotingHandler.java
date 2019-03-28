@@ -3,9 +3,6 @@ package com.thinkerwolf.freda.rpc;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.thinkerwolf.freda.common.concurrent.DefaultPromise;
 import com.thinkerwolf.freda.common.concurrent.Future;
 import com.thinkerwolf.freda.remoting.Channel;
@@ -13,14 +10,15 @@ import com.thinkerwolf.freda.remoting.RemotingHandler;
 
 public class ServerRemotingHandler implements RemotingHandler {
 	
-	private static final Logger logger = LoggerFactory.getLogger(ServerRemotingHandler.class);
-	
-    private Map<String, Exporter<?>> exporters = new ConcurrentHashMap<>();
+    Map<String, Exporter<?>> exporters = new ConcurrentHashMap<>();
     
     private Class<?> decodeClass;
     
+    private CountAwareThreadPoolExecutor executor;
+    
     public ServerRemotingHandler(Class<?> decodeClass) {
 		this.decodeClass = decodeClass;
+		this.executor = new CountAwareThreadPoolExecutor("Server-User", 10);
 	}
 
 	@Override
@@ -32,24 +30,9 @@ public class ServerRemotingHandler implements RemotingHandler {
 
     @Override
     public void received(Channel channel, Object msg) {
-        RequestMessage requestMessage = (RequestMessage) msg;
-        ResponseMessage responseMessage = new ResponseMessage();
-        try {
-            Exporter<?> exporter = exporters.get(requestMessage.getId());
-            responseMessage.setId(requestMessage.getRequestId());
-            if (exporter != null) {
-                Object result = exporter.invoke(channel.net(), requestMessage.getMethodName(), requestMessage.getParameterTypes(),
-                        requestMessage.getArgs());
-                responseMessage.setSuccess(true);
-                responseMessage.setResult(result);
-            } else {
-                responseMessage.setSuccess(false);
-            }
-        } catch (Exception e) {
-        	logger.error("server export", e);
-            responseMessage.setSuccess(false);
-        }
-        send(channel, responseMessage);
+    	// modify by wukai on 2019.3.28 使用专门的业务线程池处理请求
+    	ChannelRunnable cr = new ServerChannelRunnable(channel, msg, this);
+    	executor.execute(cr);
     }
 
     public void addExporter(Exporter<?> e) {

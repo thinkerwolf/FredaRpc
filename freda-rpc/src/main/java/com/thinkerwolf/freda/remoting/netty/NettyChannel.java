@@ -4,6 +4,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 //import java.net.InetSocketAddress;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -37,7 +38,13 @@ public class NettyChannel implements com.thinkerwolf.freda.remoting.Channel {
 				net = remotingNet;
 			}
 			nettyChannel = new NettyChannel(channel, net);
-			channelMap.putIfAbsent(channel, nettyChannel);
+			NettyChannel oldChannel = channelMap.putIfAbsent(channel, nettyChannel);
+			if (oldChannel != null) {
+				nettyChannel = oldChannel;
+			}
+		}
+		if (!channel.isOpen()) {
+			channelMap.remove(channel);
 		}
 		return nettyChannel;
 	}
@@ -89,6 +96,16 @@ public class NettyChannel implements com.thinkerwolf.freda.remoting.Channel {
 	@Override
 	public Net net() {
 		return net;
+	}
+
+	@Override
+	public boolean isOpen() {
+		return channel.isOpen();
+	}
+
+	@Override
+	public SocketAddress remoteAddress() {
+		return channel.remoteAddress();
 	}
 
 }

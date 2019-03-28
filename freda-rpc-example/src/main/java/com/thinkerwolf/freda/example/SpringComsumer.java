@@ -19,16 +19,17 @@ public class SpringComsumer {
     public static void main(String[] args) {
         ApplicationContext context = new ClassPathXmlApplicationContext("spring-freda-consumer.xml");
         final DemoService ds = (DemoService) context.getBean("demoService");
-        ExecutorService es = Executors.newFixedThreadPool(2, new ThreadFactory() {
+        ExecutorService es = Executors.newFixedThreadPool(3, new ThreadFactory() {
             private AtomicInteger id = new AtomicInteger(1);
             @Override
             public Thread newThread(Runnable r) {
                 Thread t = new Thread(r);
                 t.setName("comsumer-pool-" + id.getAndIncrement());
+                t.setPriority(Thread.NORM_PRIORITY);
                 return t;
             }
         });
-        int i = 1;
+        int i = 50;
         final long startTime = System.currentTimeMillis();
         while (i-- > 0) {
             final int index = i;
